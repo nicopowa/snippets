@@ -1,4 +1,9 @@
-window.addEventListener("load", event => new SnippetPlayground());
+window
+.addEventListener(
+	"load", 
+	() => 
+		new SnippetPlayground()
+);
 
 class SnippetPlayground {
 
@@ -7,22 +12,29 @@ class SnippetPlayground {
 		// page content
 		this.content = document.querySelector(".content");
 
+		// code blocs headers
 		let metas = [
 			'{"name": "html", "type": ""}', 
 			'{"name": "css", "type": ""}', 
-			'{"name": "js", "type": "run", "insert": true, "link": ["html", "css"]}'
+			'{"name": "js", "type": "run", "height": "13", "insert": false, "link": ["html", "css"]}'
 		];
 
+		// default codes
 		let def = [
 
-			'<div class="helloworld">helloworld</div>', 
-			'.helloworld {\n\tcolor: #FF0000;\n}', 
-			'console.log("helloworld");'
+			'<div class="helloworld">helloworld 🌈</div>', 
+			'.helloworld {\n\tcolor: #0077FF;\n}', 
+			'console.log("helloworld 🌈");'
 
 		];
 
+		// Snippet instances
 		this.snips = {};
 
+		// Prism Live instances
+		this.prisms = {};
+
+		// snippet output wrapper
 		this.snip = document.createElement("div");
 
 		this.snip.classList
@@ -31,18 +43,24 @@ class SnippetPlayground {
 		this.content
 		.appendChild(this.snip);
 
+		// parse hash string
 		try {
 
+			// get hash
+			let hashed = location.hash
+			.slice(1);
+
+			// parse hash
 			let hashParams = Object
 			.fromEntries(
 				new URLSearchParams(
 					atob(
-						location.hash
-						.slice(1)
+						hashed
 					)
 				)
 			);
 
+			// get codes
 			["html", "css", "js"]
 			.forEach(
 				(lang, langIndex) => 
@@ -59,36 +77,41 @@ class SnippetPlayground {
 		}
 		catch(err) {
 
-			console.log(err);
+			// oops
+			console.error(err);
 
 		}
 
+		// save
 		document
 		.querySelector(".header-content")
 		.addEventListener(
 			"click", 
 			() => {
 
-				let str = btoa(
+				location.hash = btoa(
 					["html", "css", "js"]
 					.map(
 						l => 
-							l + "=" + this.snips[l].contents
+							l + "=" + encodeURIComponent(this.prisms[l].textarea.value)
 					)
 					.join("&")
 				);
-
-				// console.log(str);
-
-				location.hash = str;
 
 			}
 		);
 
 	}
 
+	/**
+	 * @method bloc : code bloc
+	 * @param {string} lang : bloc lang
+	 * @param {string} metas : lang meta 
+	 * @param {string} content : code source
+	 */
 	bloc(lang, metas, content) {
 
+		// code bloc wrap
 		let wrap = document.createElement("div");
 
 		wrap.classList
@@ -134,18 +157,13 @@ class SnippetPlayground {
 		pre
 		.appendChild(code);
 
-		let prism = new Prism.Live(pre);
+		this.prisms[lang] = new Prism.Live(pre);
 
 		this.snips[lang] = new Snippet(code);
 
-		if(this.snips[lang].element) {
-
-			this.snip.appendChild(this.snips[lang].element);
-
-			// bloc.parentNode.parentNode.parentNode.parentNode
-			// .appendChild(wrap);
-
-		}
+		if(this.snips[lang].element) 
+			this.snip
+			.appendChild(this.snips[lang].element);
 
 	}
 	
