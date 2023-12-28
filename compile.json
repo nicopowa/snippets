@@ -1,0 +1,50 @@
+{
+
+	"standalone": {
+
+		"files": [
+
+			"js/playground.js"
+
+		],
+
+		"styles": [
+
+			"css/playground.css"
+
+		],
+
+		"merge": [
+
+			"snippet/standalone"
+
+		],
+
+		"externs": [
+
+			"third/prism",
+			"third/prism/live"
+
+		],
+
+		"options": {
+
+			"release": [
+
+				{"language_out": "ES_NEXT"}
+
+			],
+			
+			"debug": [
+
+				{"language_out": "ES_NEXT"}
+
+			]
+
+		},
+
+		"comment": "© ILUSIO %year https://snipp.et"
+
+	}
+
+}
