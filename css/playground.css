@@ -2,19 +2,19 @@ body {
 
 	padding: 0;
 	margin: 0;
-	padding-top: 40px;
-	font-family: Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;
-	touch-action: pan-y;
-	-webkit-text-size-adjust: none;
+	padding-top: 22px;
+	font-family: monospace, monospace;
+	touch-action: none;
 	text-size-adjust: none;
+	-webkit-text-size-adjust: none;
 
 }
 
 .header {
 
-	top: 0;
-	width: 100%;
 	position: fixed;
+	top: 0px;
+	width: 100%;
 	z-index: 1000;
 
 }
@@ -28,17 +28,111 @@ body {
 
 .header-content {
 
-	height: 45px;
+	height: 25px;
 	color: #888888;
 	background-color: #efefef;
 	text-align: center;
-	line-height: 45px;
-	font-size: 30px;
-	white-space: nowrap;
+	line-height: 27px;
+	font-size: 17px;
+
 	-webkit-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
 	-moz-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
 	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
+
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+
+}
+
+.content {
+
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 0.5em;
+	padding-top: 1em;
+	padding-bottom: 1em;
+
+}
+
+/* export btn */
+
+.snippet-tools {
+
+	width: 100%;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	font-size: 22px;
+	color: #888888;
+
+}
+
+.snippet-tools div {
+
 	cursor: pointer;
+
+}
+
+.snippet-save::after {
+
+	content: "save";
+
+}
+
+.snippet-save.saved::after {
+
+	color: #00FF00;
+
+}
+
+.snippet-share::after {
+
+	content: "share";
+
+}
+
+.snippet-share.shared::after {
+
+	color: #00FF00;
+
+}
+
+.code-wrap {
+
+	margin-top: 1em;
+	margin-bottom: 1em;
+
+}
+
+/* set code max height */
+.prism-live {
+
+	/* max-height: 400px; */
+
+}
+
+pre.prism-live {
+
+    /* padding-bottom: 0.2em; */
+	padding-right: 0.5em;
+
+}
+
+textarea.prism-live {
+
+	overflow-y: hidden;
+
+}
+
+/* hide snipp.et link */
+.snip span a {
+
+	display: none;
 
 }
 
@@ -63,75 +157,4 @@ body {
 		
 	}
 
-}
-
-.content {
-
-	position: inherit;
-	max-width: 900px;
-	margin: 0 auto;
-	padding: 8px;
-	padding-top: 1em;
-
-}
-
-.editor {
-
-	overflow-y: hidden;
-
-}
-
-.code {
-
-	overflow-y: hidden;
-	
-}
-
-.code-wrap {
-
-	margin-top: 2em;
-
-}
-
-.code-wrap:last-of-type {
-
-	margin-bottom: 2em;
-
-}
-
-textarea.prism-live {
-
-	padding-left: 3.8em !important;
-
-}
-
-pre[class*="language-"] > code {
-
-	border: solid 1px #efefef;
-	box-shadow: none;
-
-}
-
-@media (prefers-color-scheme: dark) {
-
-	pre[class*="language-"] > code {
-
-		border: solid 1px #272822;
-
-	}
-
-}
-
-pre[class*="language-"]:before,
-pre[class*="language-"]:after {
-
-	display: none;
-	
-}
-
-.snippet-wrap {
-
-	padding-top: 2em;
-	padding-bottom: 2em;
-	
 }

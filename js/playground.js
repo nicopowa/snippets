@@ -43,6 +43,47 @@ class SnippetPlayground {
 		this.content
 		.appendChild(this.snip);
 
+		// snippet tools
+		this.tools = document.createElement("div");
+
+		this.tools.classList
+		.add("snippet-tools");
+
+		this.content
+		.appendChild(this.tools);
+
+		// save link
+		this.save = document.createElement("div");
+
+		this.save.classList
+		.add("snippet-save");
+
+		this.tools
+		.appendChild(this.save);
+
+		this.save
+		.addEventListener(
+			"click", 
+			() => 
+				this.saveIt()
+		);
+
+		// share link
+		this.share = document.createElement("div");
+
+		this.share.classList
+		.add("snippet-share");
+
+		this.tools
+		.appendChild(this.share);
+
+		this.share
+		.addEventListener(
+			"click", 
+			() => 
+				this.shareIt()
+		);
+
 		// parse hash string
 		try {
 
@@ -82,21 +123,19 @@ class SnippetPlayground {
 
 		}
 
-		// save
 		document
-		.querySelector(".header-content")
 		.addEventListener(
-			"click", 
-			() => {
+			"keydown", 
+			evt => {
 
-				location.hash = btoa(
-					["html", "css", "js"]
-					.map(
-						l => 
-							l + "=" + encodeURIComponent(this.prisms[l].textarea.value)
-					)
-					.join("&")
-				);
+				if(evt.ctrlKey && evt.key === "s") {
+
+					evt
+					.preventDefault();
+					
+					this.saveIt();
+
+				}
 
 			}
 		);
@@ -123,16 +162,12 @@ class SnippetPlayground {
 		// code wrapper
 		let pre = document.createElement("pre");
 		
-		// enable prism live
+		// enable prism live && line numbers
 		pre.classList
-		.add("prism-live");
-
-		// enable prism line numbers
-		pre.classList
-		.add("line-numbers");
-
-		pre.classList
-		.add("editor");
+		.add(
+			"prism-live", 
+			"line-numbers"
+		);
 
 		wrap
 		.appendChild(pre);
@@ -141,10 +176,10 @@ class SnippetPlayground {
 		let code = document.createElement("code");
 
 		code.classList
-		.add("code");
-
-		code.classList
-		.add("language-" + lang);
+		.add(
+			"code", 
+			"language-" + lang
+		);
 
 		code
 		.setAttribute(
@@ -164,6 +199,61 @@ class SnippetPlayground {
 		if(this.snips[lang].element) 
 			this.snip
 			.appendChild(this.snips[lang].element);
+
+	}
+
+	hashIt() {
+
+		location.hash = btoa(
+			["html", "css", "js"]
+			.map(
+				l => 
+					l + "=" + encodeURIComponent(this.prisms[l].textarea.value)
+			)
+			.join("&")
+		);
+
+	}
+
+	saveIt() {
+
+		this.hashIt();
+
+		this.feedback(this.save, "saved")
+
+	}
+
+	shareIt() {
+
+		this.hashIt();
+
+		navigator.clipboard
+		.writeText(location.href)
+		.then(
+			() => 
+				this.feedback(this.share, "shared")
+		)
+		.catch(
+			err => {
+
+				// scary red font
+
+			}
+		);
+
+	}
+
+	feedback(btn, clazz) {
+
+		btn.classList
+		.toggle(clazz);
+
+		setTimeout(
+			() => 
+				btn.classList
+				.toggle(clazz), 
+			750
+		);
 
 	}
 	
