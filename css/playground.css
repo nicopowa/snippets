@@ -2,11 +2,12 @@ body {
 
 	padding: 0;
 	margin: 0;
-	padding-top: 22px;
+	height: 100vh;
 	font-family: monospace, monospace;
 	touch-action: none;
 	text-size-adjust: none;
 	-webkit-text-size-adjust: none;
+	-webkit-tap-highlight-color: transparent;
 
 }
 
@@ -15,25 +16,15 @@ body {
 	position: fixed;
 	top: 0px;
 	width: 100%;
+	height: 32px;
+
 	z-index: 1000;
 
-}
+	display: flex;
+	align-items: center;
 
-.header-content, .content {
-
-	width: 100%;
-	box-sizing: border-box;
-
-}
-
-.header-content {
-
-	height: 25px;
 	color: #888888;
 	background-color: #efefef;
-	text-align: center;
-	line-height: 27px;
-	font-size: 17px;
 
 	-webkit-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
 	-moz-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
@@ -49,32 +40,53 @@ body {
 
 .content {
 
+	width: 100%;
+	box-sizing: border-box;
 	max-width: 900px;
 	margin: 0 auto;
-	padding: 0.5em;
-	padding-top: 1em;
-	padding-bottom: 1em;
+	padding: 32px 8px 8px 8px;
 
 }
 
-/* export btn */
+.space {
+
+	flex: auto;
+
+}
+
+.snippet-title {
+
+	margin-left: 2px;
+	color: #000000;
+	font-size: 23px;
+	background: none;
+	border: none;
+	font-family: inherit;
+	outline: none;
+
+}
+
+.snippet-title:focus {
+
+
+}
+
+.snippet-title::after {
+
+	content: "snippet";
+
+}
 
 .snippet-tools {
 
-	width: 100%;
-	padding-top: 0.5em;
-	padding-bottom: 0.5em;
 	display: flex;
-	justify-content: space-around;
-	align-items: center;
-	font-size: 22px;
-	color: #888888;
 
 }
 
 .snippet-tools div {
 
 	cursor: pointer;
+	margin-right: 8px;
 
 }
 
@@ -90,22 +102,27 @@ body {
 
 }
 
-.snippet-share::after {
+.snippet-copy::after {
 
-	content: "share";
+	content: "copy";
 
 }
 
-.snippet-share.shared::after {
+.snippet-copy.copied::after {
 
 	color: #00FF00;
+
+}
+
+.snippet-wrap {
+
+	margin-top: 10px;
 
 }
 
 .code-wrap {
 
 	margin-top: 1em;
-	margin-bottom: 1em;
 
 }
 
@@ -131,6 +148,101 @@ textarea.prism-live {
 
 /* hide snipp.et link */
 .snip span a {
+
+	display: none;
+
+}
+
+/* menu */
+
+.menu {
+
+	position: fixed;
+	top: 0;
+	left: 0;
+	max-width: 100%;
+	height: 100%;
+	padding-top: 32px;
+	z-index: 10;
+	white-space: nowrap;
+	box-sizing: border-box;
+
+}
+
+.menubtn.collapse::after {
+
+	content: "☰";
+	font-size: 24px;
+
+}
+
+.menubtn:not(.collapse)::after {
+
+	content: "×";
+	font-size: 40px;
+    line-height: 30px;
+
+}
+
+.menubtn {
+
+	width: 32px;
+	height: 32px;
+	overflow: hidden;
+	color: #000000;
+	text-align: center;
+	cursor: pointer;
+	color: #888888;
+
+}
+
+.menu a {
+		
+	color: #888888;
+
+}
+
+.menuwrap {
+
+	width: 100%;
+	height: 100%;
+	overflow-y: auto;
+	background-color: #FFFFFF;
+
+}
+
+.menulist {
+
+	list-style-type: none;
+	margin: 0px;
+	padding: 8px;
+	min-width: 200px;
+
+}
+
+.menulist a {
+
+	text-decoration: none;
+	line-height: 30px;
+	font-size: 20px;
+
+}
+
+.menu .collapse {
+
+	width: 0px;
+
+}
+
+.menu:not(.collapse) {
+
+	-webkit-box-shadow: 1px 0px 1px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 1px 0px 1px 0px rgba(0,0,0,0.2);
+	box-shadow: 1px 0px 1px 0px rgba(0,0,0,0.2);
+
+}
+
+.menu .hide {
 
 	display: none;
 

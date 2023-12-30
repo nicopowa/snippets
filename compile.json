@@ -1,6 +1,6 @@
 {
 
-	"standalone": {
+	"package": {
 
 		"files": [
 
@@ -37,5 +37,5 @@
 		"comment": "© ILUSIO %year https://snipp.et"
 
 	}
-
+	
 }
