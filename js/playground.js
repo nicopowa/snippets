@@ -9,11 +9,42 @@ class SnippetPlayground {
 
 	constructor() {
 
+		// 💻 🍦 🌈
+		this.vanilla = "js";
+
+		// talk to me
+		this.langs = ["html", "css", this.vanilla];
+
+		// default run options
+		this.run = {
+			"name": this.vanilla, 
+			"type": "run", 
+			"height": "13", 
+			"body": true, 
+			"console": true, 
+			"insert": false, 
+			"js": [], 
+			"css": [], 
+			"link": ["html", "css"]
+		};
+
+		// current snippet
+		this.cur = "";
+
+		// current snippet run options
+		this.running = {};
+
+		// Code blocs
+		this.codes = {};
+
 		// Snippet instances
 		this.snips = {};
 
 		// Prism Live instances
 		this.prisms = {};
+
+		// Snippets store
+		this.store = [];
 
 		// page header
 		this.header = document
@@ -27,6 +58,10 @@ class SnippetPlayground {
 		this.menu = document
 		.querySelector(".menu");
 
+		// menu tools
+		this.tools = document
+		.querySelector(".menutools");
+
 		// menu list
 		this.list = document
 		.querySelector(".menulist");
@@ -35,14 +70,16 @@ class SnippetPlayground {
 		this.btn = this.createDiv(this.header, "menubtn", "collapse");
 
 		// snippet output wrapper
-		this.snip = this.createDiv(this.content, "snippet-wrap");
+		this.snip = this.createDiv(this.content, "wrap");
 
 		// title
 		this.snippet = document
 		.createElement("input");
 
+		this.snippet.placeholder = "name...";
+
 		this.snippet.classList
-		.add("snippet-title");
+		.add("title");
 
 		this.header
 		.appendChild(this.snippet);
@@ -50,32 +87,72 @@ class SnippetPlayground {
 		// header space
 		this.createDiv(this.header, "space");
 
-		// tools
-		this.tools = this.createDiv(this.header, "snippet-tools");
-
 		// save link
-		this.save = this.createDiv(this.tools, "snippet-save");
+		this.save = this.createDiv(this.header, "save");
 
 		// copy link
-		this.copy = this.createDiv(this.tools, "snippet-copy");
+		this.copy = this.createDiv(this.header, "copy");
 
-		this.menuEntry("about");
+		// create link
+		this.create = this.createDiv(this.tools, "create");
+
+		// about link
+		this.about = this.createDiv(this.tools, "about");
+
+		// snippet options
+		this.opts = this.createDiv(null, "opts");
+
+		["body", "console"]
+		.forEach(
+			b => 
+				this.createDiv(this.opts, b, "opt")
+		);
 
 		this.addListeners();
 
-		this.loadCode();
+		this.start();
 
 	}
 
-	createDiv(p, ...c) {
+	async start() {
 
-		let newDiv = document.createElement("div");
+		this.listIt();
+
+		let hashed = location.hash
+		.slice(1);
+
+		// if(DEBUG) console.log("hash", hashed);
+
+		let startCode = {};
+
+		// local snippet hash
+		if(hashed.length === 8) 
+			startCode = await this.parseMenuHash(hashed);
+		// url snippet hash
+		else if(hashed.length > 8) 
+			startCode = await this.parseCodeHash(hashed);
+
+		this.loadIt(startCode);
+
+	}
+
+	/**
+	 * @method createDiv : create div element shortcut
+	 * @param {Element} par : parent element
+	 * @param  {...string} c : classes
+	 * @returns {Element} created div
+	 */
+	createDiv(par, ...c) {
+
+		let newDiv = document
+		.createElement("div");
 
 		newDiv.classList
 		.add(...c);
 
-		p
-		.appendChild(newDiv);
+		if(par) 
+			par
+			.appendChild(newDiv);
 
 		return newDiv;
 
@@ -93,131 +170,245 @@ class SnippetPlayground {
 		this.menu
 		.addEventListener(
 			"click", 
-			// close menu after link click
 			evt => 
+				// check is menu link
 				evt.target.nodeName === "A" 
+				// close menu after link click
 				&& this.toggleMenu() 
+				// menu callback
 				&& this.menuClick(evt.target.href)
 		);
 
-		this.save
+		this.opts
 		.addEventListener(
 			"click", 
-			() => 
-				this.saveIt()
+			evt => 
+				evt.target.classList.contains("opt") 
+				&& this.optClick(evt.target)
 		);
 
-		this.copy
-		.addEventListener(
-			"click", 
-			() => 
-				this.copyIt()
+		new Map([
+			[this.create, this.createIt], 
+			[this.about, this.aboutIt], 
+			[this.save, this.saveIt], 
+			[this.copy, this.copyIt]
+		])
+		.forEach(
+			(cb, btn) => 
+				btn
+				.addEventListener(
+					"click", 
+					() => 
+						cb.bind(this)()
+				)
 		);
 
 		document
 		.addEventListener(
 			"keydown", 
+			evt => 
+				this.handleKeyDown(evt)
+		);
+
+		/*window
+		.addEventListener(
+			"popstate", 
 			evt => {
 
-				if(
-					(evt.ctrlKey || evt.metaKey) 
-					&& "rs".includes(evt.key)
-				) {
-
-					evt
-					.preventDefault();
-
-					if(evt.key === "s") 
-						this.saveIt();
-					else if(evt.key === "r") 
-						this.runIt();
-
-				}
+				console.log("pop", evt);
 
 			}
-		);
+		);*/
+
+		/*window
+		.addEventListener(
+			"hashchange", 
+			evt => {
+
+				console.log("hash", evt);
+
+			}
+		);*/
 
 	}
 
-	async loadCode() {
+	handleKeyDown(evt) {
 
-		// code blocs headers
-		let metas = [
-			{
-				"name": "html", 
-				"type": ""
-			}, 
-			{
-				"name": "css", 
-				"type": ""
-			}, 
-			{
-				"name": "js", 
-				"type": "run", 
-				"height": "13", 
-				"insert": false, 
-				"link": ["html", "css"]
-			}
-		];
+		if(
+			(evt.ctrlKey || evt.metaKey) 
+			&& "rs".includes(evt.key)
+		) {
 
-		// default codes
-		let def = [
+			evt
+			.preventDefault();
 
-			'<div class="helloworld">helloworld</div>', 
-			'.helloworld {\n\tcolor: #0077FF;\n}', 
-			'console.log("helloworld");'
+			if(evt.key === "s") 
+				this.saveIt();
+			else if(evt.key === "r") 
+				this.runIt();
 
-		];
+		}
 
-		// parse hash string
+	}
+
+	async parseMenuHash(h) {
+
+		let isSnippet = this.store
+		.find(
+			s => 
+				s["i"] === h
+		);
+
+		if(isSnippet) {
+
+			// if(DEBUG) console.log("load from storage");
+
+			this.cur = h;
+
+			return await this.parseCodeHash(
+				window.localStorage
+				.getItem("snippet-" + h)
+			);
+
+		}
+
+		return {};
+
+	}
+
+	async parseCodeHash(h) {
+
 		try {
 
-			// get hash
-			let hashed = location.hash
-			.slice(1);
-
 			// parse hash
-			let hashParams = new URLSearchParams(
-				await (
-					this.decompress(
-						hashed
-					)
-					.catch(
-						() => 
-							({})
+			return Object
+			.fromEntries(
+				new URLSearchParams(
+					await (
+						this.decompress(
+							h
+						)
+						.catch(
+							() => 
+								({})
+						)
 					)
 				)
 			);
-
-			// console.log(hashParams);
-
-			// if(hashParams.has("t")) 
-			this.snippet.value = hashParams.get("t") || "snippet";
-
-			// get codes
-			["html", "css", "js"]
-			.forEach(
-				(lang, langIndex) => 
-					this.bloc(
-						lang, 
-						JSON
-						.stringify(
-							metas[langIndex]
-						), 
-						hashParams
-						.has(lang) 
-						&& hashParams.get(lang) 
-						|| def[langIndex]
-					)
-			);
-
+		
 		}
 		catch(err) {
 
 			// oops
 			console.error(err);
 
+			return {};
+
 		}
+
+	}
+
+	/**
+	 * @method loadIt : load code
+	 * @param {!Object=} dat : 
+	 */
+	loadIt(dat = {}) {
+
+		if(DEBUG) console.log(dat);
+
+		document.title = 
+		this.snippet.value = 
+		dat["t"] || "untitled";
+
+		this.running = {
+			...this.run, 
+			...JSON.parse(dat["r"] || "{}")
+		};
+
+		["body", "console"]
+		.forEach(
+			o => {
+
+				if(this.running[o]) 
+					this.opts
+					.querySelector("." + o).classList
+					.add("on");
+				else 
+					this.opts
+					.querySelector("." + o).classList
+					.remove("on");
+
+			}
+		);
+			
+
+		this.content
+		.appendChild(this.opts);
+
+		// static HTML & CSS
+		["html", "css"]
+		.forEach(
+			lang => 
+				this.bloc(
+					lang, 
+					JSON
+					.stringify({
+						"name": lang, 
+						"type": ""
+					}), 
+					dat[lang] || ""
+				)
+		);
+
+		// run JS
+		this.bloc(
+			this.vanilla, 
+			JSON
+			.stringify(
+				this.running
+			), 
+			dat[this.vanilla] || ""
+		);
+
+		this.snip
+		.appendChild(this.snips[this.vanilla].wrap);
+		
+	}
+
+	clearIt() {
+
+		// if(DEBUG) console.log("clear");
+
+		this.cur = "";
+
+		this.opts
+		.remove();
+
+		this.langs
+		.forEach(
+			lang => {
+
+				console.log("remove", lang);
+
+				Snippet
+				.remove(
+					this.snips[lang].id
+				);
+
+				// TODO CLEAN CLEAR PRISM LIVE !!
+				this.prisms[lang] = null;
+
+				this.codes[lang]
+				.remove();
+
+			}
+		);
+
+		this.snips = {};
+		this.prisms = {};
+		this.codes = {};
+
+		// this.setHash("");
 
 	}
 
@@ -234,7 +425,7 @@ class SnippetPlayground {
 		.createElement("div");
 
 		wrap.classList
-		.add("code-wrap");
+		.add("code");
 
 		this.content
 		.appendChild(wrap);
@@ -274,24 +465,56 @@ class SnippetPlayground {
 		pre
 		.appendChild(code);
 
+		// keep bloc
+		this.codes[lang] = wrap;
+
 		// init Prism
-		this.prisms[lang] = new Prism
+		let prismed = new Prism
 		.Live(pre);
+
+		prismed.textarea.placeholder = lang;
+
+		this.prisms[lang] = prismed;
 
 		// init Snippet
 		this.snips[lang] = new Snippet(code);
-
-		// append Snippet
-		if(this.snips[lang].element) 
-			this.snip
-			.appendChild(this.snips[lang].element);
 
 	}
 
 	runIt() {
 
-		this.snips["js"]
+		this.content
+		.scrollTo(0, 0);
+
+		this.snips[this.vanilla]
 		._run();
+
+	}
+
+	optClick(btn) {
+
+		["body", "console"]
+		.filter(
+			o => 
+				btn.classList
+				.contains(o)
+		)
+		.forEach(
+			o => {
+				
+				// if(DEBUG) console.log("toggle", o);
+
+				this.running[o] = !this.running[o];
+
+				btn.classList
+				.toggle("on");
+
+				// no need if/else classlist add/remove ?
+				this.snips[this.vanilla].wrap.classList
+				.toggle("snip-no" + o);
+
+			}
+		);
 
 	}
 
@@ -303,6 +526,9 @@ class SnippetPlayground {
 		this.menu.classList
 		.toggle("collapse");
 
+		this.tools.classList
+		.toggle("hide");
+
 		this.list.classList
 		.toggle("hide");
 
@@ -310,11 +536,18 @@ class SnippetPlayground {
 
 	}
 
-	menuClick(entry) {
+	async menuClick(entry) {
 
 		entry = entry.slice(entry.lastIndexOf("#") + 1);
 
-		console.log("menu", entry);
+		if(DEBUG) 
+			console.log("menu", entry);
+
+		this.clearIt();
+
+		this.loadIt(
+			await this.parseMenuHash(entry)
+		);
 
 	}
 
@@ -336,11 +569,11 @@ class SnippetPlayground {
 		link
 		.setAttribute(
 			"href", 
-			"#" + entry
+			"#" + entry["i"]
 		);
 
 		// link text
-		link.innerHTML = entry;
+		link.innerHTML = entry["t"];
 
 		// add to entry
 		el
@@ -387,24 +620,64 @@ class SnippetPlayground {
 
 	}
 
-	async dumpIt() {
+	createIt() {
+
+		this.toggleMenu();
+
+		this.clearIt();
+
+		this.loadIt();
+
+		this.setHash("");
+
+	}
+
+	async aboutIt() {
+
+		this.toggleMenu();
+
+		this.clearIt();
+
+		// + mail contact code@snipp.et
+
+		this.loadIt(
+			await this.parseCodeHash(
+				await (
+					await fetch("about.snippet")
+				)
+				.text()
+			)
+		);
+
+		this.setHash("");	
+
+	}
+
+	async dumpIt(addSome = []) {
 
 		return await this.compress(
-			[
-				"html", 
-				"css", 
-				"js"
-			]
+			this.langs
 			.map(
 				l => 
 					l + "=" + encodeURIComponent(this.prisms[l].textarea.value)
 			)
 			.concat(
 				[
+					// custom params
+					...addSome, 
+
+					// title
 					"t=" + encodeURIComponent(this.snippet.value), 
-					// more info
-					// snippet run options
+
+					// run settings
+					// "run=" + '{"console": false, "height": 20}', 
+					"r=" + JSON.stringify(this.running), 
+
+					// TODO AUTORUN
+					// "a=1", 
+					
 					// load scripts
+
 				]
 			)
 			.join(
@@ -414,38 +687,123 @@ class SnippetPlayground {
 
 	}
 
-	async hashIt() {
+	setHash(h) {
 
-		location.hash = await this.dumpIt();
+		// CHROMIUM 121 HASH CHANGE CRASH AW SNAP ??
+
+		// location.hash = h;
+
+		// location.replace("#" + h); 
+
+		history.replaceState(h, "",  "#" + h);
+
+	}
+
+	listIt() {
+
+		this.store = JSON
+		.parse(
+			window.localStorage
+			.getItem("snippets") 
+			|| "[]"
+		);
+
+		// if(DEBUG) console.log(this.store);
+
+		this.store
+		.forEach(
+			snippet => 
+				this.menuEntry(snippet)
+		);
 
 	}
 
 	async saveIt() {
 
-		// TODO ID && SAVE TO LOCAL STORAGE
-		// DROP DOWN LOCAL SNIPPETS
 		// ALL SNIPPETS EXPORT DUMP BTN ?
 
-		await this.hashIt();
+		if(!this.cur) {
 
-		this.feedback(
-			this.save, 
-			"saved"
+			let newSnippet = {
+				"i": Date.now().toString(36), 
+				"t": this.snippet.value
+			};
+
+			this.cur = newSnippet["i"];
+
+			document.title = newSnippet["t"];
+
+			this.store
+			.push(newSnippet);
+
+			this.menuEntry(newSnippet);
+
+			this.setHash(newSnippet["i"]);
+
+		}
+		else {
+
+			let storedSnippet = this.store
+			.find(
+				s => 
+					s["i"] === this.cur
+			);
+
+			// update menu title
+			if(storedSnippet) {
+
+				storedSnippet["t"] = this.snippet.value;
+
+				let snippetEntry = this.list.querySelector("[href='#" + this.cur + "']");
+
+				if(snippetEntry) 
+					snippetEntry.innerHTML = storedSnippet["t"];
+
+			}
+
+		}
+
+		window.localStorage
+		.setItem(
+			"snippet-" + this.cur, 
+			await this.dumpIt([
+				"i=" + this.cur
+			])
 		);
+
+		window.localStorage
+		.setItem(
+			"snippets", 
+			JSON
+			.stringify(
+				this.store
+			)
+		);
+
+		this.yes(
+			this.save
+		);
+
+	}
+
+	deleteIt() {
+
+
 
 	}
 
 	async copyIt() {
 
-		await this.hashIt();
-
 		navigator.clipboard
-		.writeText(location.href)
+		.writeText(
+			location.origin + 
+			location.pathname + 
+			"#" + await this.dumpIt()
+		)
 		.then(
 			() => 
-				this.feedback(
-					this.copy, 
-					"copied"
+				this.yes(
+					this.copy
 				)
 		)
 		.catch(
@@ -458,15 +816,17 @@ class SnippetPlayground {
 
 	}
 
-	feedback(btn, clazz) {
+	yes(btn) {
+
+		let feed = "yes";
 
 		btn.classList
-		.toggle(clazz);
+		.toggle(feed);
 
 		setTimeout(
 			() => 
 				btn.classList
-				.toggle(clazz), 
+				.toggle(feed), 
 			500
 		);
 

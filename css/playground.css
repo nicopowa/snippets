@@ -16,7 +16,7 @@ body {
 	position: fixed;
 	top: 0px;
 	width: 100%;
-	height: 32px;
+	height: 40px;
 
 	z-index: 1000;
 
@@ -26,14 +26,7 @@ body {
 	color: #888888;
 	background-color: #efefef;
 
-	-webkit-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
-	-moz-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
-	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
-
 	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-o-user-select: none;
 	user-select: none;
 
 }
@@ -44,7 +37,7 @@ body {
 	box-sizing: border-box;
 	max-width: 900px;
 	margin: 0 auto;
-	padding: 32px 8px 8px 8px;
+	padding: 40px 8px 8px 8px;
 
 }
 
@@ -54,8 +47,9 @@ body {
 
 }
 
-.snippet-title {
+.title {
 
+	max-width: 50%;
 	margin-left: 2px;
 	color: #000000;
 	font-size: 23px;
@@ -66,61 +60,74 @@ body {
 
 }
 
-.snippet-title:focus {
+.title:focus {
 
 
 }
 
-.snippet-title::after {
+.title::after {
 
 	content: "snippet";
 
 }
 
-.snippet-tools {
-
-	display: flex;
-
-}
-
-.snippet-tools div {
+.header > div:not(.space), .menutools > div {
 
 	cursor: pointer;
 	margin-right: 8px;
+	width: 32px;
+    height: 32px;
+	background-size: 100% 100%;
 
 }
 
-.snippet-save::after {
+.menutools {
 
-	content: "save";
-
-}
-
-.snippet-save.saved::after {
-
-	color: #00FF00;
+	height: 40px;
+	margin-top: 8px;
+	margin-left: 8px;
+	display: flex;
+	align-items: center;
 
 }
 
-.snippet-copy::after {
+.create {
 
-	content: "copy";
-
-}
-
-.snippet-copy.copied::after {
-
-	color: #00FF00;
+	background-image: url('../etc/create.svg');
 
 }
 
-.snippet-wrap {
+.about {
+
+	background-image: url('../etc/about.svg');
+
+}
+
+.save {
+
+	background-image: url('../etc/save.svg');
+
+}
+
+.copy {
+
+	background-image: url('../etc/copy.svg');
+
+}
+
+.yes {
+
+	filter: invert(0.5) sepia(1) saturate(5) hue-rotate(100deg);
+
+}
+
+.wrap {
 
 	margin-top: 10px;
 
 }
 
-.code-wrap {
+.code {
 
 	margin-top: 1em;
 
@@ -153,6 +160,41 @@ textarea.prism-live {
 
 }
 
+/* snippet options */
+.opts {
+
+	margin-top: 1em;
+	margin-bottom: 1em;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	
+}
+
+.opt {
+
+	cursor: pointer;
+
+}
+
+.opt.on {
+
+	text-decoration: underline;
+
+}
+
+.opt.body::after {
+
+	content: 'body';
+
+}
+
+.opt.console::after {
+
+	content: 'console';
+
+}
+
 /* menu */
 
 .menu {
@@ -162,43 +204,31 @@ textarea.prism-live {
 	left: 0;
 	max-width: 100%;
 	height: 100%;
-	padding-top: 32px;
+	padding-top: 40px;
 	z-index: 10;
 	white-space: nowrap;
 	box-sizing: border-box;
-
-}
-
-.menubtn.collapse::after {
-
-	content: "☰";
-	font-size: 24px;
-
-}
-
-.menubtn:not(.collapse)::after {
-
-	content: "×";
-	font-size: 40px;
-    line-height: 30px;
+	color: #888888;
+	-webkit-user-select: none;
+	user-select: none;
 
 }
 
 .menubtn {
 
-	width: 32px;
-	height: 32px;
-	overflow: hidden;
-	color: #000000;
-	text-align: center;
-	cursor: pointer;
-	color: #888888;
+	margin-left: 8px;
 
 }
 
-.menu a {
-		
-	color: #888888;
+.menubtn.collapse {
+
+	background-image: url('../etc/menu.svg');
+
+}
+
+.menubtn:not(.collapse) {
+
+	background-image: url('../etc/close.svg');
 
 }
 
@@ -207,7 +237,7 @@ textarea.prism-live {
 	width: 100%;
 	height: 100%;
 	overflow-y: auto;
-	background-color: #FFFFFF;
+	background-color: #efefef;
 
 }
 
@@ -216,7 +246,7 @@ textarea.prism-live {
 	list-style-type: none;
 	margin: 0px;
 	padding: 8px;
-	min-width: 200px;
+	min-width: 130px;
 
 }
 
@@ -225,20 +255,13 @@ textarea.prism-live {
 	text-decoration: none;
 	line-height: 30px;
 	font-size: 20px;
+	color: #888888;
 
 }
 
 .menu .collapse {
 
 	width: 0px;
-
-}
-
-.menu:not(.collapse) {
-
-	-webkit-box-shadow: 1px 0px 1px 0px rgba(0,0,0,0.2);
-	-moz-box-shadow: 1px 0px 1px 0px rgba(0,0,0,0.2);
-	box-shadow: 1px 0px 1px 0px rgba(0,0,0,0.2);
 
 }
 
@@ -252,7 +275,7 @@ textarea.prism-live {
 
 	body {
 
-		background-color: #000000;
+		background-color: #171717;
 		color: #888888;
 
 	}
@@ -261,11 +284,6 @@ textarea.prism-live {
 	
 		color: #AAAAAA;
 		background-color: #444444;
-		/*line-height: 45px;*/
-		
-		-webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.35);
-		-moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.35);
-		box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.35);
 		
 	}
 
