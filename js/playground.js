@@ -19,7 +19,7 @@ class SnippetPlayground {
 		this.run = {
 			"name": this.vanilla, 
 			"type": "run", 
-			"height": "13", 
+			"height": "18", 
 			"body": true, 
 			"console": true, 
 			"insert": false, 
@@ -483,8 +483,8 @@ class SnippetPlayground {
 
 	runIt() {
 
-		this.content
-		.scrollTo(0, 0);
+		window
+		.scroll(0, 0);
 
 		this.snips[this.vanilla]
 		._run();
