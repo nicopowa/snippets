@@ -15,11 +15,14 @@ class SnippetPlayground {
 		// talk to me
 		this.langs = ["html", "css", this.vanilla];
 
+		// hell yeah
+		this.ohYes = "yes";
+
 		// body and soul
 		this.spirit = ["body", "console"];
 
 		// snippet cmds
-		this.cmd = ["del-yes", "del-no", "delete"];
+		this.cmd = ["del-" + this.ohYes, "del-no", "delete"];
 
 		// default run options
 		this.run = {
@@ -354,10 +357,19 @@ class SnippetPlayground {
 
 		this.spirit
 		.forEach(
-			o => 
-				this.opts
-				.querySelector("." + o).classList
-				[this.running[o] ? "add" : "remove"]("on")
+			o => {
+
+				let classes = this.opts
+				.querySelector("." + o).classList;
+
+				if(this.running[o]) 
+					classes
+					.add("on");
+				else 
+					classes
+					.remove("on");
+
+			}
 		);
 
 		this.content
@@ -391,9 +403,17 @@ class SnippetPlayground {
 		this.snip
 		.appendChild(this.snips[this.vanilla].wrap);
 
-		if(this.cur) 
+		if(this.cur) {
+
+			// append cmd menu
 			this.content
 			.appendChild(this.cmds);
+
+			// reset delete btn state
+			this.cmds.firstChild.classList
+			.remove("del-yes");
+
+		}
 		
 	}
 
@@ -556,7 +576,7 @@ class SnippetPlayground {
 				break;
 
 			case "del-yes": 
-				this.deleteIt(btn);
+				this.deleteIt();
 				break;
 
 			case "del-no": 
@@ -580,12 +600,22 @@ class SnippetPlayground {
 
 	}
 
+	closeMenu() {
+
+		[this.menu, this.btn]
+		.forEach(
+			e => 
+				e.classList
+				.add("hide")
+		);
+
+	}
+
 	async menuClick(entry) {
 
 		entry = entry.slice(entry.lastIndexOf("#") + 1);
 
-		if(DEBUG) 
-			console.log("menu", entry);
+		// if(DEBUG) console.log("menu", entry);
 
 		this.clearIt();
 
@@ -666,7 +696,7 @@ class SnippetPlayground {
 
 	createIt() {
 
-		this.toggleMenu();
+		this.closeMenu();
 
 		this.clearIt();
 
@@ -678,7 +708,7 @@ class SnippetPlayground {
 
 	async aboutIt() {
 
-		this.toggleMenu();
+		this.closeMenu();
 
 		this.clearIt();
 
@@ -821,6 +851,16 @@ class SnippetPlayground {
 			])
 		);
 
+		this.flushStore();
+
+		this.yes(
+			this.save
+		);
+
+	}
+
+	flushStore() {
+
 		window.localStorage
 		.setItem(
 			"snippets", 
@@ -830,35 +870,57 @@ class SnippetPlayground {
 			)
 		);
 
-		this.yes(
-			this.save
-		);
-
 	}
 
 	askDelete(btn) {
 
-		if(DEBUG) console.log("ask delete");
+		// if(DEBUG) console.log("ask delete");
 
 		btn.classList
 		.add("del-yes");
 
 	}
 
-	deleteIt(btn) {
+	deleteIt() {
 
-		if(DEBUG) console.log("confirm delete");
+		// if(DEBUG) console.log("confirm delete");
 
 		// delete from store list
-		// flush store to storage
+
+		this.store
+		.splice(
+			this.store
+			.findIndex(
+				s => 
+					s["i"] === this.cur
+			), 
+			1
+		);
+
+		this.flushStore();
+
+		// delete menu entry
+
+		this.list
+		.querySelector("[href='#" + this.cur + "']").parentNode
+		.remove();
+				
 		// delete from storage
-		// click new
+
+		window.localStorage
+		.removeItem(
+			"snippet-" + this.cur
+		);
+
+		// create new snippet
+
+		this.createIt();
 
 	}
 
 	deleteNo(btn) {
 
-		if(DEBUG) console.log("cancel delete");
+		// if(DEBUG) console.log("cancel delete");
 
 		btn.parentNode.classList
 		.remove("del-yes");
@@ -867,39 +929,26 @@ class SnippetPlayground {
 
 	async copyIt() {
 
-		navigator.clipboard
-		.writeText(
-			location.origin + 
-			location.pathname + 
-			"#" + await this.dumpIt()
-		)
-		.then(
-			() => 
-				this.yes(
-					this.copy
-				)
-		)
-		.catch(
-			err => {
-
-				// scary red font
-
-			}
+		this.yes(
+			await navigator.clipboard
+			.writeText(
+				location.origin + 
+				location.pathname + 
+				"#" + await this.dumpIt()
+			)
 		);
 
 	}
 
 	yes(btn) {
 
-		let feed = "yes";
-
 		btn.classList
-		.toggle(feed);
+		.add(this.ohYes);
 
 		setTimeout(
 			() => 
 				btn.classList
-				.toggle(feed), 
+				.remove(this.ohYes), 
 			500
 		);
 
