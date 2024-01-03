@@ -85,7 +85,7 @@ class SnippetPlayground {
 		this.snippet = document
 		.createElement("input");
 
-		this.snippet.placeholder = "name...";
+		this.snippet.placeholder = "title...";
 
 		this.snippet.classList
 		.add("title");
@@ -929,14 +929,14 @@ class SnippetPlayground {
 
 	async copyIt() {
 
-		this.yes(
-			await navigator.clipboard
-			.writeText(
-				location.origin + 
-				location.pathname + 
-				"#" + await this.dumpIt()
-			)
+		await navigator.clipboard
+		.writeText(
+			location.origin + 
+			location.pathname + 
+			"#" + await this.dumpIt()
 		);
+
+		this.yes(this.copy);
 
 	}
 
