@@ -87,8 +87,7 @@ class SnippetPlayground {
 
 		this.snippet.placeholder = "title...";
 
-		this.snippet.classList
-		.add("title");
+		this.classIt(this.snippet, "title");
 
 		this.header
 		.appendChild(this.snippet);
@@ -169,8 +168,7 @@ class SnippetPlayground {
 		let newDiv = document
 		.createElement("div");
 
-		newDiv.classList
-		.add(...c);
+		this.classIt(newDiv, ...c);
 
 		if(par) 
 			par
@@ -205,7 +203,7 @@ class SnippetPlayground {
 		.addEventListener(
 			"click", 
 			evt => 
-				evt.target.classList.contains("opt") 
+				this.classIs(evt.target, "opt") 
 				&& this.optClick(evt.target)
 		);
 
@@ -213,7 +211,7 @@ class SnippetPlayground {
 		.addEventListener(
 			"click", 
 			evt => 
-				evt.target.classList.contains("cmd") 
+				this.classIs(evt.target, "cmd") 
 				&& this.cmdClick(evt.target)
 		);
 
@@ -359,15 +357,13 @@ class SnippetPlayground {
 		.forEach(
 			o => {
 
-				let classes = this.opts
-				.querySelector("." + o).classList;
+				let el = this.opts
+				.querySelector("." + o);
 
 				if(this.running[o]) 
-					classes
-					.add("on");
+					this.classIt(el, "on");
 				else 
-					classes
-					.remove("on");
+					this.classOut(el, "on");
 
 			}
 		);
@@ -405,13 +401,23 @@ class SnippetPlayground {
 
 		if(this.cur) {
 
+			// saved snippet
+
 			// append cmd menu
 			this.content
 			.appendChild(this.cmds);
 
+			this.classOut(this.save, "no");
+
 			// reset delete btn state
-			this.cmds.firstChild.classList
-			.remove("del-yes");
+			this.deleteNo();
+
+		}
+		else {
+
+			// unsaved snippet
+
+			this.classIt(this.save, "no");
 
 		}
 		
@@ -470,8 +476,7 @@ class SnippetPlayground {
 		let wrap = document
 		.createElement("div");
 
-		wrap.classList
-		.add("code");
+		this.classIt(wrap, "code");
 
 		this.content
 		.appendChild(wrap);
@@ -481,11 +486,7 @@ class SnippetPlayground {
 		.createElement("pre");
 		
 		// enable prism live && line numbers
-		pre.classList
-		.add(
-			"prism-live", 
-			"line-numbers"
-		);
+		this.classIt(pre, "prism-live", "line-numbers");
 
 		wrap
 		.appendChild(pre);
@@ -493,12 +494,8 @@ class SnippetPlayground {
 		// code
 		let code = document
 		.createElement("code");
-
-		code.classList
-		.add(
-			"code", 
-			"language-" + lang
-		);
+		
+		this.classIt(code, "code", "language-" + lang);
 
 		code
 		.setAttribute(
@@ -542,19 +539,16 @@ class SnippetPlayground {
 		let opt = this.spirit
 		.find(
 			o => 
-				btn.classList
-				.contains(o)
+				this.classIs(btn, o) 
 		);
 
 		// if(DEBUG) console.log("opt", opt);
 		
 		this.running[opt] = !this.running[opt];
 
-		btn.classList
-		.toggle("on");
+		this.classUs(btn, "on");
 
-		this.snips[this.vanilla].wrap.classList
-		.toggle("snip-no" + opt);
+		this.classUs(this.snips[this.vanilla].wrap, "snip-no" + opt);
 
 	}
 
@@ -563,8 +557,7 @@ class SnippetPlayground {
 		let cmd = this.cmd
 		.find(
 			o => 
-				btn.classList
-				.contains(o)
+				this.classIs(btn, o) 
 		);
 
 		if(DEBUG) console.log("cmd", cmd);
@@ -580,7 +573,7 @@ class SnippetPlayground {
 				break;
 
 			case "del-no": 
-				this.deleteNo(btn);
+				this.deleteNo();
 				break;
 
 		}
@@ -592,21 +585,21 @@ class SnippetPlayground {
 		[this.menu, this.btn]
 		.forEach(
 			e => 
-				e.classList
-				.toggle("hide")
+				this.classUs(e, "hide")
 		);
 
 		return true;
 
 	}
 
+	// openMenu ?
+
 	closeMenu() {
 
 		[this.menu, this.btn]
 		.forEach(
 			e => 
-				e.classList
-				.add("hide")
+				this.classIt(e, "hide")
 		);
 
 	}
@@ -815,6 +808,9 @@ class SnippetPlayground {
 
 			this.menuEntry(newSnippet);
 
+			// remove unsaved snippet tip
+			this.classOut(this.save, "no");
+
 			this.content
 			.appendChild(this.cmds);
 
@@ -853,6 +849,9 @@ class SnippetPlayground {
 
 		this.flushStore();
 
+		// reset delete btn state
+		this.deleteNo();
+
 		this.yes(
 			this.save
 		);
@@ -876,8 +875,7 @@ class SnippetPlayground {
 
 		// if(DEBUG) console.log("ask delete");
 
-		btn.classList
-		.add("del-yes");
+		this.classIt(btn, "del-yes");
 
 	}
 
@@ -886,7 +884,6 @@ class SnippetPlayground {
 		// if(DEBUG) console.log("confirm delete");
 
 		// delete from store list
-
 		this.store
 		.splice(
 			this.store
@@ -900,30 +897,29 @@ class SnippetPlayground {
 		this.flushStore();
 
 		// delete menu entry
-
 		this.list
 		.querySelector("[href='#" + this.cur + "']").parentNode
 		.remove();
 				
 		// delete from storage
-
 		window.localStorage
 		.removeItem(
 			"snippet-" + this.cur
 		);
 
-		// create new snippet
+		// reset delete btn state
+		this.deleteNo();
 
+		// create new snippet
 		this.createIt();
 
 	}
 
-	deleteNo(btn) {
+	deleteNo() {
 
 		// if(DEBUG) console.log("cancel delete");
 
-		btn.parentNode.classList
-		.remove("del-yes");
+		this.classOut(document.querySelector(".cmd.delete"), "del-yes");
 
 	}
 
@@ -942,15 +938,41 @@ class SnippetPlayground {
 
 	yes(btn) {
 
-		btn.classList
-		.add(this.ohYes);
+		this.classIt(btn, this.ohYes);
 
 		setTimeout(
 			() => 
-				btn.classList
-				.remove(this.ohYes), 
+				this.classOut(btn, this.ohYes), 
 			500
 		);
+
+	}
+
+	classIs(el, cl) {
+
+		return el.classList
+		.contains(cl);
+
+	}
+
+	classIt(el, ...cl) {
+
+		el.classList
+		.add(...cl);
+
+	}
+
+	classOut(el, ...cl) {
+
+		el.classList
+		.remove(cl);
+
+	}
+
+	classUs(el, cl) {
+
+		return el.classList
+		.toggle(cl);
 
 	}
 	

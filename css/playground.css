@@ -8,6 +8,7 @@ body {
 	text-size-adjust: none;
 	-webkit-text-size-adjust: none;
 	-webkit-tap-highlight-color: transparent;
+	overflow-y: scroll;
 
 }
 
@@ -114,7 +115,13 @@ body {
 
 .yes {
 
-	background: #00a300 !important;
+	background: #017e01 !important;
+
+}
+
+.no {
+
+	background: #770707 !important;
 
 }
 
