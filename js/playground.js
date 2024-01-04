@@ -7,6 +7,12 @@ window
 
 class SnippetPlayground {
 
+	// INCOMING
+	// LOAD LIBS
+	// RTC SHARING
+	// OPEN FS DIRECTORY & RUN INDEX + CSS + JS
+
+
 	constructor() {
 
 		// 💻 🍦 🌈
@@ -19,7 +25,7 @@ class SnippetPlayground {
 		this.ohYes = "yes";
 
 		// body and soul
-		this.spirit = ["body", "console"];
+		this.spirit = ["body", "console", "less", "more"];
 
 		// snippet cmds
 		this.cmd = ["del-" + this.ohYes, "del-no", "delete"];
@@ -28,7 +34,7 @@ class SnippetPlayground {
 		this.run = {
 			"name": this.vanilla, 
 			"type": "run", 
-			"height": "18", 
+			"height": 18, 
 			"body": true, 
 			"console": true, 
 			"insert": false, 
@@ -76,10 +82,17 @@ class SnippetPlayground {
 		.querySelector(".menulist");
 
 		// menu btn
-		this.btn = this.createDiv(this.header, "menubtn", "hide");
+		this.btn = this.createDiv(
+			this.header, 
+			"menubtn", 
+			"hide"
+		);
 
 		// snippet output wrapper
-		this.snip = this.createDiv(this.content, "wrap");
+		this.snip = this.createDiv(
+			this.content, 
+			"wrap"
+		);
 
 		// title
 		this.snippet = document
@@ -87,47 +100,66 @@ class SnippetPlayground {
 
 		this.snippet.placeholder = "title...";
 
-		this.classIt(this.snippet, "title");
+		this.classIt(
+			this.snippet, 
+			"title"
+		);
 
 		this.header
 		.appendChild(this.snippet);
 
 		// header space
-		this.createDiv(this.header, "space");
+		this.createDiv(
+			this.header, 
+			"space"
+		);
 
 		// save link
-		this.save = this.createDiv(this.header, "save");
+		this.save = this.createDiv(
+			this.header, 
+			"save"
+		);
 
 		// copy link
-		this.copy = this.createDiv(this.header, "copy");
+		this.copy = this.createDiv(
+			this.header, 
+			"copy"
+		);
 
 		// create link
-		this.create = this.createDiv(this.tools, "create");
+		this.create = this.createDiv(
+			this.tools, 
+			"create"
+		);
 
 		// about link
-		this.about = this.createDiv(this.tools, "about");
-
-		// snippet options
-		this.opts = this.createDiv(null, "opts");
-
-		this.spirit
-		.forEach(
-			b => 
-				this.createDiv(this.opts, b, "opt")
+		this.about = this.createDiv(
+			this.tools, 
+			"about"
 		);
 
 		// snippet cmds
 		this.cmds = this.createDiv(null, "cmds");
 
-		let del = this.createDiv(this.cmds, "cmd", "delete");
-		this.createDiv(del, "del-space");
-		this.createDiv(del, "cmd", "del-no");
+		// delete snippet
+		let del = this.createDiv(
+			this.cmds, 
+			"cmd", 
+			"delete"
+		);
 
-		/*this.cmd
-		.forEach(
-			b => 
-				this.createDiv(this.cmds, b, "cmd")
-		);*/
+		// delete space confirm ___ cancel
+		this.createDiv(
+			del, 
+			"del-space"
+		);
+
+		// delete cancel
+		this.createDiv(
+			del, 
+			"cmd", 
+			"del-no"
+		);
 
 		this.addListeners();
 
@@ -168,7 +200,10 @@ class SnippetPlayground {
 		let newDiv = document
 		.createElement("div");
 
-		this.classIt(newDiv, ...c);
+		this.classIt(
+			newDiv, 
+			...c
+		);
 
 		if(par) 
 			par
@@ -199,14 +234,6 @@ class SnippetPlayground {
 				&& this.menuClick(evt.target.href)
 		);
 
-		this.opts
-		.addEventListener(
-			"click", 
-			evt => 
-				this.classIs(evt.target, "opt") 
-				&& this.optClick(evt.target)
-		);
-
 		this.cmds
 		.addEventListener(
 			"click", 
@@ -227,7 +254,8 @@ class SnippetPlayground {
 				.addEventListener(
 					"click", 
 					() => 
-						cb.bind(this)()
+						cb
+						.bind(this)()
 				)
 		);
 
@@ -235,7 +263,10 @@ class SnippetPlayground {
 		.addEventListener(
 			"keydown", 
 			evt => 
-				this.handleKeyDown(evt)
+				this.handleKeyDown(
+					/** @type {KeyboardEvent} */
+					(evt)
+				)
 		);
 
 		/*window
@@ -260,6 +291,10 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method handleKeyDown : keyboard shortcuts
+	 * @param {KeyboardEvent} evt : 
+	 */
 	handleKeyDown(evt) {
 
 		if(
@@ -271,8 +306,10 @@ class SnippetPlayground {
 			.preventDefault();
 
 			if(evt.key === "s") 
+				// keyboard save
 				this.saveIt();
 			else if(evt.key === "r") 
+				// keyboard run
 				this.runIt();
 
 		}
@@ -353,24 +390,6 @@ class SnippetPlayground {
 			...JSON.parse(dat["r"] || "{}")
 		};
 
-		this.spirit
-		.forEach(
-			o => {
-
-				let el = this.opts
-				.querySelector("." + o);
-
-				if(this.running[o]) 
-					this.classIt(el, "on");
-				else 
-					this.classOut(el, "on");
-
-			}
-		);
-
-		this.content
-		.appendChild(this.opts);
-
 		// static HTML & CSS
 		["html", "css"]
 		.forEach(
@@ -407,7 +426,10 @@ class SnippetPlayground {
 			this.content
 			.appendChild(this.cmds);
 
-			this.classOut(this.save, "no");
+			this.classOut(
+				this.save, 
+				"no"
+			);
 
 			// reset delete btn state
 			this.deleteNo();
@@ -417,7 +439,10 @@ class SnippetPlayground {
 
 			// unsaved snippet
 
-			this.classIt(this.save, "no");
+			this.classIt(
+				this.save, 
+				"no"
+			);
 
 		}
 		
@@ -432,9 +457,6 @@ class SnippetPlayground {
 			.remove();
 
 		this.cur = "";
-
-		this.opts
-		.remove();
 
 		this.langs
 		.forEach(
@@ -476,7 +498,10 @@ class SnippetPlayground {
 		let wrap = document
 		.createElement("div");
 
-		this.classIt(wrap, "code");
+		this.classIt(
+			wrap, 
+			"code"
+		);
 
 		this.content
 		.appendChild(wrap);
@@ -486,7 +511,11 @@ class SnippetPlayground {
 		.createElement("pre");
 		
 		// enable prism live && line numbers
-		this.classIt(pre, "prism-live", "line-numbers");
+		this.classIt(
+			pre, 
+			"prism-live", 
+			"line-numbers"
+		);
 
 		wrap
 		.appendChild(pre);
@@ -495,7 +524,11 @@ class SnippetPlayground {
 		let code = document
 		.createElement("code");
 		
-		this.classIt(code, "code", "language-" + lang);
+		this.classIt(
+			code, 
+			"code", 
+			"language-" + lang
+		);
 
 		code
 		.setAttribute(
@@ -534,24 +567,6 @@ class SnippetPlayground {
 
 	}
 
-	optClick(btn) {
-
-		let opt = this.spirit
-		.find(
-			o => 
-				this.classIs(btn, o) 
-		);
-
-		// if(DEBUG) console.log("opt", opt);
-		
-		this.running[opt] = !this.running[opt];
-
-		this.classUs(btn, "on");
-
-		this.classUs(this.snips[this.vanilla].wrap, "snip-no" + opt);
-
-	}
-
 	cmdClick(btn) {
 
 		let cmd = this.cmd
@@ -585,7 +600,10 @@ class SnippetPlayground {
 		[this.menu, this.btn]
 		.forEach(
 			e => 
-				this.classUs(e, "hide")
+				this.classUs(
+					e, 
+					"hide"
+				)
 		);
 
 		return true;
@@ -599,14 +617,22 @@ class SnippetPlayground {
 		[this.menu, this.btn]
 		.forEach(
 			e => 
-				this.classIt(e, "hide")
+				this.classIt(
+					e, 
+					"hide"
+				)
 		);
 
 	}
 
 	async menuClick(entry) {
 
-		entry = entry.slice(entry.lastIndexOf("#") + 1);
+		entry = entry
+		.slice(
+			entry
+			.lastIndexOf("#") 
+			+ 1
+		);
 
 		// if(DEBUG) console.log("menu", entry);
 
@@ -722,11 +748,19 @@ class SnippetPlayground {
 
 	async dumpIt(addSome = []) {
 
+		let vanillaIceCream = this.snips[this.vanilla], 
+			vanillaMeat = !this.classIs(vanillaIceCream.wrap, "snip-nobody"), 
+			vanillaSoul = !this.classIs(vanillaIceCream.wrap, "snip-noconsole"), 
+			vanillaSky = vanillaIceCream.altitude;
+
 		return await this.compress(
 			this.langs
 			.map(
 				l => 
-					l + "=" + encodeURIComponent(this.prisms[l].textarea.value)
+					l + "=" + 
+					encodeURIComponent(
+						this.prisms[l].textarea.value
+					)
 			)
 			.concat(
 				[
@@ -734,11 +768,18 @@ class SnippetPlayground {
 					...addSome, 
 
 					// title
-					"t=" + encodeURIComponent(this.snippet.value), 
+					"t=" + encodeURIComponent(
+						this.snippet.value
+					), 
 
 					// run settings
-					// "run=" + '{"console": false, "height": 20}', 
-					"r=" + JSON.stringify(this.running), 
+					"r=" + JSON
+					.stringify({
+						...this.running, 
+						"height": vanillaSky, 
+						"body": vanillaMeat, 
+						"console": vanillaSoul
+					}), 
 
 					// TODO FULLSCREEN
 					// "f=1", 
@@ -765,7 +806,12 @@ class SnippetPlayground {
 
 		// location.replace("#" + h); 
 
-		history.replaceState(h, "",  "#" + h);
+		history
+		.replaceState(
+			h, 
+			"",  
+			"#" + h
+		);
 
 	}
 
@@ -795,8 +841,13 @@ class SnippetPlayground {
 		if(!this.cur) {
 
 			let newSnippet = {
-				"i": Date.now().toString(36), 
+
+				"i": Date
+				.now()
+				.toString(36), 
+
 				"t": this.snippet.value
+
 			};
 
 			this.cur = newSnippet["i"];
@@ -809,7 +860,10 @@ class SnippetPlayground {
 			this.menuEntry(newSnippet);
 
 			// remove unsaved snippet tip
-			this.classOut(this.save, "no");
+			this.classOut(
+				this.save, 
+				"no"
+			);
 
 			this.content
 			.appendChild(this.cmds);
@@ -830,10 +884,11 @@ class SnippetPlayground {
 
 				storedSnippet["t"] = this.snippet.value;
 
-				let snippetEntry = this.list.querySelector("[href='#" + this.cur + "']");
-
-				if(snippetEntry) 
-					snippetEntry.innerHTML = storedSnippet["t"];
+				// was querySelector && check undefined
+				this.list
+				.querySelector(
+					"[href='#" + this.cur + "']"
+				).innerHTML = storedSnippet["t"];
 
 			}
 
@@ -873,15 +928,18 @@ class SnippetPlayground {
 
 	askDelete(btn) {
 
-		// if(DEBUG) console.log("ask delete");
+		// if(DEBUG) console.log("ask del");
 
-		this.classIt(btn, "del-yes");
+		this.classIt(
+			btn, 
+			"del-yes"
+		);
 
 	}
 
 	deleteIt() {
 
-		// if(DEBUG) console.log("confirm delete");
+		// if(DEBUG) console.log("confirm del");
 
 		// delete from store list
 		this.store
@@ -898,7 +956,9 @@ class SnippetPlayground {
 
 		// delete menu entry
 		this.list
-		.querySelector("[href='#" + this.cur + "']").parentNode
+		.querySelector(
+			"[href='#" + this.cur + "']"
+		).parentNode
 		.remove();
 				
 		// delete from storage
@@ -917,20 +977,52 @@ class SnippetPlayground {
 
 	deleteNo() {
 
-		// if(DEBUG) console.log("cancel delete");
+		// if(DEBUG) console.log("cancel del");
 
-		this.classOut(document.querySelector(".cmd.delete"), "del-yes");
+		this.classOut(
+			document
+			.querySelector(
+				".cmd.delete"
+			), 
+			"del-yes"
+		);
 
 	}
 
 	async copyIt() {
 
-		await navigator.clipboard
-		.writeText(
-			location.origin + 
-			location.pathname + 
-			"#" + await this.dumpIt()
-		);
+		// create URL + hash snippet
+		let shareURL = location.origin + 
+		location.pathname + 
+		"#" + await this.dumpIt();
+
+		try {
+
+			// canShare ?
+
+			// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare
+
+			// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
+
+			await navigator
+			.share({
+
+				title: this.snippet.value, 
+				url: shareURL
+
+			});
+
+		}
+		catch(err) {
+
+			// https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
+
+			await navigator.clipboard
+			.writeText(
+				shareURL
+			);
+
+		}
 
 		this.yes(this.copy);
 
@@ -938,11 +1030,17 @@ class SnippetPlayground {
 
 	yes(btn) {
 
-		this.classIt(btn, this.ohYes);
+		this.classIt(
+			btn, 
+			this.ohYes
+		);
 
 		setTimeout(
 			() => 
-				this.classOut(btn, this.ohYes), 
+				this.classOut(
+					btn, 
+					this.ohYes
+				), 
 			500
 		);
 

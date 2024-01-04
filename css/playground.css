@@ -164,9 +164,9 @@ textarea.prism-live {
 
 }
 
-/* snippet options && cmds */
+/* snippet cmds */
 
-.opts, .cmds {
+.cmds {
 
 	margin-bottom: 1em;
 	display: flex;
@@ -176,40 +176,16 @@ textarea.prism-live {
 	
 }
 
-.opts {
-
-	margin-top: 1em;
-
-}
-
 .cmds {
 
 	margin-top: 2em;
 
 }
 
-.opt, .cmd {
+.cmd {
 
 	cursor: pointer;
 	font-size: large;
-
-}
-
-.opt.on {
-
-	text-decoration: underline;
-
-}
-
-.opt.body::before {
-
-	content: 'body';
-
-}
-
-.opt.console::before {
-
-	content: 'console';
 
 }
 
