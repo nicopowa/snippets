@@ -7,28 +7,32 @@ window
 
 class SnippetPlayground {
 
-	// INCOMING
-	// LOAD LIBS
 	// RTC SHARING
-	// OPEN FS DIRECTORY & RUN INDEX + CSS + JS
+	// OPEN LOCAL FILESYSTEM DIRECTORY & RUN INDEX + CSS + JS
 
+	// HASH CHANGE IF CLICKED LINK FROM OUTSIDE TO SAFARI ON IOS ??
+
+	// COMMENTS BLOC ??
 
 	constructor() {
 
 		// 💻 🍦 🌈
 		this.vanilla = "js";
 
+		this.looks = "css";
+
 		// talk to me
-		this.langs = ["html", "css", this.vanilla];
+		this.langs = ["md", "html", this.looks, this.vanilla];
 
 		// hell yeah
 		this.ohYes = "yes";
 
-		// body and soul
-		this.spirit = ["body", "console", "less", "more"];
-
 		// snippet cmds
-		this.cmd = ["del-" + this.ohYes, "del-no", "delete"];
+		this.cmd = [
+			"del-" + this.ohYes, 
+			"del-no", 
+			"delete"
+		];
 
 		// default run options
 		this.run = {
@@ -38,9 +42,9 @@ class SnippetPlayground {
 			"body": true, 
 			"console": true, 
 			"insert": false, 
-			"js": [], 
-			"css": [], 
-			"link": ["html", "css"]
+			[this.vanilla]: [], 
+			[this.looks]: [], 
+			"link": this.langs.slice(1, -1)
 		};
 
 		// current snippet
@@ -61,101 +65,116 @@ class SnippetPlayground {
 		// Snippets store
 		this.store = [];
 
+		// Libs data urls
+		this.libsData = {};
+
 		// page header
-		this.header = document
-		.querySelector(".header");
+		this.header = this.getIt(".header");
 
 		// page content
-		this.content = document
-		.querySelector(".content");
+		this.content = this.getIt(".content");
 
 		// page menu
-		this.menu = document
-		.querySelector(".menu");
+		this.menu = this.getIt(".menu");
 
 		// menu tools
-		this.tools = document
-		.querySelector(".menutools");
+		this.tools = this.getIt(".menutools");
+
+		// more tools
+		this.more = this.getIt(".moretools");
 
 		// menu list
-		this.list = document
-		.querySelector(".menulist");
+		this.list = this.getIt(".menulist");
+
+		// libs list
+		this.libs = this.getIt(".libslist");
 
 		// menu btn
-		this.btn = this.createDiv(
+		this.btn = this.makeDiv(
 			this.header, 
 			"menubtn", 
 			"hide"
 		);
 
 		// snippet output wrapper
-		this.snip = this.createDiv(
+		this.snip = this.makeDiv(
 			this.content, 
 			"wrap"
 		);
 
 		// title
-		this.snippet = document
-		.createElement("input");
-
-		this.snippet.placeholder = "title...";
-
-		this.classIt(
-			this.snippet, 
+		this.snippet = this.makeIt(
+			this.header, 
+			"input", 
+			null, 
 			"title"
 		);
 
-		this.header
-		.appendChild(this.snippet);
-
-		// header space
-		this.createDiv(
-			this.header, 
-			"space"
-		);
+		this.snippet.placeholder = "title...";
 
 		// save link
-		this.save = this.createDiv(
+		this.save = this.makeDiv(
 			this.header, 
 			"save"
 		);
 
 		// copy link
-		this.copy = this.createDiv(
+		this.copy = this.makeDiv(
 			this.header, 
 			"copy"
 		);
 
 		// create link
-		this.create = this.createDiv(
+		this.create = this.makeDiv(
 			this.tools, 
 			"create"
 		);
 
+		// lib link
+		this.lib = this.makeDiv(
+			this.tools, 
+			"lib"
+		);
+
 		// about link
-		this.about = this.createDiv(
+		this.about = this.makeDiv(
 			this.tools, 
 			"about"
 		);
 
+		// export link
+		this.down = this.makeDiv(
+			this.more, 
+			"down"
+		);
+
+		// import link
+		this.up = this.makeDiv(
+			this.more, 
+			"up"
+		);
+
 		// snippet cmds
-		this.cmds = this.createDiv(null, "cmds");
+		this.cmds = this.makeDiv(
+			null, 
+			"cmds"
+		);
 
 		// delete snippet
-		let del = this.createDiv(
+		let del = this.makeDiv(
 			this.cmds, 
 			"cmd", 
 			"delete"
 		);
 
 		// delete space confirm ___ cancel
-		this.createDiv(
+		this.makeDiv(
 			del, 
 			"del-space"
 		);
 
 		// delete cancel
-		this.createDiv(
+		this.makeDiv(
 			del, 
 			"cmd", 
 			"del-no"
@@ -168,6 +187,8 @@ class SnippetPlayground {
 	}
 
 	async start() {
+
+		await this.loadLibs();
 
 		this.listIt();
 
@@ -189,42 +210,34 @@ class SnippetPlayground {
 
 	}
 
-	/**
-	 * @method createDiv : create div element shortcut
-	 * @param {Element} par : parent element
-	 * @param  {...string} c : classes
-	 * @returns {Element} created div
-	 */
-	createDiv(par, ...c) {
+	async loadLibs() {
 
-		let newDiv = document
-		.createElement("div");
-
-		this.classIt(
-			newDiv, 
-			...c
+		this.libsData = /** @type {!Object} */(
+			await (
+				await fetch("libs.json")
+			)
+			.json()
 		);
 
-		if(par) 
-			par
-			.appendChild(newDiv);
-
-		return newDiv;
+		// libs list
+		Object
+		.keys(this.libsData)
+		.forEach(
+			lib => 
+				this.makeIt(this.libs, "li", lib, lib)
+		);
 
 	}
 
 	addListeners() {
 
-		this.btn
-		.addEventListener(
-			"click", 
-			() => 
-				this.toggleMenu()
+		this.hearIt(
+			this.btn, 
+			this.toggleMenu
 		);
 
-		this.menu
-		.addEventListener(
-			"click", 
+		this.hearIt(
+			this.menu, 
 			evt => 
 				// check is menu link
 				evt.target.nodeName === "A" 
@@ -234,9 +247,17 @@ class SnippetPlayground {
 				&& this.menuClick(evt.target.href)
 		);
 
-		this.cmds
-		.addEventListener(
-			"click", 
+		this.hearIt(
+			this.libs,  
+			evt => 
+				// check is lib link
+				evt.target.nodeName === "LI" 
+				// menu callback
+				&& this.libClick(evt.target)
+		);
+
+		this.hearIt(
+			this.cmds,  
 			evt => 
 				this.classIs(evt.target, "cmd") 
 				&& this.cmdClick(evt.target)
@@ -244,29 +265,29 @@ class SnippetPlayground {
 
 		new Map([
 			[this.create, this.createIt], 
+			[this.lib, this.toggleLibs], 
 			[this.about, this.aboutIt], 
 			[this.save, this.saveIt], 
-			[this.copy, this.copyIt]
+			[this.copy, this.copyIt], 
+			[this.down, this.exportIt], 
+			[this.up, this.importIt], 
 		])
 		.forEach(
 			(cb, btn) => 
-				btn
-				.addEventListener(
-					"click", 
-					() => 
-						cb
-						.bind(this)()
+				this.hearIt(
+					btn, 
+					cb
 				)
 		);
 
-		document
-		.addEventListener(
-			"keydown", 
+		this.hearIt(
+			document, 
 			evt => 
 				this.handleKeyDown(
 					/** @type {KeyboardEvent} */
 					(evt)
-				)
+				), 
+			"keydown"
 		);
 
 		/*window
@@ -318,13 +339,13 @@ class SnippetPlayground {
 
 	async parseMenuHash(h) {
 
-		let isSnippet = this.store
-		.find(
-			s => 
-				s["i"] === h
-		);
-
-		if(isSnippet) {
+		if(
+			this.store
+			.some(
+				s => 
+					s["i"] === h
+			)
+		) {
 
 			// if(DEBUG) console.log("load from storage");
 
@@ -379,7 +400,7 @@ class SnippetPlayground {
 	 */
 	loadIt(dat = {}) {
 
-		// if(DEBUG) console.log(dat);
+		if(DEBUG) console.log("load\n", dat);
 
 		document.title = 
 		this.snippet.value = 
@@ -387,20 +408,27 @@ class SnippetPlayground {
 
 		this.running = {
 			...this.run, 
-			...JSON.parse(dat["r"] || "{}")
+			...JSON
+			.parse(
+				dat["r"] 
+				|| "{}"
+			)
 		};
 
+		if(DEBUG) 
+			console.log("run", this.running);
+
 		// static HTML & CSS
-		["html", "css"]
+		this.langs
+		.slice(0, -1)
 		.forEach(
 			lang => 
 				this.bloc(
 					lang, 
-					JSON
-					.stringify({
+					{
 						"name": lang, 
 						"type": ""
-					}), 
+					}, 
 					dat[lang] || ""
 				)
 		);
@@ -408,15 +436,24 @@ class SnippetPlayground {
 		// run JS
 		this.bloc(
 			this.vanilla, 
-			JSON
-			.stringify(
-				this.running
-			), 
+			this.running, 
 			dat[this.vanilla] || ""
 		);
 
+		this.setLibs(
+			JSON
+			.parse(
+				dat["l"] 
+				|| "[]"
+			)
+		);
+
+		this.injectLibs();
+
 		this.snip
-		.appendChild(this.snips[this.vanilla].wrap);
+		.appendChild(
+			this.snips[this.vanilla].wrap
+		);
 
 		if(this.cur) {
 
@@ -445,6 +482,8 @@ class SnippetPlayground {
 			);
 
 		}
+
+		this.runIt();
 		
 	}
 
@@ -462,7 +501,7 @@ class SnippetPlayground {
 		.forEach(
 			lang => {
 
-				console.log("remove", lang);
+				if(DEBUG) console.log("remove", lang);
 
 				Snippet
 				.remove(
@@ -489,57 +528,45 @@ class SnippetPlayground {
 	/**
 	 * @method bloc : code bloc
 	 * @param {string} lang : bloc lang
-	 * @param {string} metas : lang meta 
+	 * @param {Object} metas : lang meta 
 	 * @param {string} content : code source
 	 */
 	bloc(lang, metas, content) {
 
 		// code bloc wrap
-		let wrap = document
-		.createElement("div");
-
-		this.classIt(
-			wrap, 
+		let wrap = this.makeDiv(
+			this.content, 
 			"code"
 		);
 
-		this.content
-		.appendChild(wrap);
-
 		// code wrapper
-		let pre = document
-		.createElement("pre");
-		
-		// enable prism live && line numbers
-		this.classIt(
-			pre, 
+		let pre = this.makeIt(
+			wrap, 
+			"pre", 
+			null, 
 			"prism-live", 
 			"line-numbers"
 		);
 
-		wrap
-		.appendChild(pre);
-
 		// code
-		let code = document
-		.createElement("code");
-		
-		this.classIt(
-			code, 
+		let codeBloc = this.makeIt(
+			pre, 
+			"code", 
+			null, 
 			"code", 
 			"language-" + lang
 		);
 
-		code
+		codeBloc
 		.setAttribute(
 			"data-snip", 
-			encodeURI(metas)
+			encodeURI(
+				JSON
+				.stringify(metas)
+			)
 		);
 
-		code.textContent = content;
-
-		pre
-		.appendChild(code);
+		codeBloc.textContent = content;
 
 		// keep bloc
 		this.codes[lang] = wrap;
@@ -553,14 +580,16 @@ class SnippetPlayground {
 		this.prisms[lang] = prismed;
 
 		// init Snippet
-		this.snips[lang] = new Snippet(code);
+		this.snips[lang] = new Snippet(codeBloc);
 
 	}
 
 	runIt() {
 
 		window
-		.scroll(0, 0);
+		.scroll(
+			0, 0
+		);
 
 		this.snips[this.vanilla]
 		._run();
@@ -575,7 +604,7 @@ class SnippetPlayground {
 				this.classIs(btn, o) 
 		);
 
-		if(DEBUG) console.log("cmd", cmd);
+		// if(DEBUG) console.log("cmd", cmd);
 
 		switch(cmd) {
 
@@ -597,22 +626,31 @@ class SnippetPlayground {
 
 	toggleMenu() {
 
-		[this.menu, this.btn]
-		.forEach(
-			e => 
-				this.classUs(
-					e, 
-					"hide"
-				)
-		);
+		if(this.classIs(this.menu, "hide")) 
+			this.openMenu();
+		else 
+			this.closeMenu();
 
 		return true;
 
 	}
 
-	// openMenu ?
+	openMenu() {
+
+		[this.menu, this.btn]
+		.forEach(
+			e => 
+				this.classOut(
+					e, 
+					"hide"
+				)
+		);
+
+	}
 
 	closeMenu() {
+
+		this.closeLibs();
 
 		[this.menu, this.btn]
 		.forEach(
@@ -644,19 +682,129 @@ class SnippetPlayground {
 
 	}
 
+	libClick(lib) {
+
+		// if(DEBUG) console.log("lib", lib.innerHTML);
+
+		this.classUs(
+			lib, 
+			"on"
+		);
+
+		this.injectLibs();
+
+	}
+
+	setLibs(libs) {
+
+		if(DEBUG) console.log("set libs", libs);
+
+		Object
+		.keys(this.libsData)
+		.forEach(
+			lib => {
+
+				let libItem = this.getIt("." + lib, this.libs);
+
+				if(libs.includes(lib)) 
+					this.classIt(
+						libItem, 
+						"on"
+					);
+				else 
+					this.classOut(
+						libItem, 
+						"on"
+					);
+
+
+			}
+			
+		);
+
+	}
+
+	getLibs() {
+
+		return Array
+		.from(
+			this.libs
+			.querySelectorAll(".on")
+		)
+		.map(
+			l => 
+				l.innerHTML
+		);
+
+	}
+
+	injectLibs() {
+
+		let injection = this.libsUrls(
+			this.getLibs()
+		);
+
+		this.snips[this.vanilla].scripts = injection[this.vanilla];
+
+		this.snips[this.vanilla].sheets = injection[this.looks];
+
+		// set meta snip-data ?
+
+	}
+
+	libsUrls(libs) {
+
+		if(DEBUG) console.log("libs", libs);
+
+		return libs
+		.reduce(
+			(libsFiles, l) => {
+
+				let libData = this.libsData[l];
+
+				libsFiles[this.vanilla]
+				.push(
+					...libData[this.vanilla]
+					.map(
+						u => 
+							libData["url"] + u
+					)
+				);
+
+				libsFiles[this.looks]
+				.push(
+					...libData[this.looks]
+					.map(
+						u => 
+							libData["url"] + u
+					)
+				);
+
+				return libsFiles;
+
+			},
+			{
+				[this.vanilla]: [], 
+				[this.looks]: []
+			}
+		);
+
+	}
+
 	menuEntry(entry) {
 
 		// create menu entry
-		let el = document
-		.createElement("li");
-
-		// add to menu
-		this.list
-		.appendChild(el);
+		let menuEl = this.makeIt(
+			this.list, 
+			"li"
+		);
 
 		// create entry link
-		let link = document
-		.createElement("a");
+		let link = this.makeIt(
+			menuEl, 
+			"a", 
+			entry["t"]
+		);
 
 		// link anchor
 		link
@@ -664,13 +812,6 @@ class SnippetPlayground {
 			"href", 
 			"#" + entry["i"]
 		);
-
-		// link text
-		link.innerHTML = entry["t"];
-
-		// add to entry
-		el
-		.appendChild(link);
 
 	}
 
@@ -725,6 +866,53 @@ class SnippetPlayground {
 
 	}
 
+	toggleLibs() {
+
+		if(this.classIs(this.lib, "may")) 
+			this.closeLibs();
+		else 
+			this.openLibs();
+
+	}
+
+	openLibs() {
+
+		this.classIt(
+			this.lib, 
+			"may"
+		);
+
+		this.classIt(
+			this.list, 
+			"hide"
+		);
+
+		this.classOut(
+			this.libs, 
+			"hide"
+		);
+
+	}
+
+	closeLibs() {
+
+		this.classOut(
+			this.lib, 
+			"may"
+		);
+
+		this.classOut(
+			this.list, 
+			"hide"
+		);
+
+		this.classIt(
+			this.libs, 
+			"hide"
+		);
+
+	}
+
 	async aboutIt() {
 
 		this.closeMenu();
@@ -742,7 +930,7 @@ class SnippetPlayground {
 			)
 		);
 
-		this.setHash("");	
+		this.setHash("");
 
 	}
 
@@ -751,7 +939,7 @@ class SnippetPlayground {
 		let vanillaIceCream = this.snips[this.vanilla], 
 			vanillaMeat = !this.classIs(vanillaIceCream.wrap, "snip-nobody"), 
 			vanillaSoul = !this.classIs(vanillaIceCream.wrap, "snip-noconsole"), 
-			vanillaSky = vanillaIceCream.altitude;
+			vanillaSky = vanillaIceCream.size;
 
 		return await this.compress(
 			this.langs
@@ -778,8 +966,13 @@ class SnippetPlayground {
 						...this.running, 
 						"height": vanillaSky, 
 						"body": vanillaMeat, 
-						"console": vanillaSoul
+						"console": vanillaSoul, 
 					}), 
+
+					"l=" + JSON
+					.stringify(
+						this.getLibs()
+					)
 
 					// TODO FULLSCREEN
 					// "f=1", 
@@ -884,10 +1077,9 @@ class SnippetPlayground {
 
 				storedSnippet["t"] = this.snippet.value;
 
-				// was querySelector && check undefined
-				this.list
-				.querySelector(
-					"[href='#" + this.cur + "']"
+				this.getIt(
+					"[href='#" + this.cur + "']", 
+					this.list
 				).innerHTML = storedSnippet["t"];
 
 			}
@@ -955,9 +1147,9 @@ class SnippetPlayground {
 		this.flushStore();
 
 		// delete menu entry
-		this.list
-		.querySelector(
-			"[href='#" + this.cur + "']"
+		this.getIt(
+			"[href='#" + this.cur + "']", 
+			this.list
 		).parentNode
 		.remove();
 				
@@ -980,8 +1172,7 @@ class SnippetPlayground {
 		// if(DEBUG) console.log("cancel del");
 
 		this.classOut(
-			document
-			.querySelector(
+			this.getIt(
 				".cmd.delete"
 			), 
 			"del-yes"
@@ -998,12 +1189,8 @@ class SnippetPlayground {
 
 		try {
 
-			// canShare ?
-
 			// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare
-
 			// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
-
 			await navigator
 			.share({
 
@@ -1016,7 +1203,6 @@ class SnippetPlayground {
 		catch(err) {
 
 			// https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
-
 			await navigator.clipboard
 			.writeText(
 				shareURL
@@ -1025,6 +1211,69 @@ class SnippetPlayground {
 		}
 
 		this.yes(this.copy);
+
+	}
+
+	exportIt() {
+
+		if(DEBUG) console.log("export");
+
+		let fullDump = this.store
+		.reduce(
+			(dumping, snippet) => {
+
+				let snippetId = snippet["i"];
+
+				dumping[snippetId] = window.localStorage
+				.getItem("snippet-" + snippetId);
+
+				return dumping;
+
+			}, 
+			{
+				"snippets": this.store
+			}
+		);
+
+		let forceDl = document
+		.createElement("a");
+
+		forceDl
+		.setAttribute(
+			"href", 
+			"data:application/json;charset=utf-8," + 
+			encodeURIComponent(
+				JSON
+				.stringify(fullDump)
+			)
+		);
+
+		forceDl
+		.setAttribute(
+			"download", 
+			"snippets.json"
+		);
+
+		forceDl.style.display = "none";
+
+		document.body
+		.appendChild(forceDl);
+
+		forceDl
+		.click();
+
+		forceDl
+		.remove();
+
+		this.yes(
+			this.down
+		);
+
+	}
+
+	importIt() {
+
+		if(DEBUG) console.log("import");
 
 	}
 
@@ -1041,7 +1290,69 @@ class SnippetPlayground {
 					btn, 
 					this.ohYes
 				), 
-			500
+			750
+		);
+
+	}
+
+	// UTILS
+
+	makeDiv(par, ...cl) {
+
+		return this.makeIt(
+			par, 
+			"div", 
+			null, 
+			...cl
+		);
+
+	}
+
+	/**
+	 * @method makeIt : fast createElement
+	 * @param {Element} par : parent
+	 * @param {string} el : element name
+	 * @param {string} cnt : innerHTML
+	 * @param {...string} cl : classes
+	 */
+	makeIt(par, el, cnt, ...cl) {
+
+		let newEl = document
+		.createElement(el);
+
+		if(cnt) 
+			newEl.innerHTML = cnt;
+
+		this.classIt(
+			newEl, 
+			...cl
+		);
+
+		if(par) 
+			par
+			.appendChild(newEl);
+
+		return newEl;
+
+	}
+
+	getIt(sel, par = document) {
+
+		return par
+		.querySelector(
+			sel
+		);
+
+	}
+
+	hearIt(el, cb, evtName = "click") {
+
+		el
+		.addEventListener(
+			evtName, 
+			evt => 
+				cb
+				.bind(this)(evt)
 		);
 
 	}
@@ -1063,13 +1374,13 @@ class SnippetPlayground {
 	classOut(el, ...cl) {
 
 		el.classList
-		.remove(cl);
+		.remove(...cl);
 
 	}
 
 	classUs(el, cl) {
 
-		return el.classList
+		el.classList
 		.toggle(cl);
 
 	}

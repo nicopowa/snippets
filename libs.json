@@ -1,0 +1,33 @@
+{
+	"gsap": {
+		"url": "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/", 
+		"js": [
+			"gsap.min.js", 
+			"MotionPathPlugin.min.js", 
+			"ScrollTrigger.min.js", 
+			"TextPlugin.min.js"
+		], 
+		"css": []
+	}, 
+	"three": {
+		"url": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/", 
+		"js": [
+			"three.module.min.js"
+		], 
+		"css": []
+	}, 
+	"rainbowvis": {
+		"url": "https://cdn.jsdelivr.net/npm/rainbowvis.js@1.1.1/", 
+		"js": [
+			"rainbowvis.min.js"
+		], 
+		"css": []
+	},
+	"blackhole": {
+		"url": "https://snipp.et/libs/blackhole/", 
+		"js": [
+			"black-hole.js"
+		], 
+		"css": []
+	}
+}
