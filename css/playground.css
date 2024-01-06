@@ -40,7 +40,7 @@ body {
 
 }
 
-.title {
+.snip-title {
 
 	width: 100%;
 	padding-left: 2px;
@@ -54,7 +54,7 @@ body {
 
 }
 
-.title:focus {
+.snip-title:focus {
 
 
 }
@@ -153,7 +153,23 @@ body {
 
 .code {
 
+	position: relative;
 	margin-top: 1em;
+
+}
+
+/* language indicator */
+.lang {
+
+	position: absolute;
+	left: 4px;
+	bottom: 2px;
+	opacity: .5;
+	user-select: none;
+	pointer-events: none;
+	font-size: 13px;
+	z-index: 10;
+	color: #888888;
 
 }
 
@@ -174,6 +190,12 @@ pre.prism-live {
 textarea.prism-live {
 
 	overflow-y: hidden;
+
+}
+
+.prism-live a {
+
+	color: #888888;
 
 }
 

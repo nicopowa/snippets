@@ -12,9 +12,9 @@ class SnippetPlayground {
 
 	// HASH CHANGE IF CLICKED LINK FROM OUTSIDE TO SAFARI ON IOS ??
 
-	// COMMENTS BLOC ??
-
 	constructor() {
+
+		this._name = "snippets";
 
 		// 💻 🍦 🌈
 		this.vanilla = "js";
@@ -63,7 +63,7 @@ class SnippetPlayground {
 		this.prisms = {};
 
 		// Snippets store
-		this.store = [];
+		this.snippets = [];
 
 		// Libs data urls
 		this.libsData = {};
@@ -106,8 +106,8 @@ class SnippetPlayground {
 		this.snippet = this.makeIt(
 			this.header, 
 			"input", 
-			null, 
-			"title"
+			"", 
+			"snip-title"
 		);
 
 		this.snippet.placeholder = "title...";
@@ -125,7 +125,7 @@ class SnippetPlayground {
 		);
 
 		// create link
-		this.create = this.makeDiv(
+		this.make = this.makeDiv(
 			this.tools, 
 			"create"
 		);
@@ -182,11 +182,11 @@ class SnippetPlayground {
 
 		this.addListeners();
 
-		this.start();
+		this.liftOff();
 
 	}
 
-	async start() {
+	async liftOff() {
 
 		await this.loadLibs();
 
@@ -224,7 +224,12 @@ class SnippetPlayground {
 		.keys(this.libsData)
 		.forEach(
 			lib => 
-				this.makeIt(this.libs, "li", lib, lib)
+				this.makeIt(
+					this.libs, 
+					"li", 
+					lib, 
+					lib
+				)
 		);
 
 	}
@@ -264,7 +269,7 @@ class SnippetPlayground {
 		);
 
 		new Map([
-			[this.create, this.createIt], 
+			[this.make, this.createIt], 
 			[this.lib, this.toggleLibs], 
 			[this.about, this.aboutIt], 
 			[this.save, this.saveIt], 
@@ -340,7 +345,7 @@ class SnippetPlayground {
 	async parseMenuHash(h) {
 
 		if(
-			this.store
+			this.snippets
 			.some(
 				s => 
 					s["i"] === h
@@ -539,11 +544,19 @@ class SnippetPlayground {
 			"code"
 		);
 
+		// lang indicator
+		this.makeIt(
+			wrap, 
+			"div", 
+			lang, 
+			"lang"
+		);
+
 		// code wrapper
 		let pre = this.makeIt(
 			wrap, 
 			"pre", 
-			null, 
+			"", 
 			"prism-live", 
 			"line-numbers"
 		);
@@ -552,7 +565,7 @@ class SnippetPlayground {
 		let codeBloc = this.makeIt(
 			pre, 
 			"code", 
-			null, 
+			"", 
 			"code", 
 			"language-" + lang
 		);
@@ -574,8 +587,6 @@ class SnippetPlayground {
 		// init Prism
 		let prismed = new Prism
 		.Live(pre);
-
-		prismed.textarea.placeholder = lang;
 
 		this.prisms[lang] = prismed;
 
@@ -744,7 +755,7 @@ class SnippetPlayground {
 			this.getLibs()
 		);
 
-		this.snips[this.vanilla].scripts = injection[this.vanilla];
+		this.snips[this.vanilla].codes = injection[this.vanilla];
 
 		this.snips[this.vanilla].sheets = injection[this.looks];
 
@@ -796,7 +807,8 @@ class SnippetPlayground {
 		// create menu entry
 		let menuEl = this.makeIt(
 			this.list, 
-			"li"
+			"li", 
+			""
 		);
 
 		// create entry link
@@ -1010,16 +1022,16 @@ class SnippetPlayground {
 
 	listIt() {
 
-		this.store = JSON
+		this.snippets = JSON
 		.parse(
 			window.localStorage
-			.getItem("snippets") 
+			.getItem(this._name) 
 			|| "[]"
 		);
 
-		// if(DEBUG) console.log(this.store);
+		// if(DEBUG) console.log(this.snippets);
 
-		this.store
+		this.snippets
 		.forEach(
 			snippet => 
 				this.menuEntry(snippet)
@@ -1028,8 +1040,6 @@ class SnippetPlayground {
 	}
 
 	async saveIt() {
-
-		// ALL SNIPPETS EXPORT DUMP BTN ?
 
 		if(!this.cur) {
 
@@ -1047,7 +1057,7 @@ class SnippetPlayground {
 
 			document.title = newSnippet["t"];
 
-			this.store
+			this.snippets
 			.push(newSnippet);
 
 			this.menuEntry(newSnippet);
@@ -1066,7 +1076,7 @@ class SnippetPlayground {
 		}
 		else {
 
-			let storedSnippet = this.store
+			let storedSnippet = this.snippets
 			.find(
 				s => 
 					s["i"] === this.cur
@@ -1109,10 +1119,10 @@ class SnippetPlayground {
 
 		window.localStorage
 		.setItem(
-			"snippets", 
+			this._name, 
 			JSON
 			.stringify(
-				this.store
+				this.snippets
 			)
 		);
 
@@ -1134,9 +1144,9 @@ class SnippetPlayground {
 		// if(DEBUG) console.log("confirm del");
 
 		// delete from store list
-		this.store
+		this.snippets
 		.splice(
-			this.store
+			this.snippets
 			.findIndex(
 				s => 
 					s["i"] === this.cur
@@ -1218,7 +1228,7 @@ class SnippetPlayground {
 
 		if(DEBUG) console.log("export");
 
-		let fullDump = this.store
+		let fullDump = this.snippets
 		.reduce(
 			(dumping, snippet) => {
 
@@ -1231,7 +1241,7 @@ class SnippetPlayground {
 
 			}, 
 			{
-				"snippets": this.store
+				[this._name]: this.snippets
 			}
 		);
 
@@ -1251,7 +1261,7 @@ class SnippetPlayground {
 		forceDl
 		.setAttribute(
 			"download", 
-			"snippets.json"
+			this._name + ".json"
 		);
 
 		forceDl.style.display = "none";
@@ -1302,7 +1312,7 @@ class SnippetPlayground {
 		return this.makeIt(
 			par, 
 			"div", 
-			null, 
+			"", 
 			...cl
 		);
 
