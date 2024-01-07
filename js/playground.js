@@ -12,6 +12,13 @@ class SnippetPlayground {
 
 	// HASH CHANGE IF CLICKED LINK FROM OUTSIDE TO SAFARI ON IOS ??
 
+	// REMOVE LIBS MENU AND LOAD FROM MD
+	// @js {URL}
+	// @css {URL}
+
+	// OVERRIDE SNIPPET RUN TO INJECT LIBS
+	// top-level @import inside markdown ?
+
 	constructor() {
 
 		this._name = "snippets";
@@ -65,9 +72,6 @@ class SnippetPlayground {
 		// Snippets store
 		this.snippets = [];
 
-		// Libs data urls
-		this.libsData = {};
-
 		// page header
 		this.header = this.getIt(".header");
 
@@ -85,9 +89,6 @@ class SnippetPlayground {
 
 		// menu list
 		this.list = this.getIt(".menulist");
-
-		// libs list
-		this.libs = this.getIt(".libslist");
 
 		// menu btn
 		this.btn = this.makeDiv(
@@ -112,6 +113,11 @@ class SnippetPlayground {
 
 		this.snippet.placeholder = "title...";
 
+		this.makeDiv(
+			this.header, 
+			"space"
+		);
+
 		// save link
 		this.save = this.makeDiv(
 			this.header, 
@@ -128,12 +134,6 @@ class SnippetPlayground {
 		this.make = this.makeDiv(
 			this.tools, 
 			"create"
-		);
-
-		// lib link
-		this.lib = this.makeDiv(
-			this.tools, 
-			"lib"
 		);
 
 		// about link
@@ -188,8 +188,6 @@ class SnippetPlayground {
 
 	async liftOff() {
 
-		await this.loadLibs();
-
 		this.listIt();
 
 		let hashed = location.hash
@@ -207,30 +205,6 @@ class SnippetPlayground {
 			startCode = await this.parseCodeHash(hashed);
 
 		this.loadIt(startCode);
-
-	}
-
-	async loadLibs() {
-
-		this.libsData = /** @type {!Object} */(
-			await (
-				await fetch("libs.json")
-			)
-			.json()
-		);
-
-		// libs list
-		Object
-		.keys(this.libsData)
-		.forEach(
-			lib => 
-				this.makeIt(
-					this.libs, 
-					"li", 
-					lib, 
-					lib
-				)
-		);
 
 	}
 
@@ -253,15 +227,6 @@ class SnippetPlayground {
 		);
 
 		this.hearIt(
-			this.libs,  
-			evt => 
-				// check is lib link
-				evt.target.nodeName === "LI" 
-				// menu callback
-				&& this.libClick(evt.target)
-		);
-
-		this.hearIt(
 			this.cmds,  
 			evt => 
 				this.classIs(evt.target, "cmd") 
@@ -270,7 +235,6 @@ class SnippetPlayground {
 
 		new Map([
 			[this.make, this.createIt], 
-			[this.lib, this.toggleLibs], 
 			[this.about, this.aboutIt], 
 			[this.save, this.saveIt], 
 			[this.copy, this.copyIt], 
@@ -445,16 +409,6 @@ class SnippetPlayground {
 			dat[this.vanilla] || ""
 		);
 
-		this.setLibs(
-			JSON
-			.parse(
-				dat["l"] 
-				|| "[]"
-			)
-		);
-
-		this.injectLibs();
-
 		this.snip
 		.appendChild(
 			this.snips[this.vanilla].wrap
@@ -506,7 +460,7 @@ class SnippetPlayground {
 		.forEach(
 			lang => {
 
-				if(DEBUG) console.log("remove", lang);
+				// if(DEBUG) console.log("remove", lang);
 
 				Snippet
 				.remove(
@@ -602,6 +556,8 @@ class SnippetPlayground {
 			0, 0
 		);
 
+		this.injectLibs();
+
 		this.snips[this.vanilla]
 		._run();
 
@@ -661,8 +617,6 @@ class SnippetPlayground {
 
 	closeMenu() {
 
-		this.closeLibs();
-
 		[this.menu, this.btn]
 		.forEach(
 			e => 
@@ -693,112 +647,57 @@ class SnippetPlayground {
 
 	}
 
-	libClick(lib) {
-
-		// if(DEBUG) console.log("lib", lib.innerHTML);
-
-		this.classUs(
-			lib, 
-			"on"
-		);
-
-		this.injectLibs();
-
-	}
-
-	setLibs(libs) {
-
-		if(DEBUG) console.log("set libs", libs);
-
-		Object
-		.keys(this.libsData)
-		.forEach(
-			lib => {
-
-				let libItem = this.getIt("." + lib, this.libs);
-
-				if(libs.includes(lib)) 
-					this.classIt(
-						libItem, 
-						"on"
-					);
-				else 
-					this.classOut(
-						libItem, 
-						"on"
-					);
-
-
-			}
-			
-		);
-
-	}
-
-	getLibs() {
-
-		return Array
-		.from(
-			this.libs
-			.querySelectorAll(".on")
-		)
-		.map(
-			l => 
-				l.innerHTML
-		);
-
-	}
-
 	injectLibs() {
 
-		let injection = this.libsUrls(
-			this.getLibs()
-		);
+		// PARSE MD
 
-		this.snips[this.vanilla].codes = injection[this.vanilla];
-
-		this.snips[this.vanilla].sheets = injection[this.looks];
-
-		// set meta snip-data ?
-
-	}
-
-	libsUrls(libs) {
-
-		if(DEBUG) console.log("libs", libs);
-
-		return libs
+		let injections = [this.vanilla, "module", "import", this.looks]
 		.reduce(
-			(libsFiles, l) => {
+			(libs, ext) => {
 
-				let libData = this.libsData[l];
-
-				libsFiles[this.vanilla]
-				.push(
-					...libData[this.vanilla]
-					.map(
-						u => 
-							libData["url"] + u
-					)
+				let reg = new RegExp(
+					"^@(" + ext + ")\\s(.+)$", 
+					"gm"
 				);
 
-				libsFiles[this.looks]
-				.push(
-					...libData[this.looks]
-					.map(
-						u => 
-							libData["url"] + u
-					)
+				Array
+				.from(
+					this.prisms["md"].textarea.value
+					.matchAll(reg)
+				)
+				.forEach(
+					matched => {
+						libs[matched[1]]
+						.push(matched[2]);
+					}
 				);
 
-				return libsFiles;
+				return libs;
 
-			},
+			}, 
 			{
 				[this.vanilla]: [], 
+				"module": [], 
+				"import": [], 
 				[this.looks]: []
 			}
 		);
+
+		console.log(injections);
+
+		if(injections["module"].length + injections["import"].length) 
+			this.snips[this.vanilla].module = true;
+
+		this.snips[this.vanilla].codes = injections[this.vanilla];
+
+		this.snips[this.vanilla].mods = injections["module"];
+
+		this.snips[this.vanilla].imports = injections["import"];
+
+		this.snips[this.vanilla].sheets = injections[this.looks];
+
+		// set meta snip-data ?
+
 
 	}
 
@@ -878,53 +777,6 @@ class SnippetPlayground {
 
 	}
 
-	toggleLibs() {
-
-		if(this.classIs(this.lib, "may")) 
-			this.closeLibs();
-		else 
-			this.openLibs();
-
-	}
-
-	openLibs() {
-
-		this.classIt(
-			this.lib, 
-			"may"
-		);
-
-		this.classIt(
-			this.list, 
-			"hide"
-		);
-
-		this.classOut(
-			this.libs, 
-			"hide"
-		);
-
-	}
-
-	closeLibs() {
-
-		this.classOut(
-			this.lib, 
-			"may"
-		);
-
-		this.classOut(
-			this.list, 
-			"hide"
-		);
-
-		this.classIt(
-			this.libs, 
-			"hide"
-		);
-
-	}
-
 	async aboutIt() {
 
 		this.closeMenu();
@@ -980,11 +832,6 @@ class SnippetPlayground {
 						"body": vanillaMeat, 
 						"console": vanillaSoul, 
 					}), 
-
-					"l=" + JSON
-					.stringify(
-						this.getLibs()
-					)
 
 					// TODO FULLSCREEN
 					// "f=1", 
@@ -1226,7 +1073,7 @@ class SnippetPlayground {
 
 	exportIt() {
 
-		if(DEBUG) console.log("export");
+		// if(DEBUG) console.log("export");
 
 		let fullDump = this.snippets
 		.reduce(
@@ -1283,7 +1130,63 @@ class SnippetPlayground {
 
 	importIt() {
 
-		if(DEBUG) console.log("import");
+		// if(DEBUG) console.log("import");
+
+		let fileBrowser = document
+		.createElement("input");
+	
+		fileBrowser.type = "file";
+		fileBrowser.accept = "application/json";
+
+		fileBrowser.style.display = "none";
+
+		document.body
+		.appendChild(fileBrowser);
+
+		fileBrowser
+		.addEventListener(
+			"change", 
+			() => {
+
+				if(fileBrowser.files.length) {
+
+					let jsonFile = fileBrowser.files[0], 
+						fileReader = new FileReader();
+
+					fileReader
+					.addEventListener(
+						"loadend", 
+						e => {
+
+							try {
+
+								let parsed = JSON
+								.parse(
+									e.target.result
+								);
+
+								console.log(parsed);
+
+								// easy next
+
+							}
+							catch(err) {
+
+							}
+
+						}
+					);
+
+					fileReader
+					.readAsText(jsonFile);
+
+				}
+
+			}
+		);
+
+		fileBrowser
+		.click();
 
 	}
 
