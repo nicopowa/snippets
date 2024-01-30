@@ -19,6 +19,11 @@ class SnippetPlayground {
 	// OVERRIDE SNIPPET RUN TO INJECT LIBS
 	// top-level @import inside markdown ?
 
+	// RESOURCE INTEGRITY
+
+	// IMPORT MAPS
+	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap
+
 	constructor() {
 
 		this._name = "snippets";
@@ -54,8 +59,11 @@ class SnippetPlayground {
 			"link": this.langs.slice(1, -1)
 		};
 
-		// current snippet
+		// snippet id
 		this.cur = "";
+
+		// snippet version
+		this.ver = 0;
 
 		// current snippet run options
 		this.running = {};
@@ -160,6 +168,12 @@ class SnippetPlayground {
 			"cmds"
 		);
 
+		// version number
+		this.vno = this.makeDiv(
+			this.cmds, 
+			"vno"
+		);
+
 		// delete snippet
 		let del = this.makeDiv(
 			this.cmds, 
@@ -198,10 +212,10 @@ class SnippetPlayground {
 		let startCode = {};
 
 		// local snippet hash
-		if(hashed.length === 8) 
+		if(hashed.length <= 18) 
 			startCode = await this.parseMenuHash(hashed);
 		// url snippet hash
-		else if(hashed.length > 8) 
+		else 
 			startCode = await this.parseCodeHash(hashed);
 
 		this.loadIt(startCode);
@@ -297,7 +311,7 @@ class SnippetPlayground {
 
 			if(evt.key === "s") 
 				// keyboard save
-				this.saveIt();
+				this.saveIt(evt);
 			else if(evt.key === "r") 
 				// keyboard run
 				this.runIt();
@@ -375,6 +389,8 @@ class SnippetPlayground {
 		this.snippet.value = 
 		dat["t"] || "untitled";
 
+		this.ver = dat["v"] || 0;
+
 		this.running = {
 			...this.run, 
 			...JSON
@@ -441,6 +457,8 @@ class SnippetPlayground {
 			);
 
 		}
+
+		this.refreshIt();
 
 		this.runIt();
 		
@@ -649,9 +667,16 @@ class SnippetPlayground {
 
 	injectLibs() {
 
-		// PARSE MD
+		let injectWhat = {
+			[this.vanilla]: [], 
+			// "module": [], 
+			// "importmap": [], 
+			// "import": [], 
+			[this.looks]: []
+		};
 
-		let injections = [this.vanilla, "module", "import", this.looks]
+		let injections = Object
+		.keys(injectWhat)
 		.reduce(
 			(libs, ext) => {
 
@@ -666,38 +691,36 @@ class SnippetPlayground {
 					.matchAll(reg)
 				)
 				.forEach(
-					matched => {
+					matched => 
 						libs[matched[1]]
-						.push(matched[2]);
-					}
+						.push(matched[2])
 				);
 
 				return libs;
 
 			}, 
-			{
-				[this.vanilla]: [], 
-				"module": [], 
-				"import": [], 
-				[this.looks]: []
-			}
+
+			injectWhat
+			
 		);
 
-		console.log(injections);
+		if(DEBUG) console.log(injections);
 
-		if(injections["module"].length + injections["import"].length) 
-			this.snips[this.vanilla].module = true;
+		let vanillaSnip = this.snips[this.vanilla];
 
-		this.snips[this.vanilla].codes = injections[this.vanilla];
+		vanillaSnip.codes = injections[this.vanilla];
 
-		this.snips[this.vanilla].mods = injections["module"];
+		vanillaSnip.sheets = injections[this.looks];
 
-		this.snips[this.vanilla].imports = injections["import"];
+		// if(injections["module"].length + injections["import"].length) vanillaSnip.module = true;
 
-		this.snips[this.vanilla].sheets = injections[this.looks];
+		// vanillaSnip.mods = injections["module"];
+
+		// vanillaSnip.importMap = injections["importmap"];
+
+		// vanillaSnip.imports = injections["import"];
 
 		// set meta snip-data ?
-
 
 	}
 
@@ -805,7 +828,7 @@ class SnippetPlayground {
 			vanillaSoul = !this.classIs(vanillaIceCream.wrap, "snip-noconsole"), 
 			vanillaSky = vanillaIceCream.size;
 
-		return await this.compress(
+		let dumped = await this.compress(
 			this.langs
 			.map(
 				l => 
@@ -848,6 +871,10 @@ class SnippetPlayground {
 			)
 		);
 
+		// console.log("dump size", dumped.length);
+
+		return dumped;
+
 	}
 
 	setHash(h) {
@@ -886,23 +913,44 @@ class SnippetPlayground {
 
 	}
 
-	async saveIt() {
+	refreshIt() {
+
+		document.title = this.snippet.value;
+
+		// version int to xxx.x.x
+		this.vno.innerHTML = "v" + 
+		Math.floor(this.ver / 100) + 
+		"." + 
+		this.ver.toString()
+		.padStart(3, "0").slice(-2)
+		.split("").join(".");
+
+	}
+
+	async saveIt(evt) {
+
+		if(DEBUG) 
+			console.log("save", evt.target);
 
 		if(!this.cur) {
 
+			// new ID
+			this.cur = Date.now().toString(36) 
+			+ Math.random().toString(36).slice(2);
+
+			// v0
+			this.ver = 0;
+
+			// snippet object
 			let newSnippet = {
 
-				"i": Date
-				.now()
-				.toString(36), 
+				"i": this.cur, 
+
+				"v": this.ver, 
 
 				"t": this.snippet.value
 
 			};
-
-			this.cur = newSnippet["i"];
-
-			document.title = newSnippet["t"];
 
 			this.snippets
 			.push(newSnippet);
@@ -918,10 +966,12 @@ class SnippetPlayground {
 			this.content
 			.appendChild(this.cmds);
 
-			this.setHash(newSnippet["i"]);
+			this.setHash(this.cur);
 
 		}
 		else {
+
+			this.ver++;
 
 			let storedSnippet = this.snippets
 			.find(
@@ -933,6 +983,8 @@ class SnippetPlayground {
 			if(storedSnippet) {
 
 				storedSnippet["t"] = this.snippet.value;
+
+				storedSnippet["v"] = this.ver;
 
 				this.getIt(
 					"[href='#" + this.cur + "']", 
@@ -947,11 +999,14 @@ class SnippetPlayground {
 		.setItem(
 			"snippet-" + this.cur, 
 			await this.dumpIt([
-				"i=" + this.cur
+				"i=" + this.cur, 
+				"v=" + this.ver
 			])
 		);
 
 		this.flushStore();
+
+		this.refreshIt();
 
 		// reset delete btn state
 		this.deleteNo();
@@ -1040,34 +1095,35 @@ class SnippetPlayground {
 	async copyIt() {
 
 		// create URL + hash snippet
-		let shareURL = location.origin + 
-		location.pathname + 
-		"#" + await this.dumpIt();
+		let shareURL = location.origin + location.pathname 
+		+ "#" + await this.dumpIt();
 
-		try {
+		// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare
+		// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
+		navigator
+		.share({
 
-			// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare
-			// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
-			await navigator
-			.share({
+			title: this.snippet.value, 
+			url: shareURL
 
-				title: this.snippet.value, 
-				url: shareURL
+		})
+		.catch(
+			err => {
 
-			});
+				console.log(err);
 
-		}
-		catch(err) {
+				// https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
+				navigator.clipboard
+				.writeText(
+					shareURL
+				)
+				.then(
+					() => 
+						this.yes(this.copy)
+				);
 
-			// https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
-			await navigator.clipboard
-			.writeText(
-				shareURL
-			);
-
-		}
-
-		this.yes(this.copy);
+			}
+		);
 
 	}
 
@@ -1165,9 +1221,50 @@ class SnippetPlayground {
 									e.target.result
 								);
 
-								console.log(parsed);
+								// console.log(parsed);
 
-								// easy next
+								parsed["snippets"]
+								.filter(
+									snippet => 
+										parsed[snippet["i"]]
+								)
+								.forEach(
+									snippet => {
+
+										if(DEBUG) 
+											console.log(snippet);
+
+										let hasSnippet = this.snippets
+										.find(
+											already => 
+												already["i"] === snippet["i"]
+										);
+
+										let inject = hasSnippet 
+										&& hasSnippet["v"] > hasSnippet["v"] 
+										|| !hasSnippet;
+
+										if(inject) {
+											
+											// console.log("INJECT", snippet["i"]);
+
+											window.localStorage
+											.setItem(
+												"snippet-" + snippet["i"], 
+												parsed[snippet["i"]]
+											);
+
+											this.menuEntry(snippet);
+
+											this.snippets
+											.push(snippet);
+
+											this.flushStore();
+
+										}
+
+									}
+								);
 
 							}
 							catch(err) {

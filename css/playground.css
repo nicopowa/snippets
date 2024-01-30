@@ -42,7 +42,6 @@ body {
 
 .snip-title {
 
-	flex: 1;
 	padding-left: 2px;
 	padding-right: 8px;
 	color: #888888;
@@ -51,7 +50,8 @@ body {
 	border: none;
 	font-family: inherit;
 	outline: none;
-	max-width: 160px;
+	flex-basis: 100%;
+	min-width: 0;
 
 }
 
@@ -73,7 +73,7 @@ body {
 .header .space {
 
 	height: 100%;
-	flex: 1;
+	flex-basis: 10%;
 
 }
 
@@ -131,7 +131,7 @@ body {
 
 .no {
 
-	color: #770707 !important;
+	color: #c51c1c !important;
 
 }
 
@@ -153,7 +153,7 @@ body {
 
 	position: absolute;
 	left: 4px;
-	bottom: 2px;
+	bottom: 4px;
 	opacity: .5;
 	user-select: none;
 	pointer-events: none;
@@ -206,11 +206,12 @@ textarea.prism-live {
 
 .cmds {
 
-	margin-bottom: 1em;
+	margin: 1em;
 	display: flex;
 	align-items: center;
-	justify-content: space-around;
+	justify-content: space-between;
 	color: #888888;
+	user-select: none;
 	
 }
 
@@ -341,6 +342,8 @@ textarea.prism-live {
 	line-height: 35px;
 	font-size: 22px;
 	color: #888888;
+	user-drag: none;
+	-webkit-user-drag: none;
 
 }
 

@@ -27,12 +27,23 @@
 
 		],
 
-		"options": [
+		"options": {
 
-			{"language_out": "ECMASCRIPT_NEXT"},
-			{"externs": "../snippet/js/snippet.compile.externs.js"}
+			"release": [
 
-		],
+				{"language_out": "ECMASCRIPT_NEXT"},
+				{"externs": "../snippet/js/snippet.compile.externs.js"}
+
+			], 
+
+			"debug": [
+
+				{"language_out": "ECMASCRIPT_NEXT"},
+				{"externs": "../snippet/js/snippet.compile.externs.js"}
+
+			]
+
+		},
 
 		"comment": "© ILUSIO %year https://snipp.et"
 
