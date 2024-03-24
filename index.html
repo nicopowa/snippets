@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 
 	<head>
 	
@@ -11,10 +11,21 @@
       
 		<!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"> -->
 
+		<link rel="manifest" href="snippet.json" crossorigin="use-credentials"/>
+
+		<meta name="description" content="snippet">
+		<meta name="theme-color" content="#000000"/>
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-title" content="snippet">
+
 		<link rel="icon" href="favicon.ico" />
+		<link rel="shortcut icon" type="image/png" href="icon.png"/>
+		<link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
 
 		<link rel="stylesheet" href="css/lib/prism.min.css" media="(prefers-color-scheme: light)">
 		<link rel="stylesheet" href="css/lib/prism.dark.min.css" media="(prefers-color-scheme: dark)">
+		
 		<link rel="stylesheet" href="css/lib/prism-live.css">
 
 		<link rel="stylesheet" href="css/snippetplayground.package.min.css">
@@ -31,21 +42,21 @@
 	</head>
 
 	<body>
+		
+		<header class="header"></header>
 
-		<div class="header"></div>
+		<main class="content"></main>
 
-		<div class="content"></div>
-
-		<div class="menu hide">
+		<nav class="menu hide">
 			<div class="menuwrap">
 				<div class="menutools"></div>
 				<div class="menulists">
-					<ul class="menulist"></ul>
+					<ul class="menulist" role="menu"></ul>
 				</div>
 				<div class="moretools"></div>
 			</div>
-		</div>
-		
+		</nav>
+
 	</body>
 
 </html>

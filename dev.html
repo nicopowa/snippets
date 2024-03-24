@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 
 	<head>
 	
 		<title>snippet</title>
 		
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-		<meta name="viewport" content="initial-scale=1, user-scalable=no, maximum-scale=1, width=device-width, height=device-height">
-      
+		<meta name="viewport" content="initial-scale=1, maximum-scale=5, width=device-width, height=device-height">
+
+		<link rel="manifest" href="snippet.json" crossorigin="use-credentials"/>
+
+		<meta name="description" content="snippet">
+		<meta name="theme-color" content="#000000"/>
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-title" content="snippet">
+
 		<link rel="icon" href="favicon.ico" />
+		<link rel="shortcut icon" type="image/png" href="icon.png"/>
+		<link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
 
 		<link rel="stylesheet" href="css/lib/prism.min.css" media="(prefers-color-scheme: light)">
 		<link rel="stylesheet" href="css/lib/prism.dark.min.css" media="(prefers-color-scheme: dark)">
@@ -43,19 +53,19 @@
 
 	<body>
 		
-		<div class="header"></div>
+		<header class="header"></header>
 
-		<div class="content"></div>
+		<main class="content"></main>
 
-		<div class="menu hide">
+		<nav class="menu hide">
 			<div class="menuwrap">
 				<div class="menutools"></div>
 				<div class="menulists">
-					<ul class="menulist"></ul>
+					<ul class="menulist" role="menu"></ul>
 				</div>
 				<div class="moretools"></div>
 			</div>
-		</div>
+		</nav>
 
 	</body>
 

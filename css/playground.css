@@ -3,10 +3,12 @@ body {
 	padding: 0;
 	margin: 0;
 	font-family: monospace, monospace;
-	touch-action: manipulation;
+	touch-action: pan-y;
 	-webkit-text-size-adjust: none;
-	text-size-adjust: none;
 	-webkit-tap-highlight-color: transparent;
+	text-size-adjust: none;
+	overflow-y: scroll;
+	background-color: #E6E6E6;
 
 }
 
@@ -22,7 +24,7 @@ body {
 	display: flex;
 	align-items: center;
 
-	color: #888888;
+	color: #666666;
 	background-color: #efefef;
 
 	/* -webkit-user-select: none; */
@@ -40,11 +42,11 @@ body {
 
 }
 
-.snip-title {
+.snippet-title {
 
 	padding-left: 2px;
 	padding-right: 8px;
-	color: #888888;
+	color: #666666;
 	font-size: 23px;
 	background: none;
 	border: none;
@@ -55,16 +57,18 @@ body {
 
 }
 
-.snip-title:focus {
+.snippet-title:focus {
 
 
 }
 
-.header > div:not(.space), .menutools > div, .moretools > div {
+.header > div:not(.space), 
+.menutools > div, 
+.moretools > div {
 
 	cursor: pointer;
 	margin-right: 10px;
-	color: #888888;
+	color: #666666;
 	font-size: 22px;
 	text-decoration: underline;
 
@@ -89,37 +93,38 @@ body {
 
 .create::after {
 
-	content: 'new';
+	content: "new";
 	
 }
 
 .about::after {
 
-	content: 'about';
+	content: "about";
+	text-decoration: underline;
 	
 }
 
 .save::after {
 
-	content: 'save';
+	content: "save";
 	
 }
 
 .copy::after {
 
-	content: 'share';
+	content: "share";
 	
 }
 
-.down::after {
+.export::after {
 
-	content: 'dump';
+	content: "dump";
 
 }
 
-.up::after {
+.import::after {
 
-	content: 'load';
+	content: "load";
 
 }
 
@@ -154,12 +159,12 @@ body {
 	position: absolute;
 	left: 4px;
 	bottom: 4px;
-	opacity: .5;
-	user-select: none;
+	/* opacity: .5; */
+	/* user-select: none; */
 	pointer-events: none;
 	font-size: 13px;
 	z-index: 10;
-	color: #888888;
+	color: #666666;
 
 }
 
@@ -185,12 +190,12 @@ textarea.prism-live {
 
 .prism-live a {
 
-	color: #888888;
+	color: #666666;
 
 }
 
 /* hide snipp.et link */
-.snip span a {
+.snip > div > a {
 
 	display: none;
 
@@ -207,18 +212,13 @@ textarea.prism-live {
 .cmds {
 
 	margin: 1em;
+	margin-top: 2em;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	color: #888888;
+	color: #666666;
 	user-select: none;
 	
-}
-
-.cmds {
-
-	margin-top: 2em;
-
 }
 
 .cmd {
@@ -236,13 +236,13 @@ textarea.prism-live {
 
 .cmd.delete::before {
 
-	content: 'delete';
+	content: "delete";
 
 }
 
 .cmd.delete.del-yes::before {
 
-	content: 'confirm';
+	content: "confirm";
 
 }
 
@@ -267,7 +267,7 @@ textarea.prism-live {
 
 .cmd.delete .del-no::before {
 
-	content: 'cancel';
+	content: "cancel";
 
 }
 
@@ -277,7 +277,8 @@ textarea.prism-live {
 
 	position: fixed;
 	top: 40px;
-	width: 220px;
+	min-width: 220px;
+	max-width: 100%;
 	height: 100%;
 	box-sizing: border-box;
 	padding-bottom: 40px;
@@ -336,12 +337,13 @@ textarea.prism-live {
 
 }
 
-.menulist a {
+.menulist a, 
+.about {
 
 	text-decoration: none;
-	line-height: 35px;
+	/* line-height: 35px; */
 	font-size: 22px;
-	color: #888888;
+	color: #666666;
 	user-drag: none;
 	-webkit-user-drag: none;
 
@@ -356,6 +358,12 @@ textarea.prism-live {
 .menulist.hide {
 
 	display: none;
+
+}
+
+::backdrop {
+
+	background-color: #E6E6E6;
 
 }
 
@@ -402,6 +410,16 @@ textarea.prism-live {
 	.header {
 
 		background-color: #202020;
+		/* color: #999999; */
+
+	}
+
+	.header > div:not(.space), 
+	.menutools > div, 
+	.moretools > div, 
+	.snippet-title {
+
+		color: #999999;
 
 	}
 
@@ -409,6 +427,21 @@ textarea.prism-live {
 
 		background-color: #202020;
 	
+	}
+
+	.menulist a, 
+	.about, 
+	.lang, 
+	.cmds {
+
+		color: #999999;
+
+	}
+
+	::backdrop {
+
+		background-color: #171717;
+
 	}
 
 	::-webkit-scrollbar {

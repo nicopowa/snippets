@@ -12,10 +12,6 @@ class SnippetPlayground {
 
 	// HASH CHANGE IF CLICKED LINK FROM OUTSIDE TO SAFARI ON IOS ??
 
-	// REMOVE LIBS MENU AND LOAD FROM MD
-	// @js {URL}
-	// @css {URL}
-
 	// OVERRIDE SNIPPET RUN TO INJECT LIBS
 	// top-level @import inside markdown ?
 
@@ -28,13 +24,19 @@ class SnippetPlayground {
 
 		this._name = "snippets";
 
+		// mark down
+		this.notes = "md";
+
+		// mark up
+		this.corpse = "html";
+
 		// 💻 🍦 🌈
 		this.vanilla = "js";
 
 		this.looks = "css";
 
 		// talk to me
-		this.langs = ["md", "html", this.looks, this.vanilla];
+		this.langs = [this.notes, this.corpse, this.looks, this.vanilla];
 
 		// hell yeah
 		this.ohYes = "yes";
@@ -116,7 +118,7 @@ class SnippetPlayground {
 			this.header, 
 			"input", 
 			"", 
-			"snip-title"
+			"snippet-title"
 		);
 
 		this.snippet.placeholder = "title...";
@@ -145,21 +147,30 @@ class SnippetPlayground {
 		);
 
 		// about link
-		this.about = this.makeDiv(
+		this.about = this.makeIt(
 			this.tools, 
+			"a", 
+			"", 
 			"about"
+		);
+
+		// about anchor
+		this.about
+		.setAttribute(
+			"href", 
+			"#about"
 		);
 
 		// export link
 		this.down = this.makeDiv(
 			this.more, 
-			"down"
+			"export"
 		);
 
 		// import link
 		this.up = this.makeDiv(
 			this.more, 
-			"up"
+			"import"
 		);
 
 		// snippet cmds
@@ -171,7 +182,7 @@ class SnippetPlayground {
 		// version number
 		this.vno = this.makeDiv(
 			this.cmds, 
-			"vno"
+			"version"
 		);
 
 		// delete snippet
@@ -196,29 +207,14 @@ class SnippetPlayground {
 
 		this.addListeners();
 
-		this.liftOff();
-
-	}
-
-	async liftOff() {
-
 		this.listIt();
 
-		let hashed = location.hash
-		.slice(1);
+		this.getHash();
 
-		// if(DEBUG) console.log("hash", hashed);
+		if(!DEBUG) 
+			this.backOff();
 
-		let startCode = {};
-
-		// local snippet hash
-		if(hashed.length <= 18) 
-			startCode = await this.parseMenuHash(hashed);
-		// url snippet hash
-		else 
-			startCode = await this.parseCodeHash(hashed);
-
-		this.loadIt(startCode);
+		// this.spoofMe();
 
 	}
 
@@ -229,7 +225,7 @@ class SnippetPlayground {
 			this.toggleMenu
 		);
 
-		this.hearIt(
+		/*this.hearIt(
 			this.menu, 
 			evt => 
 				// check is menu link
@@ -238,7 +234,7 @@ class SnippetPlayground {
 				&& this.toggleMenu() 
 				// menu callback
 				&& this.menuClick(evt.target.href)
-		);
+		);*/
 
 		this.hearIt(
 			this.cmds,  
@@ -249,7 +245,6 @@ class SnippetPlayground {
 
 		new Map([
 			[this.make, this.createIt], 
-			[this.about, this.aboutIt], 
 			[this.save, this.saveIt], 
 			[this.copy, this.copyIt], 
 			[this.down, this.exportIt], 
@@ -273,6 +268,7 @@ class SnippetPlayground {
 			"keydown"
 		);
 
+		// no need ? mobile history maybe ?
 		/*window
 		.addEventListener(
 			"popstate", 
@@ -283,17 +279,96 @@ class SnippetPlayground {
 			}
 		);*/
 
-		/*window
+		// https://developer.mozilla.org/en-US/docs/Web/API/Window/hashchange_event
+		window
 		.addEventListener(
 			"hashchange", 
-			evt => {
-
-				console.log("hash", evt);
-
-			}
-		);*/
+			() => 
+				this.getHash(), 
+			false
+		);
 
 	}
+
+	async getHash() {
+
+		let hashed = location.hash
+		.slice(1);
+
+		if(DEBUG) console.log("hash", hashed);
+
+		this.closeMenu();
+
+		this.clearIt();
+
+		let enterTheCode = {};
+
+		// about page
+		if(hashed == "about") 
+			enterTheCode = await this.parseCodeHash("H4sIAAAAAAAACo1VS08bMRD+L5Ymp4C2dlXaSDnAkrSqQKoI5YI4OLuTrIPtWdleHqr63yvbmwQoCdmT5/XNzDdjr6nHgyYYPQZRNhzExFvVtscYQJTAp0kFxSmIstP9sfgGotQKxMR1Fnjx4/ryAnhRzmbAi5+zHJjsr70tAS9kVVFnA/ASeJE0FdG9Qv9CU8sg59LjTqRUIwYf8RwCL3wghzXwQtkQETRVUs8CObmMKHMHfApiQm7r8vsqFt1I3/SZ8QGj2WOsrkg+oUng6KLpdTFJ2lAiykaAmFRkgyPte+7EPu6Ac4uPwDnwAsRpJMKhDDGhjElzizspAM69fMAcn/oqr2NHZ3EIsVtelJfnaznhZ/9DkNNc3wJfvQG+2gDnNTik4iaNa9tyr9jERsoddcvm9YD2QNadaV8i4lNLLmwh/XqWC6V3LxRwrknWL4GU+R9o4ci8D/XuOpg6rbcx0tYH7YSyHlPOWMjnYhVzNiG0PpU0jSmcPo7tTGMNx9GBrxvMDcQL+EGzb7JU/qM0yeNtnnzdD6WiclircBAJN9IqreWeh+SXU96k+r8AL9bShUrrPX+OZ4x36AYddTtRSk2+S9tXkmmVTrc/RX8nWu7hbyYTY8k1vxC9JqA0O8kYVN6P51THKDg5y5CtrGtll0caFyGv3Sc0IHorPaBbaHo8esq2RtU12o15QTYcLaRR+jnbDVnyrawwv2hbcR1RkSaXfYGLr+nrjSfng5UfD8JYzqkLAzf+w6w0yEZs5dmQhec2nl1n2ZA1qJZNYCPxbchiR2wUXIdDVpH1pJGNFlJ7HLK8aBtx5dno9m7IKt8ftLL3bHTL4v+HZf3d33/LjWAMkQYAAA==");
+		// local snippet hash
+		else if(hashed.length <= 20) 
+			enterTheCode = await this.parseMenuHash(hashed);
+		// url snippet hash
+		else 
+			enterTheCode = await this.parseCodeHash(hashed);
+
+		this.loadIt(enterTheCode);
+
+	}
+
+	backOff() {
+
+		if(DEBUG) 
+			console.log("service worker");
+
+		if("serviceWorker" in navigator) 
+			navigator.serviceWorker
+			.register("js/playback.js");
+
+	}
+
+	/*spoofMe() {
+
+		let noResult = "search";
+
+		let fakeSearch = document
+		.createElement("input");
+
+		fakeSearch
+		.setAttribute(
+			"type", 
+			noResult
+		);
+
+		this.sing(
+			fakeSearch, 
+			"label", 
+			noResult
+		);
+
+		this.sing(
+			fakeSearch, 
+			"description", 
+			noResult
+		);
+
+		fakeSearch.style.visibility = "hidden";
+
+		document.body
+		.appendChild(fakeSearch);
+
+		let fakeTitle = document
+		.createElement("h1");
+
+		fakeTitle.innerHTML = document.title;
+
+		fakeTitle.style.visibility = "hidden";
+
+		document.body
+		.appendChild(fakeTitle);
+
+	}*/
 
 	/**
 	 * @method handleKeyDown : keyboard shortcuts
@@ -383,11 +458,13 @@ class SnippetPlayground {
 	 */
 	loadIt(dat = {}) {
 
-		if(DEBUG) console.log("load\n", dat);
+		// if(DEBUG) console.log("load\n", dat);
+
+		let snippetTitle = dat["t"] || "untitled";
 
 		document.title = 
 		this.snippet.value = 
-		dat["t"] || "untitled";
+		snippetTitle;
 
 		this.ver = dat["v"] || 0;
 
@@ -400,8 +477,7 @@ class SnippetPlayground {
 			)
 		};
 
-		if(DEBUG) 
-			console.log("run", this.running);
+		if(DEBUG) console.log("load", snippetTitle, "v" + this.ver /*this.running*/);
 
 		// static HTML & CSS
 		this.langs
@@ -430,14 +506,16 @@ class SnippetPlayground {
 			this.snips[this.vanilla].wrap
 		);
 
-		if(this.cur) {
+		this.snips[this.vanilla].frame.title = this.snippet.value;
 
-			// saved snippet
+		// is local snippet
+		if(this.cur) {
 
 			// append cmd menu
 			this.content
 			.appendChild(this.cmds);
 
+			// reset save btn state
 			this.classOut(
 				this.save, 
 				"no"
@@ -447,10 +525,20 @@ class SnippetPlayground {
 			this.deleteNo();
 
 		}
+		// unsaved snippet
 		else {
 
-			// unsaved snippet
+			// no data check
+			if(!Object.keys(dat).length) {
 
+				if(DEBUG) 
+					console.log("no data");
+
+				this.clearHash();
+
+			}
+
+			// set unsaved btn state
 			this.classIt(
 				this.save, 
 				"no"
@@ -460,7 +548,22 @@ class SnippetPlayground {
 
 		this.refreshIt();
 
-		this.runIt();
+		// check useful run
+		let usefulRun = this.langs
+		.slice(-3)
+		.map(
+			lang => 
+				this.snips[lang].contents.length 
+		)
+		.some(
+			len => 
+				len > 0
+		);
+
+		if(usefulRun) 
+			this.runIt();
+		else if(DEBUG) 
+			console.log("nothing to run");
 		
 	}
 
@@ -474,7 +577,9 @@ class SnippetPlayground {
 
 		this.cur = "";
 
-		this.langs
+		// this.langs
+		Object
+		.keys(this.snips)
 		.forEach(
 			lang => {
 
@@ -498,7 +603,7 @@ class SnippetPlayground {
 		this.prisms = {};
 		this.codes = {};
 
-		// this.setHash("");
+		// this.clearHash();
 
 	}
 
@@ -560,6 +665,13 @@ class SnippetPlayground {
 		let prismed = new Prism
 		.Live(pre);
 
+		// text area aria
+		this.sing(
+			prismed.textarea, 
+			"label", 
+			"code-" + lang
+		);
+
 		this.prisms[lang] = prismed;
 
 		// init Snippet
@@ -586,7 +698,10 @@ class SnippetPlayground {
 		let cmd = this.cmd
 		.find(
 			o => 
-				this.classIs(btn, o) 
+				this.classIs(
+					btn, 
+					o
+				) 
 		);
 
 		// if(DEBUG) console.log("cmd", cmd);
@@ -624,9 +739,9 @@ class SnippetPlayground {
 
 		[this.menu, this.btn]
 		.forEach(
-			e => 
+			el => 
 				this.classOut(
-					e, 
+					el, 
 					"hide"
 				)
 		);
@@ -637,16 +752,16 @@ class SnippetPlayground {
 
 		[this.menu, this.btn]
 		.forEach(
-			e => 
+			el => 
 				this.classIt(
-					e, 
+					el, 
 					"hide"
 				)
 		);
 
 	}
 
-	async menuClick(entry) {
+	/*async menuClick(entry) {
 
 		entry = entry
 		.slice(
@@ -663,7 +778,7 @@ class SnippetPlayground {
 			await this.parseMenuHash(entry)
 		);
 
-	}
+	}*/
 
 	injectLibs() {
 
@@ -687,7 +802,7 @@ class SnippetPlayground {
 
 				Array
 				.from(
-					this.prisms["md"].textarea.value
+					this.prisms[this.notes].textarea.value
 					.matchAll(reg)
 				)
 				.forEach(
@@ -704,7 +819,7 @@ class SnippetPlayground {
 			
 		);
 
-		if(DEBUG) console.log(injections);
+		// if(DEBUG) console.log(injections);
 
 		let vanillaSnip = this.snips[this.vanilla];
 
@@ -730,7 +845,8 @@ class SnippetPlayground {
 		let menuEl = this.makeIt(
 			this.list, 
 			"li", 
-			""
+			"", 
+			"menuitem"
 		);
 
 		// create entry link
@@ -752,6 +868,28 @@ class SnippetPlayground {
 	async compress(plainStr) {
 
 		return btoa(
+			new Uint8Array(
+				await new Response(
+					new Response(plainStr).body
+					.pipeThrough(
+						new CompressionStream(
+							"gzip"
+						)
+					)
+				)
+				.arrayBuffer()
+			)
+			.reduce(
+				(d, b) => 
+					d + 
+					String
+					.fromCharCode(b), 
+				""
+			)
+		);
+
+		// String.fromCharCode max call stack
+		/*return btoa(
 			String
 			.fromCharCode(
 				...new Uint8Array(
@@ -764,7 +902,7 @@ class SnippetPlayground {
 					.arrayBuffer()
 				)
 			)
-		);
+		);*/
 
 	}
 
@@ -781,7 +919,9 @@ class SnippetPlayground {
 				)
 			).body
 			.pipeThrough(
-				new DecompressionStream("gzip")
+				new DecompressionStream(
+					"gzip"
+				)
 			)
 		)
 		.text();
@@ -796,36 +936,15 @@ class SnippetPlayground {
 
 		this.loadIt();
 
-		this.setHash("");
-
-	}
-
-	async aboutIt() {
-
-		this.closeMenu();
-
-		this.clearIt();
-
-		// + mail contact code@snipp.et
-
-		this.loadIt(
-			await this.parseCodeHash(
-				await (
-					await fetch("about.snippet")
-				)
-				.text()
-			)
-		);
-
-		this.setHash("");
+		// this.clearHash();
 
 	}
 
 	async dumpIt(addSome = []) {
 
 		let vanillaIceCream = this.snips[this.vanilla], 
-			vanillaMeat = !this.classIs(vanillaIceCream.wrap, "snip-nobody"), 
-			vanillaSoul = !this.classIs(vanillaIceCream.wrap, "snip-noconsole"), 
+			vanillaMeat = !this.classIs(vanillaIceCream.wrap, "noone"), 
+			vanillaSoul = !this.classIs(vanillaIceCream.wrap, "nolog"), 
 			vanillaSky = vanillaIceCream.size;
 
 		let dumped = await this.compress(
@@ -877,13 +996,26 @@ class SnippetPlayground {
 
 	}
 
+	clearHash() {
+
+		if(DEBUG) 
+			console.log("clear hash");
+
+		history
+		.pushState(
+			"", 
+			document.title, 
+			window.location.pathname + window.location.search
+		);
+
+	}
+
 	setHash(h) {
 
+		if(DEBUG) 
+			console.log("set hash", h);
+
 		// CHROMIUM 121 HASH CHANGE CRASH AW SNAP ??
-
-		// location.hash = h;
-
-		// location.replace("#" + h); 
 
 		history
 		.replaceState(
@@ -1279,6 +1411,9 @@ class SnippetPlayground {
 
 				}
 
+				fileBrowser
+				.remove();
+
 			}
 		);
 
@@ -1329,6 +1464,12 @@ class SnippetPlayground {
 
 		let newEl = document
 		.createElement(el);
+
+		/*this.sing(
+			newEl, 
+			"label", 
+			cl[0]
+		);*/
 
 		if(cnt) 
 			newEl.innerHTML = cnt;
@@ -1392,6 +1533,16 @@ class SnippetPlayground {
 
 		el.classList
 		.toggle(cl);
+
+	}
+
+	sing(el, aria, tune) {
+
+		el
+		.setAttribute(
+			"aria-" + aria, 
+			tune
+		);
 
 	}
 	
