@@ -4,13 +4,13 @@
 
 		"files": [
 
-			"js/playground.js"
+			"js/snippets.js"
 
 		],
 
 		"styles": [
 
-			"css/playground.css"
+			"css/snippets.css"
 
 		],
 
@@ -45,7 +45,7 @@
 
 		},
 
-		"comment": "© NICOPR %year https://snipp.et"
+		"comment": "© ILUSIO %year https://snipp.et"
 
 	}
 	

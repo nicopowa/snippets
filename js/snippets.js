@@ -8,14 +8,18 @@ window
 class SnippetPlayground {
 
 	// RTC SHARING
+	// QRCODE ?
 	// OPEN LOCAL FILESYSTEM DIRECTORY & RUN INDEX + CSS + JS
 
-	// HASH CHANGE IF CLICKED LINK FROM OUTSIDE TO SAFARI ON IOS ??
+	// HASH CHANGE IF CLICKED LINK FROM OUTSIDE TO SAFARI ON IOS
+	// FIXED ?
 
 	// OVERRIDE SNIPPET RUN TO INJECT LIBS
 	// top-level @import inside markdown ?
 
 	// RESOURCE INTEGRITY
+
+	// DISPLAY ERRORS IN MD AREA ?
 
 	// IMPORT MAPS
 	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap
@@ -33,13 +37,22 @@ class SnippetPlayground {
 		// 💻 🍦 🌈
 		this.vanilla = "js";
 
+		// my eyes
 		this.looks = "css";
 
 		// talk to me
-		this.langs = [this.notes, this.corpse, this.looks, this.vanilla];
+		this.langs = [
+			this.notes, 
+			this.corpse, 
+			this.looks, 
+			this.vanilla
+		];
 
 		// hell yeah
 		this.ohYes = "yes";
+
+		// hell no
+		this.ohNo = "no";
 
 		// snippet cmds
 		this.cmd = [
@@ -58,7 +71,8 @@ class SnippetPlayground {
 			"insert": false, 
 			[this.vanilla]: [], 
 			[this.looks]: [], 
-			"link": this.langs.slice(1, -1)
+			"link": this.langs
+			.slice(1, -1)
 		};
 
 		// snippet id
@@ -81,6 +95,9 @@ class SnippetPlayground {
 
 		// Snippets store
 		this.snippets = [];
+
+		// about page
+		this.readme = "H4sIAAAAAAAACo1VS08bMRD+L5Ymp4C2dlXaSDnAkrSqQKoI5YI4OLuTrIPtWdleHqr63yvbmwQoCdmT5/XNzDdjr6nHgyYYPQZRNhzExFvVtscYQJTAp0kFxSmIstP9sfgGotQKxMR1Fnjx4/ryAnhRzmbAi5+zHJjsr70tAS9kVVFnA/ASeJE0FdG9Qv9CU8sg59LjTqRUIwYf8RwCL3wghzXwQtkQETRVUs8CObmMKHMHfApiQm7r8vsqFt1I3/SZ8QGj2WOsrkg+oUng6KLpdTFJ2lAiykaAmFRkgyPte+7EPu6Ac4uPwDnwAsRpJMKhDDGhjElzizspAM69fMAcn/oqr2NHZ3EIsVtelJfnaznhZ/9DkNNc3wJfvQG+2gDnNTik4iaNa9tyr9jERsoddcvm9YD2QNadaV8i4lNLLmwh/XqWC6V3LxRwrknWL4GU+R9o4ci8D/XuOpg6rbcx0tYH7YSyHlPOWMjnYhVzNiG0PpU0jSmcPo7tTGMNx9GBrxvMDcQL+EGzb7JU/qM0yeNtnnzdD6WiclircBAJN9IqreWeh+SXU96k+r8AL9bShUrrPX+OZ4x36AYddTtRSk2+S9tXkmmVTrc/RX8nWu7hbyYTY8k1vxC9JqA0O8kYVN6P51THKDg5y5CtrGtll0caFyGv3Sc0IHorPaBbaHo8esq2RtU12o15QTYcLaRR+jnbDVnyrawwv2hbcR1RkSaXfYGLr+nrjSfng5UfD8JYzqkLAzf+w6w0yEZs5dmQhec2nl1n2ZA1qJZNYCPxbchiR2wUXIdDVpH1pJGNFlJ7HLK8aBtx5dno9m7IKt8ftLL3bHTL4v+HZf3d33/LjWAMkQYAAA==";
 
 		// page header
 		this.header = this.getIt(".header");
@@ -113,7 +130,7 @@ class SnippetPlayground {
 			"wrap"
 		);
 
-		// title
+		// title input
 		this.snippet = this.makeIt(
 			this.header, 
 			"input", 
@@ -123,6 +140,7 @@ class SnippetPlayground {
 
 		this.snippet.placeholder = "title...";
 
+		// 
 		this.makeDiv(
 			this.header, 
 			"space"
@@ -137,7 +155,9 @@ class SnippetPlayground {
 		// copy link
 		this.copy = this.makeDiv(
 			this.header, 
-			"copy"
+			navigator.canShare ? 
+			"share" 
+			: "copy"
 		);
 
 		// create link
@@ -205,19 +225,22 @@ class SnippetPlayground {
 			"del-no"
 		);
 
-		this.addListeners();
-
 		this.listIt();
 
-		this.getHash();
+		this.addListeners();
 
 		if(!DEBUG) 
-			this.backOff();
+			this.runService();
+
+		this.getHash();
 
 		// this.spoofMe();
 
 	}
 
+	/**
+	 * @method addListeners : events incoming
+	 */
 	addListeners() {
 
 		this.hearIt(
@@ -225,6 +248,7 @@ class SnippetPlayground {
 			this.toggleMenu
 		);
 
+		// no more listener, hash change trigger
 		/*this.hearIt(
 			this.menu, 
 			evt => 
@@ -268,7 +292,8 @@ class SnippetPlayground {
 			"keydown"
 		);
 
-		// no need ? mobile history maybe ?
+		// no need, handled by url hashes
+		// https://developer.mozilla.org/en-US/docs/Web/API/Window/popstate_event
 		/*window
 		.addEventListener(
 			"popstate", 
@@ -290,41 +315,56 @@ class SnippetPlayground {
 
 	}
 
-	async getHash() {
+	/**
+	 * @method getHash : hash change event
+	 */
+	getHash() {
+
+		this.closeMenu();
+
+		this.clearIt();
+
+		this.parseHash()
+		.then(
+			enterTheCode => 
+				this.loadIt(enterTheCode)
+		);
+
+	}
+
+	/**
+	 * @method parseHash : parse url hash
+	 */
+	parseHash() {
 
 		let hashed = location.hash
 		.slice(1);
 
 		if(DEBUG) console.log("hash", hashed);
 
-		this.closeMenu();
-
-		this.clearIt();
-
-		let enterTheCode = {};
-
 		// about page
 		if(hashed == "about") 
-			enterTheCode = await this.parseCodeHash("H4sIAAAAAAAACo1VS08bMRD+L5Ymp4C2dlXaSDnAkrSqQKoI5YI4OLuTrIPtWdleHqr63yvbmwQoCdmT5/XNzDdjr6nHgyYYPQZRNhzExFvVtscYQJTAp0kFxSmIstP9sfgGotQKxMR1Fnjx4/ryAnhRzmbAi5+zHJjsr70tAS9kVVFnA/ASeJE0FdG9Qv9CU8sg59LjTqRUIwYf8RwCL3wghzXwQtkQETRVUs8CObmMKHMHfApiQm7r8vsqFt1I3/SZ8QGj2WOsrkg+oUng6KLpdTFJ2lAiykaAmFRkgyPte+7EPu6Ac4uPwDnwAsRpJMKhDDGhjElzizspAM69fMAcn/oqr2NHZ3EIsVtelJfnaznhZ/9DkNNc3wJfvQG+2gDnNTik4iaNa9tyr9jERsoddcvm9YD2QNadaV8i4lNLLmwh/XqWC6V3LxRwrknWL4GU+R9o4ci8D/XuOpg6rbcx0tYH7YSyHlPOWMjnYhVzNiG0PpU0jSmcPo7tTGMNx9GBrxvMDcQL+EGzb7JU/qM0yeNtnnzdD6WiclircBAJN9IqreWeh+SXU96k+r8AL9bShUrrPX+OZ4x36AYddTtRSk2+S9tXkmmVTrc/RX8nWu7hbyYTY8k1vxC9JqA0O8kYVN6P51THKDg5y5CtrGtll0caFyGv3Sc0IHorPaBbaHo8esq2RtU12o15QTYcLaRR+jnbDVnyrawwv2hbcR1RkSaXfYGLr+nrjSfng5UfD8JYzqkLAzf+w6w0yEZs5dmQhec2nl1n2ZA1qJZNYCPxbchiR2wUXIdDVpH1pJGNFlJ7HLK8aBtx5dno9m7IKt8ftLL3bHTL4v+HZf3d33/LjWAMkQYAAA==");
+			return this.parseCodeHash(this.readme);
 		// local snippet hash
 		else if(hashed.length <= 20) 
-			enterTheCode = await this.parseMenuHash(hashed);
+			return this.parseMenuHash(hashed);
 		// url snippet hash
 		else 
-			enterTheCode = await this.parseCodeHash(hashed);
-
-		this.loadIt(enterTheCode);
+			return this.parseCodeHash(hashed);
 
 	}
 
-	backOff() {
+	/**
+	 * @method runService : run service worker
+	 */
+	runService() {
 
 		if(DEBUG) 
 			console.log("service worker");
 
 		if("serviceWorker" in navigator) 
 			navigator.serviceWorker
-			.register("js/playback.js");
+			.register("js/service.js");
 
 	}
 
@@ -372,7 +412,7 @@ class SnippetPlayground {
 
 	/**
 	 * @method handleKeyDown : keyboard shortcuts
-	 * @param {KeyboardEvent} evt : 
+	 * @param {KeyboardEvent} evt : where is the key
 	 */
 	handleKeyDown(evt) {
 
@@ -395,6 +435,10 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method parseMenuHash : load code from localStorage
+	 * @param {string} h : id hash
+	 */
 	async parseMenuHash(h) {
 
 		if(
@@ -411,7 +455,8 @@ class SnippetPlayground {
 
 			return await this.parseCodeHash(
 				window.localStorage
-				.getItem("snippet-" + h)
+				.getItem("snippet-" + h) 
+				|| ""
 			);
 
 		}
@@ -420,25 +465,26 @@ class SnippetPlayground {
 
 	}
 
-	async parseCodeHash(h) {
+	/**
+	 * @method parseCodeHash : load code from url hash
+	 * @param {string} codeHash : code hash
+	 */
+	async parseCodeHash(codeHash) {
 
 		try {
 
-			// parse hash
-			return Object
-			.fromEntries(
-				new URLSearchParams(
-					await (
-						this.decompress(
-							h
-						)
-						.catch(
-							() => 
-								({})
-						)
-					)
-				)
-			);
+			let decompressed = await this.decompress(codeHash);
+
+			// URI style
+			if(decompressed.startsWith("md=")) 
+				return Object
+				.fromEntries(
+					new URLSearchParams(decompressed)
+				);
+			// JSON style
+			else 
+				return JSON
+				.parse(decompressed)
 		
 		}
 		catch(err) {
@@ -460,6 +506,8 @@ class SnippetPlayground {
 
 		// if(DEBUG) console.log("load\n", dat);
 
+		this.topIt();
+
 		let snippetTitle = dat["t"] || "untitled";
 
 		document.title = 
@@ -470,10 +518,14 @@ class SnippetPlayground {
 
 		this.running = {
 			...this.run, 
-			...JSON
-			.parse(
-				dat["r"] 
-				|| "{}"
+			...(
+				typeof dat["r"] === "string" ?
+				JSON
+				.parse(
+					dat["r"] 
+					|| "{}"
+				)
+				: dat["r"]
 			)
 		};
 
@@ -518,7 +570,7 @@ class SnippetPlayground {
 			// reset save btn state
 			this.classOut(
 				this.save, 
-				"no"
+				this.ohNo
 			);
 
 			// reset delete btn state
@@ -541,7 +593,7 @@ class SnippetPlayground {
 			// set unsaved btn state
 			this.classIt(
 				this.save, 
-				"no"
+				this.ohNo
 			);
 
 		}
@@ -567,6 +619,9 @@ class SnippetPlayground {
 		
 	}
 
+	/**
+	 * @method clearIt : clear it
+	 */
 	clearIt() {
 
 		// if(DEBUG) console.log("clear");
@@ -679,12 +734,24 @@ class SnippetPlayground {
 
 	}
 
-	runIt() {
+	/**
+	 * @method topIt : back to top
+	 */
+	topIt() {
 
 		window
 		.scroll(
 			0, 0
 		);
+
+	}
+
+	/**
+	 * @method runIt : get that code running
+	 */
+	runIt() {
+
+		this.topIt();
 
 		this.injectLibs();
 
@@ -693,6 +760,10 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method cmdClick : clicked bottom toolbar btn
+	 * @param {Element} btn : cmd btn
+	 */
 	cmdClick(btn) {
 
 		let cmd = this.cmd
@@ -724,17 +795,9 @@ class SnippetPlayground {
 
 	}
 
-	toggleMenu() {
-
-		if(this.classIs(this.menu, "hide")) 
-			this.openMenu();
-		else 
-			this.closeMenu();
-
-		return true;
-
-	}
-
+	/**
+	 * @method openMenu : come in
+	 */
 	openMenu() {
 
 		[this.menu, this.btn]
@@ -748,6 +811,9 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method closeMenu : go away
+	 */
 	closeMenu() {
 
 		[this.menu, this.btn]
@@ -761,6 +827,23 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method toggleMenu : come away
+	 */
+	toggleMenu() {
+
+		if(this.classIs(this.menu, "hide")) 
+			this.openMenu();
+		else 
+			this.closeMenu();
+
+		// was inlined from event callback
+		// return true;
+
+	}
+
+	// no more click listener
+	// trust the hash
 	/*async menuClick(entry) {
 
 		entry = entry
@@ -780,6 +863,9 @@ class SnippetPlayground {
 
 	}*/
 
+	/**
+	 * @method injectLibs : 
+	 */
 	injectLibs() {
 
 		let injectWhat = {
@@ -819,13 +905,26 @@ class SnippetPlayground {
 			
 		);
 
-		// if(DEBUG) console.log(injections);
+		// if(DEBUG) console.log("inject\n", injections);
 
+		Object
+		.assign(
+			this.snips[this.vanilla], 
+			{
+				codes: injections[this.vanilla], 
+				sheets: injections[this.looks]
+			}
+		);
+
+		/*
+		// was
 		let vanillaSnip = this.snips[this.vanilla];
-
 		vanillaSnip.codes = injections[this.vanilla];
-
 		vanillaSnip.sheets = injections[this.looks];
+		*/
+
+
+		// USELESS OLDIES
 
 		// if(injections["module"].length + injections["import"].length) vanillaSnip.module = true;
 
@@ -839,6 +938,10 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method menuEntry : create snippet menu entry
+	 * @param {Object} entry : snippet data
+	 */
 	menuEntry(entry) {
 
 		// create menu entry
@@ -865,6 +968,10 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method compress : crush it
+	 * @param {string} plainStr : 
+	 */
 	async compress(plainStr) {
 
 		return btoa(
@@ -888,7 +995,7 @@ class SnippetPlayground {
 			)
 		);
 
-		// String.fromCharCode max call stack
+		// String.fromCharCode max args length call stack
 		/*return btoa(
 			String
 			.fromCharCode(
@@ -906,7 +1013,13 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method decompress : welcome back
+	 * @param {string} b64Str : 
+	 */
 	async decompress(b64Str) {
+
+		if(DEBUG) console.log("decompress", b64Str.length);
 
 		return await new Response(
 			new Response(
@@ -928,6 +1041,9 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method createIt : blank
+	 */
 	createIt() {
 
 		this.closeMenu();
@@ -936,66 +1052,102 @@ class SnippetPlayground {
 
 		this.loadIt();
 
-		// this.clearHash();
-
 	}
 
-	async dumpIt(addSome = []) {
+	/**
+	 * @method dumpIt : 
+	 * @param {Object} moreProps 
+	 */
+	async dumpIt(moreProps = {}) {
 
 		let vanillaIceCream = this.snips[this.vanilla], 
+			vanillaWrap = vanillaIceCream.wrap, 
+			vanillaEverything = JSON
+			.stringify({
+				// snippet codes
+				...this.langs
+				.reduce(
+					(dumping, l) => ({
+						...dumping, 
+						[l]: this.prisms[l].textarea.value
+					}), 
+					{
+						// snippet title
+						"t": this.snippet.value, 
+						// snippet settings
+						"r": {
+							...this.running, 
+							// render height
+							"height": vanillaIceCream.size, 
+							// iframe state
+							"body": !this.classIs(vanillaWrap, "noone"), 
+							// console state
+							"console": !this.classIs(vanillaWrap, "nolog")
+						}, 
+						// snippet id and version fropm arg
+						...moreProps
+					}
+				)
+			});
+
+		// console.log(vanillaEverything);
+
+		// OLD URLPARAMS DUMP
+
+		/*let vanillaIceCream = this.snips[this.vanilla], 
 			vanillaMeat = !this.classIs(vanillaIceCream.wrap, "noone"), 
 			vanillaSoul = !this.classIs(vanillaIceCream.wrap, "nolog"), 
 			vanillaSky = vanillaIceCream.size;
 
-		let dumped = await this.compress(
-			this.langs
-			.map(
-				l => 
-					l + "=" + 
-					encodeURIComponent(
-						this.prisms[l].textarea.value
-					)
-			)
-			.concat(
-				[
-					// custom params
-					...addSome, 
+		let vanillaEverything = this.langs
+		.map(
+			l => 
+				l + "=" + 
+				// was encodeURIComponent
+				this.prisms[l].textarea.value
+		)
+		.concat(
+			[
 
-					// title
-					"t=" + encodeURIComponent(
-						this.snippet.value
-					), 
+				// custom params
+				moreProps, 
 
-					// run settings
-					"r=" + JSON
-					.stringify({
-						...this.running, 
-						"height": vanillaSky, 
-						"body": vanillaMeat, 
-						"console": vanillaSoul, 
-					}), 
+				// title
+				"t=" + 
+				// was encodeURIComponent
+				this.snippet.value, 
 
-					// TODO FULLSCREEN
-					// "f=1", 
+				// run settings
+				"r=" + JSON
+				.stringify({
+					...this.running, 
+					"height": vanillaSky, 
+					"body": vanillaMeat, 
+					"console": vanillaSoul, 
+				})
 
-					// TODO AUTORUN
-					// "a=1", 
-					
-					// TODO LOAD SCRIPTS & STYLES
-
-				]
-			)
-			.join(
-				"&"
-			)
+			]
+		)
+		.join(
+			"&"
 		);
 
-		// console.log("dump size", dumped.length);
+		// console.log(vanillaEverything);
+		*/
+
+		if(DEBUG) console.log("compress", vanillaEverything.length);
+
+		let dumped = await this.compress(vanillaEverything);
+
+		if(DEBUG) console.log("compressed", dumped.length);
 
 		return dumped;
 
 	}
 
+	/**
+	 * @method clearHash : empty hash
+	 */
 	clearHash() {
 
 		if(DEBUG) 
@@ -1010,6 +1162,10 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method setHash : set page URL hash
+	 * @param {string} h : 
+	 */
 	setHash(h) {
 
 		if(DEBUG) 
@@ -1026,6 +1182,9 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method listIt : menu entries
+	 */
 	listIt() {
 
 		this.snippets = JSON
@@ -1045,30 +1204,47 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method refreshIt : update page title && version number display
+	 */
 	refreshIt() {
 
 		document.title = this.snippet.value;
 
 		// version int to xxx.x.x
 		this.vno.innerHTML = "v" + 
-		Math.floor(this.ver / 100) + 
+		Math
+		.floor(this.ver / 100) + 
 		"." + 
-		this.ver.toString()
-		.padStart(3, "0").slice(-2)
-		.split("").join(".");
+		this.ver
+		.toString()
+		.padStart(3, "0")
+		.slice(-2)
+		.split("")
+		.join(".");
 
 	}
 
+	/**
+	 * @method saveIt : save snippet
+	 * @param {MouseEvent|TouchEvent|KeyboardEvent} evt : 
+	 */
 	async saveIt(evt) {
 
 		if(DEBUG) 
 			console.log("save", evt.target);
 
+		// first time
 		if(!this.cur) {
-
-			// new ID
-			this.cur = Date.now().toString(36) 
-			+ Math.random().toString(36).slice(2);
+			
+			// gen id
+			this.cur = Date
+			.now()
+			.toString(36) 
+			+ Math
+			.random()
+			.toString(36)
+			.slice(2);
 
 			// v0
 			this.ver = 0;
@@ -1077,34 +1253,36 @@ class SnippetPlayground {
 			let newSnippet = {
 
 				"i": this.cur, 
-
 				"v": this.ver, 
-
 				"t": this.snippet.value
 
 			};
 
+			// push to snippets
 			this.snippets
 			.push(newSnippet);
 
+			// add menu entry
 			this.menuEntry(newSnippet);
 
-			// remove unsaved snippet tip
+			// unsaved snippet tip
 			this.classOut(
 				this.save, 
-				"no"
+				this.ohNo
 			);
 
+			// disp version and delete btn
 			this.content
 			.appendChild(this.cmds);
 
+			// set id hash
 			this.setHash(this.cur);
 
 		}
+		// next times
 		else {
 
-			this.ver++;
-
+			// find snippet data
 			let storedSnippet = this.snippets
 			.find(
 				s => 
@@ -1114,41 +1292,55 @@ class SnippetPlayground {
 			// update menu title
 			if(storedSnippet) {
 
+				// next version
+				this.ver++;
+
+				// update title
 				storedSnippet["t"] = this.snippet.value;
 
+				// update version
 				storedSnippet["v"] = this.ver;
 
+				// update menu entry
 				this.getIt(
 					"[href='#" + this.cur + "']", 
 					this.list
-				).innerHTML = storedSnippet["t"];
+				)
+				.innerHTML = storedSnippet["t"];
 
 			}
 
 		}
 
+		// flush to local storage
 		window.localStorage
 		.setItem(
 			"snippet-" + this.cur, 
-			await this.dumpIt([
-				"i=" + this.cur, 
-				"v=" + this.ver
-			])
+			await this.dumpIt({
+				"i": this.cur, 
+				"v": this.ver
+			})
 		);
 
+		// update snippets list
 		this.flushStore();
 
+		// refresh page title and version number
 		this.refreshIt();
 
 		// reset delete btn state
 		this.deleteNo();
 
+		// so satisfying
 		this.yes(
 			this.save
 		);
 
 	}
 
+	/**
+	 * @method flushStore : save snippets list to localStorage
+	 */
 	flushStore() {
 
 		window.localStorage
@@ -1162,6 +1354,10 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method askDelete : are you sure ?
+	 * @param {Element} btn : 
+	 */
 	askDelete(btn) {
 
 		// if(DEBUG) console.log("ask del");
@@ -1173,6 +1369,9 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method deleteIt : trash it
+	 */
 	deleteIt() {
 
 		// if(DEBUG) console.log("confirm del");
@@ -1211,6 +1410,9 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method deleteNo : changed my mind
+	 */
 	deleteNo() {
 
 		// if(DEBUG) console.log("cancel del");
@@ -1224,41 +1426,95 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method copyIt : export snippet to URL hash
+	 * @suppress {deprecated}
+	 */
 	async copyIt() {
 
 		// create URL + hash snippet
 		let shareURL = location.origin + location.pathname 
 		+ "#" + await this.dumpIt();
 
-		// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare
-		// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
-		navigator
-		.share({
+		if(navigator.canShare) {
 
-			title: this.snippet.value, 
-			url: shareURL
+			// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/canShare
+			// https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
+			navigator
+			.share({
 
-		})
-		.catch(
+				title: this.snippet.value, 
+				url: shareURL
+
+			});
+
+		}
+		else if(navigator.clipboard) {
+
+			// https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
+			navigator.clipboard
+			.writeText(
+				shareURL
+			)
+			.then(
+				() => 
+					this.yes(this.copy)
+			);
+
+		}
+		else {
+
+			/*let forceCopy = document
+			.createElement("textarea");
+
+			forceCopy.value = shareURL;
+
+			forceCopy.style.display = "none";
+
+			document.body
+			.appendChild(forceCopy);
+
+			forceCopy
+			.focus();
+
+			forceCopy
+			.select();
+
+			try {
+
+				document
+				.execCommand("copy");
+
+				this.yes(this.copy);
+
+			}
+			catch (err) {
+
+				this.yes(this.copy, false);
+
+			}
+
+			document.body
+			.removeChild(forceCopy);*/
+
+		}
+
+		
+		/*.catch(
 			err => {
 
 				console.log(err);
 
-				// https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
-				navigator.clipboard
-				.writeText(
-					shareURL
-				)
-				.then(
-					() => 
-						this.yes(this.copy)
-				);
+				this.no()
 
 			}
-		);
+		);*/
 
 	}
 
+	/**
+	 * @method exportIt : save snippets to file
+	 */
 	exportIt() {
 
 		// if(DEBUG) console.log("export");
@@ -1270,7 +1526,8 @@ class SnippetPlayground {
 				let snippetId = snippet["i"];
 
 				dumping[snippetId] = window.localStorage
-				.getItem("snippet-" + snippetId);
+				.getItem("snippet-" + snippetId) 
+				|| "";
 
 				return dumping;
 
@@ -1316,6 +1573,9 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method importIt : load snippets from file
+	 */
 	importIt() {
 
 		// if(DEBUG) console.log("import");
@@ -1344,13 +1604,13 @@ class SnippetPlayground {
 					fileReader
 					.addEventListener(
 						"loadend", 
-						e => {
+						evt => {
 
 							try {
 
 								let parsed = JSON
 								.parse(
-									e.target.result
+									evt.target.result
 								);
 
 								// console.log(parsed);
@@ -1366,12 +1626,18 @@ class SnippetPlayground {
 										if(DEBUG) 
 											console.log(snippet);
 
+										// check snippet id exists
 										let hasSnippet = this.snippets
 										.find(
 											already => 
 												already["i"] === snippet["i"]
 										);
 
+										// if exists check older version
+										// and overwrite
+										// confirm ?
+										// keep both ?
+										// rename previous version ?
 										let inject = hasSnippet 
 										&& hasSnippet["v"] > hasSnippet["v"] 
 										|| !hasSnippet;
@@ -1422,18 +1688,25 @@ class SnippetPlayground {
 
 	}
 
-	yes(btn) {
+	/**
+	 * @method yes : temp supergreen so satisfying
+	 * @param {Element} el : 
+	 * @param {!boolean=} indeed : false to say no
+	 */
+	yes(el, indeed = true) {
+
+		let cl = indeed ? this.ohYes : this.ohNo;
 
 		this.classIt(
-			btn, 
-			this.ohYes
+			el, 
+			cl
 		);
 
 		setTimeout(
 			() => 
 				this.classOut(
-					btn, 
-					this.ohYes
+					el, 
+					cl
 				), 
 			750
 		);
@@ -1442,6 +1715,11 @@ class SnippetPlayground {
 
 	// UTILS
 
+	/**
+	 * @method makeDiv : div factory
+	 * @param {Element} par : parent element
+	 * @param  {...string} cl : classes
+	 */
 	makeDiv(par, ...cl) {
 
 		return this.makeIt(
@@ -1487,7 +1765,12 @@ class SnippetPlayground {
 
 	}
 
-	getIt(sel, par = document) {
+	/**
+	 * @method getIt : querySelector macro
+	 * @param {string} sel : query
+	 * @param {Element} par : parent
+	 */
+	getIt(sel, par = document.body) {
 
 		return par
 		.querySelector(
@@ -1496,6 +1779,12 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method hearIt : addEVentListener macro
+	 * @param {Node|HTMLElement} el : 
+	 * @param {Function} cb : 
+	 * @param {!string=} evtName : 
+	 */
 	hearIt(el, cb, evtName = "click") {
 
 		el
@@ -1508,6 +1797,11 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method classIs : has class macro
+	 * @param {Element} el : 
+	 * @param {string} cl : 
+	 */
 	classIs(el, cl) {
 
 		return el.classList
@@ -1515,6 +1809,11 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method classIt : add class macro
+	 * @param {Element} el : 
+	 * @param {...string} cl : 
+	 */
 	classIt(el, ...cl) {
 
 		el.classList
@@ -1522,6 +1821,11 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method classOut : remove class macro
+	 * @param {Element} el : 
+	 * @param {...string} cl : 
+	 */
 	classOut(el, ...cl) {
 
 		el.classList
@@ -1529,6 +1833,11 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method classUs : toggle class macro
+	 * @param {Element} el : 
+	 * @param {string} cl : 
+	 */
 	classUs(el, cl) {
 
 		el.classList
@@ -1536,6 +1845,12 @@ class SnippetPlayground {
 
 	}
 
+	/**
+	 * @method sing : 100% supergreen confetti all over the place
+	 * @param {Element} el : 
+	 * @param {string} aria : aria field
+	 * @param {string} tune : aria value
+	 */
 	sing(el, aria, tune) {
 
 		el

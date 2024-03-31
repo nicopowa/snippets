@@ -12,13 +12,13 @@ const snippetFiles = [
 	"js/lib/prism-live.js", 
 	"js/lib/prism.min.js", 
 
-	"js/snippetplayground.package.release.min.js", 
+	"js/snippets.package.release.min.js", 
 
 	"css/lib/prism-live.css", 
 	"css/lib/prism.dark.min.css", 
 	"css/lib/prism.min.css", 
 
-	"css/snippetplayground.package.min.css", 
+	"css/snippets.package.min.css", 
 
 	"apple-touch-icon-precomposed.png", 
 	"apple-touch-icon.png", 
@@ -28,6 +28,7 @@ const snippetFiles = [
 	"icon.png", 
 	"icon32.png", 
 	"iconmask.png"
+	
 ]
 .map(
 	filePath => 

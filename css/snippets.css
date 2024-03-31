@@ -1,13 +1,24 @@
+html {
+
+	height: 100%;
+
+}
+
 body {
 
 	padding: 0;
 	margin: 0;
+
+	overflow-y: scroll;
+
 	font-family: monospace, monospace;
-	touch-action: pan-y;
-	-webkit-text-size-adjust: none;
+
+	touch-action: none;
+
+	-webkit-text-size-adjust: 100%;
 	-webkit-tap-highlight-color: transparent;
 	text-size-adjust: none;
-	overflow-y: scroll;
+
 	background-color: #E6E6E6;
 
 }
@@ -112,6 +123,12 @@ body {
 
 .copy::after {
 
+	content: "copy";
+	
+}
+
+.share::after {
+
 	content: "share";
 	
 }
@@ -159,8 +176,6 @@ body {
 	position: absolute;
 	left: 4px;
 	bottom: 4px;
-	/* opacity: .5; */
-	/* user-select: none; */
 	pointer-events: none;
 	font-size: 13px;
 	z-index: 10;
@@ -168,7 +183,7 @@ body {
 
 }
 
-/* set code max height */
+/* code editor max height */
 .prism-live {
 
 	/* max-height: 400px; */
@@ -177,7 +192,6 @@ body {
 
 pre.prism-live {
 
-    /* padding-bottom: 0.2em; */
 	padding-right: 0.5em;
 
 }
@@ -204,6 +218,7 @@ textarea.prism-live {
 .snip > div > iframe {
 
 	user-select: none;
+	-webkit-user-select: none;
 
 }
 
@@ -277,8 +292,8 @@ textarea.prism-live {
 
 	position: fixed;
 	top: 40px;
-	min-width: 220px;
-	max-width: 100%;
+	width: 100%;
+	max-width: 480px;
 	height: 100%;
 	box-sizing: border-box;
 	padding-bottom: 40px;
