@@ -84,20 +84,17 @@ class SnippetPlayground {
 		// current snippet run options
 		this.running = {};
 
-		// Code blocs
+		// code blocs
 		this.codes = {};
 
-		// Snippet instances
+		// snippet instances
 		this.snips = {};
 
-		// Prism Live instances
+		// prism Live instances
 		this.prisms = {};
 
-		// Snippets store
+		// snippets store
 		this.snippets = [];
-
-		// about page
-		this.readme = "H4sIAAAAAAAACo1VS08bMRD+L5Ymp4C2dlXaSDnAkrSqQKoI5YI4OLuTrIPtWdleHqr63yvbmwQoCdmT5/XNzDdjr6nHgyYYPQZRNhzExFvVtscYQJTAp0kFxSmIstP9sfgGotQKxMR1Fnjx4/ryAnhRzmbAi5+zHJjsr70tAS9kVVFnA/ASeJE0FdG9Qv9CU8sg59LjTqRUIwYf8RwCL3wghzXwQtkQETRVUs8CObmMKHMHfApiQm7r8vsqFt1I3/SZ8QGj2WOsrkg+oUng6KLpdTFJ2lAiykaAmFRkgyPte+7EPu6Ac4uPwDnwAsRpJMKhDDGhjElzizspAM69fMAcn/oqr2NHZ3EIsVtelJfnaznhZ/9DkNNc3wJfvQG+2gDnNTik4iaNa9tyr9jERsoddcvm9YD2QNadaV8i4lNLLmwh/XqWC6V3LxRwrknWL4GU+R9o4ci8D/XuOpg6rbcx0tYH7YSyHlPOWMjnYhVzNiG0PpU0jSmcPo7tTGMNx9GBrxvMDcQL+EGzb7JU/qM0yeNtnnzdD6WiclircBAJN9IqreWeh+SXU96k+r8AL9bShUrrPX+OZ4x36AYddTtRSk2+S9tXkmmVTrc/RX8nWu7hbyYTY8k1vxC9JqA0O8kYVN6P51THKDg5y5CtrGtll0caFyGv3Sc0IHorPaBbaHo8esq2RtU12o15QTYcLaRR+jnbDVnyrawwv2hbcR1RkSaXfYGLr+nrjSfng5UfD8JYzqkLAzf+w6w0yEZs5dmQhec2nl1n2ZA1qJZNYCPxbchiR2wUXIdDVpH1pJGNFlJ7HLK8aBtx5dno9m7IKt8ftLL3bHTL4v+HZf3d33/LjWAMkQYAAA==";
 
 		// page header
 		this.header = this.getIt(".header");
@@ -180,11 +177,17 @@ class SnippetPlayground {
 			"about"
 		);
 
-		// about anchor
+		// about href
 		this.about
 		.setAttribute(
 			"href", 
-			"#about"
+			"https://github.com/nicopowa/snippets"
+		);
+
+		this.about
+		.setAttribute(
+			"target", 
+			"_blank"
 		);
 
 		// export link
@@ -344,11 +347,8 @@ class SnippetPlayground {
 
 		if(DEBUG) console.log("hash", hashed);
 
-		// about page
-		if(hashed == "about") 
-			return this.parseCodeHash(this.readme);
 		// local snippet hash
-		else if(hashed.length <= 20) 
+		if(hashed.length <= 20) 
 			return this.parseMenuHash(hashed);
 		// url snippet hash
 		else 
