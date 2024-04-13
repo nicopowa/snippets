@@ -20,7 +20,7 @@
 			"purpose": "maskable"
 		}
 	],
-	"start_url": "/",
+	"start_url": "/snippets",
 	"display_override": ["fullscreen", "minimal-ui"],
   	"display": "standalone",
 	"orientation": "portrait-primary",
