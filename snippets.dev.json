@@ -1,7 +1,7 @@
 {
-	"name": "snippet",
-	"short_name": "snippet",
-	"description": "snippet",
+	"name": "snippets",
+	"short_name": "snippets",
+	"description": "snippets",
 	"icons": [
 		{
 			"src": "icon32.png",

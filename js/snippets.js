@@ -111,8 +111,8 @@ class SnippetPlayground {
 		// menu tools
 		this.tools = this.getIt(".menutools");
 
-		// more tools
-		this.more = this.getIt(".moretools");
+		// menu list wrap
+		this.lists = this.getIt(".menulists");
 
 		// menu list
 		this.list = this.getIt(".menulist");
@@ -122,6 +122,12 @@ class SnippetPlayground {
 			this.header, 
 			"menubtn", 
 			"hide"
+		);
+
+		// close btn
+		this.cbtn = this.makeDiv(
+			this.tools, 
+			"closebtn"
 		);
 
 		// snippet output wrapper
@@ -183,13 +189,13 @@ class SnippetPlayground {
 
 		// export link
 		this.down = this.makeDiv(
-			this.more, 
+			this.tools, 
 			"export"
 		);
 
 		// import link
 		this.up = this.makeDiv(
-			this.more, 
+			this.tools, 
 			"import"
 		);
 
@@ -245,25 +251,21 @@ class SnippetPlayground {
 
 		this.hearIt(
 			this.btn, 
-			this.toggleMenu
+			this.openMenu
 		);
 
-		// no more listener, hash change trigger
-		/*this.hearIt(
-			this.menu, 
-			evt => 
-				// check is menu link
-				evt.target.nodeName === "A" 
-				// close menu after link click
-				&& this.toggleMenu() 
-				// menu callback
-				&& this.menuClick(evt.target.href)
-		);*/
+		this.hearIt(
+			this.cbtn, 
+			this.closeMenu
+		);
 
 		this.hearIt(
 			this.cmds,  
 			evt => 
-				this.classIs(evt.target, "cmd") 
+				this.classIs(
+					evt.target, 
+					"cmd"
+				) 
 				&& this.cmdClick(evt.target)
 		);
 
@@ -424,11 +426,11 @@ class SnippetPlayground {
 			evt
 			.preventDefault();
 
+			// keyboard save shortcut
 			if(evt.key === "s") 
-				// keyboard save
 				this.saveIt(evt);
+			// keyboard run shortcut
 			else if(evt.key === "r") 
-				// keyboard run
 				this.runIt();
 
 		}
@@ -473,10 +475,14 @@ class SnippetPlayground {
 
 		try {
 
-			let decompressed = await this.decompress(codeHash);
+			let decompressed = (await this.decompress(codeHash)).trim();
 
-			// URI style
-			if(decompressed.startsWith("md=")) 
+			// old URI style
+			if(
+				decompressed.startsWith("md=") 
+				// very old
+				|| decompressed.startsWith("html=") 
+			) 
 				return Object
 				.fromEntries(
 					new URLSearchParams(decompressed)
@@ -510,8 +516,8 @@ class SnippetPlayground {
 
 		let snippetTitle = dat["t"] || "untitled";
 
-		document.title = 
 		this.snippet.value = 
+		document.title = 
 		snippetTitle;
 
 		this.ver = dat["v"] || 0;
@@ -630,7 +636,10 @@ class SnippetPlayground {
 			this.cmds
 			.remove();
 
-		this.cur = "";
+		this.cur = 
+		this.snippet.value = 
+		document.title = 
+		"";
 
 		// this.langs
 		Object
@@ -800,14 +809,12 @@ class SnippetPlayground {
 	 */
 	openMenu() {
 
-		[this.menu, this.btn]
-		.forEach(
-			el => 
-				this.classOut(
-					el, 
-					"hide"
-				)
+		this.classOut(
+			this.menu, 
+			"hide"
 		);
+
+		this.lists.scrollTop = 0;
 
 	}
 
@@ -816,52 +823,12 @@ class SnippetPlayground {
 	 */
 	closeMenu() {
 
-		[this.menu, this.btn]
-		.forEach(
-			el => 
-				this.classIt(
-					el, 
-					"hide"
-				)
+		this.classIt(
+			this.menu, 
+			"hide"
 		);
 
 	}
-
-	/**
-	 * @method toggleMenu : come away
-	 */
-	toggleMenu() {
-
-		if(this.classIs(this.menu, "hide")) 
-			this.openMenu();
-		else 
-			this.closeMenu();
-
-		// was inlined from event callback
-		// return true;
-
-	}
-
-	// no more click listener
-	// trust the hash
-	/*async menuClick(entry) {
-
-		entry = entry
-		.slice(
-			entry
-			.lastIndexOf("#") 
-			+ 1
-		);
-
-		// if(DEBUG) console.log("menu", entry);
-
-		this.clearIt();
-
-		this.loadIt(
-			await this.parseMenuHash(entry)
-		);
-
-	}*/
 
 	/**
 	 * @method injectLibs : 
@@ -1830,18 +1797,6 @@ class SnippetPlayground {
 
 		el.classList
 		.remove(...cl);
-
-	}
-
-	/**
-	 * @method classUs : toggle class macro
-	 * @param {Element} el : 
-	 * @param {string} cl : 
-	 */
-	classUs(el, cl) {
-
-		el.classList
-		.toggle(cl);
 
 	}
 
