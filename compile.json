@@ -47,6 +47,36 @@
 
 		"comment": "© %year ILUSIO / NICO PR"
 
+	},
+
+	"package-service": {
+
+		"files": [
+
+			"js/service.js"
+
+		],
+
+		"styles": [],
+
+		"merge": [],
+
+		"externs": [],
+
+		"options": {
+
+			"release": [
+				{"externs": "js/ext/cache.externs.js"}
+			], 
+
+			"debug": [
+				{"externs": "js/ext/cache.externs.js"}
+			]
+
+		},
+
+		"comment": "© %year ILUSIO / NICO PR"
+
 	}
 	
 }

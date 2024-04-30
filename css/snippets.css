@@ -141,6 +141,12 @@ body {
 	
 }
 
+.open::after {
+
+	content: "open";
+
+}
+
 .export::after {
 
 	content: "dump";
@@ -167,14 +173,27 @@ body {
 
 .wrap {
 
-	margin-top: 10px;
+	margin-top: .5em;
+	margin-bottom: 2em;
+
+}
+
+.lwrap {
+
+	margin-top: 1em;
 
 }
 
 .code {
 
 	position: relative;
-	margin-top: 1em;
+	
+
+}
+
+.code:not(:first-child) {
+
+	/* DELETE BLOC BTN */
 
 }
 
@@ -235,7 +254,7 @@ textarea.prism-live {
 .cmds {
 
 	margin: 1em;
-	margin-top: 2em;
+	margin-top: 1.5em;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -248,6 +267,12 @@ textarea.prism-live {
 
 	cursor: pointer;
 	font-size: large;
+
+}
+
+.cmd.more::before {
+
+	content: "+code";
 
 }
 

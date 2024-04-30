@@ -21,6 +21,10 @@ class SnippetPlayground {
 
 	// DISPLAY ERRORS IN MD AREA ?
 
+	// MULTIPLE JS SNIPPETS && LINK
+	// DONE
+	// ADD BTNS NEW BLOC AND DELETE + CONFIRM
+
 	// IMPORT MAPS
 	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap
 
@@ -56,9 +60,13 @@ class SnippetPlayground {
 
 		// snippet cmds
 		this.cmd = [
+
+			"more", 
+
 			"del-" + this.ohYes, 
 			"del-no", 
 			"delete"
+
 		];
 
 		// default run options
@@ -71,6 +79,7 @@ class SnippetPlayground {
 			"insert": false, 
 			[this.vanilla]: [], 
 			[this.looks]: [], 
+			// TODO LINK NEW BLOCKS
 			"link": this.langs
 			.slice(1, -1)
 		};
@@ -143,7 +152,7 @@ class SnippetPlayground {
 
 		this.snippet.placeholder = "title...";
 
-		// 
+		// space please
 		this.makeDiv(
 			this.header, 
 			"space"
@@ -190,6 +199,12 @@ class SnippetPlayground {
 			"_blank"
 		);
 
+		// open link
+		/*this.open = this.makeDiv(
+			this.tools, 
+			"open"
+		);*/
+
 		// export link
 		this.down = this.makeDiv(
 			this.tools, 
@@ -214,6 +229,13 @@ class SnippetPlayground {
 			"version"
 		);
 
+		// more code
+		/*this.more = this.makeDiv(
+			this.cmds, 
+			"cmd", 
+			"more"
+		);*/
+
 		// delete snippet
 		let del = this.makeDiv(
 			this.cmds, 
@@ -232,6 +254,21 @@ class SnippetPlayground {
 			del, 
 			"cmd", 
 			"del-no"
+		);
+
+		this.wraps = new Map();
+
+		this.langs
+		.forEach(
+			lang => 
+				this.wraps
+				.set(
+					lang, 
+					this.makeDiv(
+						this.content, 
+						"lwrap"
+					)
+				)
 		);
 
 		this.listIt();
@@ -276,6 +313,7 @@ class SnippetPlayground {
 			[this.make, this.createIt], 
 			[this.save, this.saveIt], 
 			[this.copy, this.copyIt], 
+			// [this.open, this.openIt], 
 			[this.down, this.exportIt], 
 			[this.up, this.importIt], 
 		])
@@ -366,7 +404,10 @@ class SnippetPlayground {
 
 		if("serviceWorker" in navigator) 
 			navigator.serviceWorker
-			.register("js/service.js");
+			.register(
+				"js/snippets.package-service.release.min.js"
+				// "js/service.js"
+			);
 
 	}
 
@@ -475,7 +516,10 @@ class SnippetPlayground {
 
 		try {
 
-			let decompressed = (await this.decompress(codeHash)).trim();
+			let decompressed = (
+				await this.decompress(codeHash)
+			)
+			.trim();
 
 			// old URI style
 			if(
@@ -518,6 +562,10 @@ class SnippetPlayground {
 
 		this.snippet.value = 
 		document.title = 
+
+		document.head
+		.querySelector("meta[property='og:title']").content = 
+
 		snippetTitle;
 
 		this.ver = dat["v"] || 0;
@@ -539,32 +587,58 @@ class SnippetPlayground {
 
 		// static HTML & CSS
 		this.langs
-		.slice(0, -1)
 		.forEach(
-			lang => 
-				this.bloc(
-					lang, 
-					{
-						"name": lang, 
-						"type": ""
-					}, 
-					dat[lang] || ""
-				)
+			lang => {
+
+				if(DEBUG) console.log("lang", lang);
+
+				this.snips[lang] = [];
+				this.codes[lang] = [];
+				this.prisms[lang] = [];
+
+				if(!Array.isArray(dat[lang])) 
+					dat[lang] = [dat[lang]];
+
+				let langWrap = this.wraps
+				.get(lang);
+
+				dat[lang]
+				.forEach(
+					(langCode, langIndex) => {
+
+						this.bloc(
+							lang, 
+							(
+								lang === this.vanilla ? 
+								(
+									langIndex ? 
+									{} 
+									: this.running
+								)
+								: {
+									"name": lang, 
+									"type": ""
+								}
+							), 
+							langCode, 
+							langWrap
+						);
+
+					}
+				);
+
+			}	
 		);
 
-		// run JS
-		this.bloc(
-			this.vanilla, 
-			this.running, 
-			dat[this.vanilla] || ""
-		);
+		let runSnippet = this.snips[this.vanilla][0];
 
 		this.snip
 		.appendChild(
-			this.snips[this.vanilla].wrap
+			runSnippet.wrap
 		);
 
-		this.snips[this.vanilla].frame.title = this.snippet.value;
+		// iframe title
+		runSnippet.frame.title = this.snippet.value;
 
 		// is local snippet
 		if(this.cur) {
@@ -609,9 +683,13 @@ class SnippetPlayground {
 		// check useful run
 		let usefulRun = this.langs
 		.slice(-3)
-		.map(
+		.flatMap(
 			lang => 
-				this.snips[lang].contents.length 
+				this.snips[lang]
+				.map(
+					code => 
+						code.contents.length 
+				)
 		)
 		.some(
 			len => 
@@ -649,23 +727,50 @@ class SnippetPlayground {
 
 				// if(DEBUG) console.log("remove", lang);
 
-				Snippet
-				.remove(
-					this.snips[lang].id
+				this.snips[lang]
+				.forEach(
+					snip => {
+
+						Snippet
+						.remove(
+							snip.id
+						);
+
+					}
 				);
 
+				this.snips[lang] = [];
+
 				// TODO CLEAN CLEAR PRISM LIVE !!
-				this.prisms[lang] = null;
+				this.prisms[lang]
+				.forEach(
+					prism => {
+
+						prism = null;
+
+					}
+				);
+
+				this.prisms[lang] = [];
 
 				this.codes[lang]
-				.remove();
+				.forEach(
+					code => {
+
+						code
+						.remove();
+
+					}
+				);
+
+				this.codes[lang] = [];
 
 			}
 		);
 
-		this.snips = {};
-		this.prisms = {};
-		this.codes = {};
+		// this.snips = {};
+		// this.prisms = {};
+		// this.codes = {};
 
 		// this.clearHash();
 
@@ -676,12 +781,14 @@ class SnippetPlayground {
 	 * @param {string} lang : bloc lang
 	 * @param {Object} metas : lang meta 
 	 * @param {string} content : code source
+	 * @param {HTMLElement} par : lang wrap
 	 */
-	bloc(lang, metas, content) {
+	bloc(lang, metas, content, par) {
 
 		// code bloc wrap
 		let wrap = this.makeDiv(
-			this.content, 
+			// this.content, 
+			par, 
 			"code"
 		);
 
@@ -720,10 +827,12 @@ class SnippetPlayground {
 			)
 		);
 
+		// insert code content
 		codeBloc.textContent = content;
 
 		// keep bloc
-		this.codes[lang] = wrap;
+		this.codes[lang]
+		.push(wrap);
 
 		// init Prism
 		let prismed = new Prism
@@ -736,10 +845,18 @@ class SnippetPlayground {
 			"code-" + lang
 		);
 
-		this.prisms[lang] = prismed;
+		this.prisms[lang]
+		.push(prismed);
+
+		let newSnippet = new Snippet(codeBloc);
 
 		// init Snippet
-		this.snips[lang] = new Snippet(codeBloc);
+		this.snips[lang]
+		.push(
+			newSnippet
+		);
+
+		return newSnippet;
 
 	}
 
@@ -764,7 +881,7 @@ class SnippetPlayground {
 
 		this.injectLibs();
 
-		this.snips[this.vanilla]
+		this.snips[this.vanilla][0]
 		._run();
 
 	}
@@ -784,20 +901,32 @@ class SnippetPlayground {
 				) 
 		);
 
-		// if(DEBUG) console.log("cmd", cmd);
+		if(DEBUG) console.log("cmd", cmd);
 
 		switch(cmd) {
 
+			case "more":
+
+				this.moreCode();
+
+				break;
+
 			case "delete": 
+
 				this.askDelete(btn);
+
 				break;
 
 			case "del-yes": 
+
 				this.deleteIt();
+
 				break;
 
 			case "del-no": 
+
 				this.deleteNo();
+
 				break;
 
 		}
@@ -855,7 +984,7 @@ class SnippetPlayground {
 
 				Array
 				.from(
-					this.prisms[this.notes].textarea.value
+					this.prisms[this.notes][0].textarea.value
 					.matchAll(reg)
 				)
 				.forEach(
@@ -876,20 +1005,12 @@ class SnippetPlayground {
 
 		Object
 		.assign(
-			this.snips[this.vanilla], 
+			this.snips[this.vanilla][0], 
 			{
 				codes: injections[this.vanilla], 
 				sheets: injections[this.looks]
 			}
 		);
-
-		/*
-		// was
-		let vanillaSnip = this.snips[this.vanilla];
-		vanillaSnip.codes = injections[this.vanilla];
-		vanillaSnip.sheets = injections[this.looks];
-		*/
-
 
 		// USELESS OLDIES
 
@@ -1027,7 +1148,7 @@ class SnippetPlayground {
 	 */
 	async dumpIt(moreProps = {}) {
 
-		let vanillaIceCream = this.snips[this.vanilla], 
+		let vanillaIceCream = this.snips[this.vanilla][0], 
 			vanillaWrap = vanillaIceCream.wrap, 
 			vanillaEverything = JSON
 			.stringify({
@@ -1036,7 +1157,11 @@ class SnippetPlayground {
 				.reduce(
 					(dumping, l) => ({
 						...dumping, 
-						[l]: this.prisms[l].textarea.value
+						[l]: this.prisms[l]
+						.map(
+							code => 
+								code.textarea.value
+						)
 					}), 
 					{
 						// snippet title
@@ -1056,51 +1181,6 @@ class SnippetPlayground {
 					}
 				)
 			});
-
-		// console.log(vanillaEverything);
-
-		// OLD URLPARAMS DUMP
-
-		/*let vanillaIceCream = this.snips[this.vanilla], 
-			vanillaMeat = !this.classIs(vanillaIceCream.wrap, "noone"), 
-			vanillaSoul = !this.classIs(vanillaIceCream.wrap, "nolog"), 
-			vanillaSky = vanillaIceCream.size;
-
-		let vanillaEverything = this.langs
-		.map(
-			l => 
-				l + "=" + 
-				// was encodeURIComponent
-				this.prisms[l].textarea.value
-		)
-		.concat(
-			[
-
-				// custom params
-				moreProps, 
-
-				// title
-				"t=" + 
-				// was encodeURIComponent
-				this.snippet.value, 
-
-				// run settings
-				"r=" + JSON
-				.stringify({
-					...this.running, 
-					"height": vanillaSky, 
-					"body": vanillaMeat, 
-					"console": vanillaSoul, 
-				})
-
-			]
-		)
-		.join(
-			"&"
-		);
-
-		// console.log(vanillaEverything);
-		*/
 
 		if(DEBUG) console.log("compress", vanillaEverything.length);
 
@@ -1146,6 +1226,21 @@ class SnippetPlayground {
 			"",  
 			"#" + h
 		);
+
+	}
+
+	/**
+	 * @method genId : generate unique id
+	 */
+	genId() {
+
+		return Date
+		.now()
+		.toString(36) 
+		+ Math
+		.random()
+		.toString(36)
+		.slice(2);
 
 	}
 
@@ -1205,13 +1300,7 @@ class SnippetPlayground {
 		if(!this.cur) {
 			
 			// gen id
-			this.cur = Date
-			.now()
-			.toString(36) 
-			+ Math
-			.random()
-			.toString(36)
-			.slice(2);
+			this.cur = this.genId();
 
 			// v0
 			this.ver = 0;
@@ -1322,6 +1411,15 @@ class SnippetPlayground {
 	}
 
 	/**
+	 * @method moreCode : code blocs
+	 */
+	moreCode() {
+
+		console.log("more code");
+
+	}
+
+	/**
 	 * @method askDelete : are you sure ?
 	 * @param {Element} btn : 
 	 */
@@ -1416,8 +1514,7 @@ class SnippetPlayground {
 			});
 
 		}
-		else if(navigator.clipboard) {
-
+		else if(navigator.clipboard) 
 			// https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
 			navigator.clipboard
 			.writeText(
@@ -1426,12 +1523,12 @@ class SnippetPlayground {
 			.then(
 				() => 
 					this.yes(this.copy)
-			);
+			)
+		/*else {
 
-		}
-		else {
+			// savage obsolete textarea copy fallback 
 
-			/*let forceCopy = document
+			let forceCopy = document
 			.createElement("textarea");
 
 			forceCopy.value = shareURL;
@@ -1462,20 +1559,56 @@ class SnippetPlayground {
 			}
 
 			document.body
-			.removeChild(forceCopy);*/
+			.removeChild(forceCopy);
 
-		}
+		}*/
 
-		
-		/*.catch(
+	}
+
+	/**
+	 * @method openIt : load snippet from local directory
+	 */
+	openIt() {
+
+		window
+		.showDirectoryPicker()
+		.then(
+			dirHandle => 
+				this.readDir(dirHandle)
+		)
+		.catch(
 			err => {
 
-				console.log(err);
+				if(DEBUG) {
+					
+					console.log("open dir fail");
+					console.log(err);	
 
-				this.no()
+				}
 
 			}
-		);*/
+		);
+
+	}
+
+	async readDir(dirHandle) {
+
+		for await(let subHandle of dirHandle.values()) {
+
+			// console.log("handle", handle);
+
+			if(subHandle.kind == "directory") {
+
+				console.log("dir", subHandle);
+
+			}
+			else if(subHandle.kind == "file") {
+
+				console.log("file", subHandle);
+
+			}
+
+		}
 
 	}
 
