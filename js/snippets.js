@@ -61,11 +61,15 @@ class SnippetPlayground {
 		// snippet cmds
 		this.cmd = [
 
-			"more", 
+			"add", 
 
+			"rem", 
+			"rem-" + this.ohYes, 
+			"rem-" + this.ohNo,  
+
+			"del", 
 			"del-" + this.ohYes, 
-			"del-no", 
-			"delete"
+			"del-" + this.ohNo
 
 		];
 
@@ -80,8 +84,8 @@ class SnippetPlayground {
 			[this.vanilla]: [], 
 			[this.looks]: [], 
 			// TODO LINK NEW BLOCKS
-			"link": this.langs
-			.slice(1, -1)
+			/*"link": this.langs
+			.slice(1, -1)*/
 		};
 
 		// snippet id
@@ -155,7 +159,7 @@ class SnippetPlayground {
 		// space please
 		this.makeDiv(
 			this.header, 
-			"space"
+			"spc"
 		);
 
 		// save link
@@ -186,20 +190,15 @@ class SnippetPlayground {
 			"about"
 		);
 
-		// about href
-		this.about
-		.setAttribute(
-			"href", 
-			"https://github.com/nicopowa/snippets"
-		);
+		this.attrs(
+			this.about, 
+			{
+				"href": "https://github.com/nicopowa/snippets", 
+				"target": "_blank"
+			}
+		)
 
-		this.about
-		.setAttribute(
-			"target", 
-			"_blank"
-		);
-
-		// open link
+		// open directory link
 		/*this.open = this.makeDiv(
 			this.tools, 
 			"open"
@@ -226,49 +225,76 @@ class SnippetPlayground {
 		// version number
 		this.vno = this.makeDiv(
 			this.cmds, 
-			"version"
+			"ver"
 		);
 
-		// more code
-		/*this.more = this.makeDiv(
-			this.cmds, 
-			"cmd", 
-			"more"
-		);*/
-
 		// delete snippet
-		let del = this.makeDiv(
+		this.del = this.makeDiv(
 			this.cmds, 
 			"cmd", 
-			"delete"
+			"del"
+		);
+
+		// del confirm btn
+		this.makeDiv(
+			this.del, 
+			"cmd", 
+			"del-" + this.ohYes
+		);
+
+		// del cancel btn
+		this.makeDiv(
+			this.del, 
+			"cmd", 
+			"del-" + this.ohNo
 		);
 
 		// delete space confirm ___ cancel
-		this.makeDiv(
-			del, 
-			"del-space"
+		/*this.makeDiv(
+			this.del, 
+			"del-spc"
 		);
 
 		// delete cancel
 		this.makeDiv(
-			del, 
+			this.del, 
 			"cmd", 
-			"del-no"
-		);
+			"del-" + this.ohNo
+		);*/
 
 		this.wraps = new Map();
 
 		this.langs
 		.forEach(
-			lang => 
+			lang => {
+
+				let langWrap = this.makeDiv(
+					this.content, 
+					"lwrap"
+				);
+
+				// lang top tools ?
+
+				let langCodes = this.makeDiv(
+					langWrap, 
+					"lcode"
+				);
+
+				// lang toolbar
+				/*let langTools = this.makeDiv(
+					langWrap, 
+					"ltool"
+				);*/
+
+				// add lang was here
+
 				this.wraps
 				.set(
 					lang, 
-					this.makeDiv(
-						this.content, 
-						"lwrap"
-					)
-				)
+					langWrap
+				);
+
+			}
 		);
 
 		this.listIt();
@@ -289,24 +315,16 @@ class SnippetPlayground {
 	 */
 	addListeners() {
 
+		// open menu
 		this.hearIt(
 			this.btn, 
 			this.openMenu
 		);
 
+		// close menu
 		this.hearIt(
 			this.cbtn, 
 			this.closeMenu
-		);
-
-		this.hearIt(
-			this.cmds,  
-			evt => 
-				this.classIs(
-					evt.target, 
-					"cmd"
-				) 
-				&& this.cmdClick(evt.target)
 		);
 
 		new Map([
@@ -333,6 +351,16 @@ class SnippetPlayground {
 					(evt)
 				), 
 			"keydown"
+		);
+
+		this.hearIt(
+			this.cmds, 
+			evt => 
+				this.classIs(
+					evt.target, 
+					"cmd"
+				) 
+				&& this.cmdClick(evt.target)
 		);
 
 		// no need, handled by url hashes
@@ -562,10 +590,6 @@ class SnippetPlayground {
 
 		this.snippet.value = 
 		document.title = 
-
-		document.head
-		.querySelector("meta[property='og:title']").content = 
-
 		snippetTitle;
 
 		this.ver = dat["v"] || 0;
@@ -585,12 +609,11 @@ class SnippetPlayground {
 
 		if(DEBUG) console.log("load", snippetTitle, "v" + this.ver /*this.running*/);
 
-		// static HTML & CSS
 		this.langs
 		.forEach(
 			lang => {
 
-				if(DEBUG) console.log("lang", lang);
+				// if(DEBUG) console.log("lang", lang);
 
 				this.snips[lang] = [];
 				this.codes[lang] = [];
@@ -609,19 +632,16 @@ class SnippetPlayground {
 						this.bloc(
 							lang, 
 							(
-								lang === this.vanilla ? 
-								(
-									langIndex ? 
-									{} 
-									: this.running
-								)
+								lang === this.vanilla 
+								&& !langIndex ? 
+								this.running 
 								: {
-									"name": lang, 
+									"name": lang + "-" + langIndex, 
 									"type": ""
 								}
 							), 
 							langCode, 
-							langWrap
+							langWrap.firstChild
 						);
 
 					}
@@ -639,6 +659,10 @@ class SnippetPlayground {
 
 		// iframe title
 		runSnippet.frame.title = this.snippet.value;
+
+		// set pre run
+		runSnippet.pre = () => 
+			this.preRun();
 
 		// is local snippet
 		if(this.cur) {
@@ -671,10 +695,7 @@ class SnippetPlayground {
 			}
 
 			// set unsaved btn state
-			this.classIt(
-				this.save, 
-				this.ohNo
-			);
+			this.unsaved();
 
 		}
 
@@ -785,24 +806,18 @@ class SnippetPlayground {
 	 */
 	bloc(lang, metas, content, par) {
 
+		// console.log("bloc", lang, metas);
+
 		// code bloc wrap
-		let wrap = this.makeDiv(
+		let codeWrap = this.makeDiv(
 			// this.content, 
 			par, 
 			"code"
 		);
 
-		// lang indicator
-		this.makeIt(
-			wrap, 
-			"div", 
-			lang, 
-			"lang"
-		);
-
 		// code wrapper
 		let pre = this.makeIt(
-			wrap, 
+			codeWrap, 
 			"pre", 
 			"", 
 			"prism-live", 
@@ -818,8 +833,8 @@ class SnippetPlayground {
 			"language-" + lang
 		);
 
-		codeBloc
-		.setAttribute(
+		this.attrs(
+			codeBloc, 
 			"data-snip", 
 			encodeURI(
 				JSON
@@ -830,9 +845,21 @@ class SnippetPlayground {
 		// insert code content
 		codeBloc.textContent = content;
 
+		// lang indicator
+		let lng = this.makeDiv(
+			pre, 
+			"lang"
+		);
+
+		this.attrs(
+			lng, 
+			"lang", 
+			lang
+		);
+
 		// keep bloc
 		this.codes[lang]
-		.push(wrap);
+		.push(codeWrap);
 
 		// init Prism
 		let prismed = new Prism
@@ -848,6 +875,7 @@ class SnippetPlayground {
 		this.prisms[lang]
 		.push(prismed);
 
+		// md snippet instance ?
 		let newSnippet = new Snippet(codeBloc);
 
 		// init Snippet
@@ -856,7 +884,103 @@ class SnippetPlayground {
 			newSnippet
 		);
 
+		let codeTools = this.makeDiv(
+			codeWrap, 
+			"ctool"
+		);
+
+		// add code
+		let add = this.makeDiv(
+			codeTools, 
+			"cmd", 
+			"add", 
+			lang
+		);
+
+		this.attrs(
+			add, 
+			"lang", 
+			lang
+		);
+
+		// spacer
+		this.makeDiv(
+			codeTools, 
+			"spc"
+		);
+
+		// rem btn
+		let rem = this.makeDiv(
+			codeTools, 
+			"cmd", 
+			"rem"
+		);
+
+		this.attrs(
+			rem, 
+			{
+				"lang": lang, 
+				"snip": newSnippet.id
+			}
+		);
+
+		// rem confirm btn
+		let confirmRem = this.makeDiv(
+			rem, 
+			"cmd", 
+			"rem-" + this.ohYes
+		);
+
+		// rem cancel btn
+		let cancelRem = this.makeDiv(
+			rem, 
+			"cmd", 
+			"rem-" + this.ohNo
+		);
+		
+		this.hearIt(
+			codeTools, 
+			evt => 
+				this.classIs(
+					evt.target, 
+					"cmd"
+				) 
+				&& this.cmdClick(evt.target)
+		);
+
 		return newSnippet;
+
+	}
+
+	unbloc(lang, indx) {
+
+		console.log("unbloc", lang, indx);
+
+		Snippet
+		.remove(this.snips[lang][indx].id);
+
+		this.prisms[lang][indx] = null;
+
+		this.codes[lang][indx]
+		.remove();
+
+		[
+			this.snips, 
+			this.prisms, 
+			this.codes
+		]
+		.forEach(
+			everyone => 
+				everyone[lang]
+				.splice(
+					indx, 
+					1
+				)
+		);
+
+		this.unsaved();
+
+		// SAVE FLUSH STORE
 
 	}
 
@@ -873,14 +997,36 @@ class SnippetPlayground {
 	}
 
 	/**
-	 * @method runIt : get that code running
+	 * @method preRun : ready steady
 	 */
-	runIt() {
+	preRun() {
 
 		this.topIt();
 
 		this.injectLibs();
 
+		this.snips[this.vanilla][0].links = this.langs
+		.reduce(
+			(frozen, lang) => ([
+				...frozen, 
+				...this.snips[lang]
+				.map(
+					snip => 
+					"#" + snip.id
+				)
+			]), 
+			[]
+		);
+
+	}
+
+	/**
+	 * @method runIt : get that code running
+	 */
+	runIt() {
+
+		if(DEBUG) console.log("lift off");
+		
 		this.snips[this.vanilla][0]
 		._run();
 
@@ -903,33 +1049,23 @@ class SnippetPlayground {
 
 		if(DEBUG) console.log("cmd", cmd);
 
-		switch(cmd) {
+		let callbacks = {
 
-			case "more":
+			"add": this.addCode, 
 
-				this.moreCode();
+			"rem": this.askRemove, 
+			["rem-" + this.ohYes]: this.removeIt, 
+			["rem-" + this.ohNo]: this.removeNo, 
+			
+			"del": this.askDelete, 
+			["del-" + this.ohYes]: this.deleteIt, 
+			["del-" + this.ohNo]: this.deleteNo
+			
+		};
 
-				break;
-
-			case "delete": 
-
-				this.askDelete(btn);
-
-				break;
-
-			case "del-yes": 
-
-				this.deleteIt();
-
-				break;
-
-			case "del-no": 
-
-				this.deleteNo();
-
-				break;
-
-		}
+		if(callbacks.hasOwnProperty(cmd)) 
+			callbacks[cmd]
+			.bind(this)(btn);
 
 	}
 
@@ -1012,18 +1148,6 @@ class SnippetPlayground {
 			}
 		);
 
-		// USELESS OLDIES
-
-		// if(injections["module"].length + injections["import"].length) vanillaSnip.module = true;
-
-		// vanillaSnip.mods = injections["module"];
-
-		// vanillaSnip.importMap = injections["importmap"];
-
-		// vanillaSnip.imports = injections["import"];
-
-		// set meta snip-data ?
-
 	}
 
 	/**
@@ -1048,8 +1172,8 @@ class SnippetPlayground {
 		);
 
 		// link anchor
-		link
-		.setAttribute(
+		this.attrs(
+			link, 
 			"href", 
 			"#" + entry["i"]
 		);
@@ -1083,7 +1207,7 @@ class SnippetPlayground {
 			)
 		);
 
-		// String.fromCharCode max args length call stack
+		// String.fromCharCode max args length call stack error
 		/*return btoa(
 			String
 			.fromCharCode(
@@ -1137,6 +1261,8 @@ class SnippetPlayground {
 		this.closeMenu();
 
 		this.clearIt();
+
+		this.clearHash();
 
 		this.loadIt();
 
@@ -1321,12 +1447,6 @@ class SnippetPlayground {
 			// add menu entry
 			this.menuEntry(newSnippet);
 
-			// unsaved snippet tip
-			this.classOut(
-				this.save, 
-				this.ohNo
-			);
-
 			// disp version and delete btn
 			this.content
 			.appendChild(this.cmds);
@@ -1387,9 +1507,23 @@ class SnippetPlayground {
 		// reset delete btn state
 		this.deleteNo();
 
-		// so satisfying
+		// safe and sound
 		this.yes(
 			this.save
+		);
+
+		// listen once any bloc change text and this.unsaved()
+
+	}
+
+	/**
+	 * @method unsaved : unsaved red tip
+	 */
+	unsaved() {
+
+		this.classIt(
+			this.save, 
+			this.ohNo
 		);
 
 	}
@@ -1411,11 +1545,95 @@ class SnippetPlayground {
 	}
 
 	/**
-	 * @method moreCode : code blocs
+	 * @method addCode : add code bloc 
+	 * @param {Element} btn : 
 	 */
-	moreCode() {
+	addCode(btn) {
 
-		console.log("more code");
+		let lang = this.langs
+		.find(
+			lang => 
+				this.classIs(
+					btn, 
+					lang
+				)
+		);
+
+		// console.log("add code", lang);
+
+		this.bloc(
+			lang, 
+			(
+				{
+					"name": lang + "-" + this.codes[lang].length, 
+					"type": ""
+				}
+			), 
+			"", 
+			this.wraps
+			.get(lang).firstChild
+		);
+
+		this.unsaved();
+
+	}
+
+	/**
+	 * @method askRemove : ask delete code
+	 * @param {Element} btn : 
+	 */
+	askRemove(btn) {
+
+		this.classIt(
+			btn, 
+			"ask"
+		);
+
+	}
+
+	/**
+	 * @method removeIt : remove bloc
+	 * @param {Element} btn : 
+	 */
+	removeIt(btn) {
+
+		let removeBtn = btn.parentNode, 
+			
+			snippetId = removeBtn
+			.getAttribute("snip"), 
+
+			snippetLang = removeBtn
+			.getAttribute("lang"), 
+
+			snippetIndex = this.snips[snippetLang]
+			.findIndex(
+				snip => 
+					snip.id == snippetId
+			);
+
+		if(DEBUG) console.log("rem", snippetLang, snippetId, snippetIndex);
+
+		this.unbloc(
+			snippetLang, 
+			snippetIndex
+		);
+
+		this.unsaved();
+
+	}
+
+	/**
+	 * @method removeNo : cancel remove bloc
+	 * @param {Element} btn : 
+	 */
+	removeNo(btn) {
+
+		if(DEBUG) console.log("rem cancel");
+
+		this.classOut(
+			btn.parentElement, 
+			"ask"
+		);
 
 	}
 
@@ -1425,11 +1643,11 @@ class SnippetPlayground {
 	 */
 	askDelete(btn) {
 
-		// if(DEBUG) console.log("ask del");
+		if(DEBUG) console.log("ask del");
 
 		this.classIt(
 			btn, 
-			"del-yes"
+			"ask"
 		);
 
 	}
@@ -1483,10 +1701,8 @@ class SnippetPlayground {
 		// if(DEBUG) console.log("cancel del");
 
 		this.classOut(
-			this.getIt(
-				".cmd.delete"
-			), 
-			"del-yes"
+			this.del, 
+			"ask"
 		);
 
 	}
@@ -1554,7 +1770,7 @@ class SnippetPlayground {
 			}
 			catch (err) {
 
-				this.yes(this.copy, false);
+				this.no(this.copy);
 
 			}
 
@@ -1640,20 +1856,16 @@ class SnippetPlayground {
 		let forceDl = document
 		.createElement("a");
 
-		forceDl
-		.setAttribute(
-			"href", 
-			"data:application/json;charset=utf-8," + 
-			encodeURIComponent(
-				JSON
-				.stringify(fullDump)
-			)
-		);
-
-		forceDl
-		.setAttribute(
-			"download", 
-			this._name + ".json"
+		this.attrs(
+			forceDl, 
+			{
+				"href": "data:application/json;charset=utf-8," + 
+					encodeURIComponent(
+						JSON
+						.stringify(fullDump)
+					), 
+				"download": this._name + ".json"
+			}
 		);
 
 		forceDl.style.display = "none";
@@ -1791,27 +2003,31 @@ class SnippetPlayground {
 	/**
 	 * @method yes : temp supergreen so satisfying
 	 * @param {Element} el : 
-	 * @param {!boolean=} indeed : false to say no
 	 */
-	yes(el, indeed = true) {
+	yes(el) {
 
-		let cl = indeed ? this.ohYes : this.ohNo;
+		this.classOut(
+			el, 
+			this.ohNo
+		);
 
 		this.classIt(
 			el, 
-			cl
+			this.ohYes
 		);
 
 		setTimeout(
 			() => 
 				this.classOut(
 					el, 
-					cl
+					this.ohYes
 				), 
 			750
 		);
 
 	}
+
+	// no method classIt(el, this.ohNo) ?
 
 	// UTILS
 
@@ -1880,6 +2096,49 @@ class SnippetPlayground {
 	}
 
 	/**
+	 * @method getAll : querySelectorAll macro
+	 * @param {string} sel : query
+	 * @param {Element} par : parent
+	 */
+	getAll(sel, par = document.body) {
+
+		return Array
+		.from(
+			par
+			.querySelectorAll(
+				sel
+			)
+		);
+
+	}
+
+	/**
+	 * @method attrs : setAttribute macro
+	 * @param {Element} el : target element
+	 * @param {!(string|Object)} nameObj : attribute name or attributes object
+	 * @param {!string=} maybeVal : attribute value if name
+	 */
+	attrs(el, nameObj, maybeVal = "") {
+
+		if(typeof nameObj === "string") 
+			nameObj = {
+				[nameObj] : maybeVal
+			};
+			
+		Object
+		.keys(nameObj)
+		.forEach(
+			attrName => 
+				el
+				.setAttribute(
+					attrName, 
+					nameObj[attrName]
+				)
+		);
+
+	}
+
+	/**
 	 * @method hearIt : addEVentListener macro
 	 * @param {Node|HTMLElement} el : 
 	 * @param {Function} cb : 
@@ -1941,8 +2200,8 @@ class SnippetPlayground {
 	 */
 	sing(el, aria, tune) {
 
-		el
-		.setAttribute(
+		this.attrs(
+			el, 
 			"aria-" + aria, 
 			tune
 		);

@@ -74,13 +74,13 @@ body {
 
 }
 
-.header > div:not(.space) {
+.header > div:not(.spc) {
 
 	margin-right: 12px;
 
 }
 
-.header > div:not(.space), 
+.header > div:not(.spc), 
 .menutools > div {
 
 	cursor: pointer;
@@ -90,7 +90,7 @@ body {
 
 }
 
-.header .space {
+.header .spc {
 
 	height: 100%;
 	flex-basis: 10%;
@@ -173,27 +173,115 @@ body {
 
 .wrap {
 
-	margin-top: .5em;
-	margin-bottom: 2em;
+	padding-top: .5em;
+	padding-bottom: 1em;
 
 }
 
 .lwrap {
 
-	margin-top: 1em;
+}
+
+.lcode {
+
+}
+
+.ltool {
+
+}
+
+.ltool > div {
+
+	padding: 4px;
+	display: inline-block;
 
 }
 
 .code {
 
 	position: relative;
-	
+	margin-top: 1em;
 
 }
 
-.code:not(:first-child) {
+.ctool {
 
-	/* DELETE BLOC BTN */
+	display: flex;
+	justify-content: space-between;
+
+}
+
+.ctool > div {
+
+	padding: 4px;
+
+}
+
+.spc {
+
+	flex: 1;
+
+}
+
+.add::after {
+
+	content: "+" attr(lang);
+
+}
+
+.code:not(:last-child) .add {
+
+	display: none;
+
+}
+
+.code:first-child .rem {
+
+	display: none;
+
+}
+
+.rem {
+
+	display: flex;
+	justify-content: space-between;
+	gap: 2em;
+
+}
+
+.rem::after {
+
+	content: "remove";
+
+}
+
+.rem div {
+
+	display: none;
+
+}
+
+.rem div:first-child::after {
+
+	content: "confirm";
+
+}
+
+.rem div:last-child::after {
+
+	content: "cancel";
+
+}
+
+.rem.ask::after {
+
+	display: none;
+
+}
+
+.rem.ask div {
+
+	display: inline;
 
 }
 
@@ -201,12 +289,18 @@ body {
 .lang {
 
 	position: absolute;
-	left: 4px;
-	bottom: 4px;
+	left: 3px;
+	bottom: 1px;
 	pointer-events: none;
-	font-size: 13px;
-	z-index: 10;
+	font-size: 10px;
+	line-height: 10px;
 	color: #666666;
+
+}
+
+.lang::after {
+
+	content: attr(lang);
 
 }
 
@@ -214,6 +308,7 @@ body {
 .prism-live {
 
 	/* max-height: 400px; */
+	padding-bottom: 6px !important;
 
 }
 
@@ -225,6 +320,7 @@ pre.prism-live {
 
 textarea.prism-live {
 
+	overflow-x: scroll;
 	overflow-y: hidden;
 
 }
@@ -253,70 +349,65 @@ textarea.prism-live {
 
 .cmds {
 
-	margin: 1em;
+	margin: .6em;
 	margin-top: 1.5em;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	color: #666666;
 	user-select: none;
 	
 }
 
-.cmd {
+.cmd, 
+.ver {
 
 	cursor: pointer;
-	font-size: large;
+	font-size: 1em;
+	color: #666666;
 
 }
 
-.cmd.more::before {
-
-	content: "+code";
-
-}
-
-.cmd.delete {
+.del {
 
 	display: flex;
+	justify-content: space-between;
+	gap: 2em;
 
 }
 
-.cmd.delete::before {
+.del::after {
 
 	content: "delete";
 
 }
 
-.cmd.delete.del-yes::before {
+.del div {
+
+	display: none;
+
+}
+
+.del div:first-child::after {
 
 	content: "confirm";
 
 }
 
-.cmd.delete .del-space {
-
-	display: none;
-	width: 2em;
-
-}
-
-.delete .del-no {
-
-	display: none;
-
-}
-
-.cmd.delete.del-yes .del-no, 
-.cmd.delete.del-yes .del-space {
-
-	display: inherit;
-
-}
-
-.cmd.delete .del-no::before {
+.del div:last-child::after {
 
 	content: "cancel";
+
+}
+
+.del.ask::after {
+
+	display: none;
+
+}
+
+.del.ask div {
+
+	display: inline;
 
 }
 
@@ -465,9 +556,8 @@ textarea.prism-live {
 
 	}
 
-	.header > div:not(.space), 
+	.header > div:not(.spc), 
 	.menutools > div, 
-	.moretools > div, 
 	.snippet-title {
 
 		color: #999999;
@@ -483,7 +573,8 @@ textarea.prism-live {
 	.menulist a, 
 	.about, 
 	.lang, 
-	.cmds {
+	.cmd, 
+	.ver {
 
 		color: #999999;
 
