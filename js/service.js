@@ -10,7 +10,7 @@ class SnippetsService {
 
 		this.cacheFiles = [
 
-			"",
+			"/",
 			"index.html", 
 		
 			"js/lib/bliss.shy.min.js", 
@@ -69,7 +69,7 @@ class SnippetsService {
 					.catch(
 						err => {
 		
-							// console.error("sw install fail", err);
+							console.error("sw install fail", err);
 		
 						}
 					),
@@ -82,60 +82,58 @@ class SnippetsService {
 		.addEventListener(
 			"fetch", 
 			evt => {
-		
+
 				let req = evt.request;
-		
-				// console.log("sw fetch", req.url);
-		
-				if(!req.url.startsWith("http")) 
-					return;
 
-				evt
+				return evt
 				.respondWith(
-					() => 
-						caches
-						.match(req)
-						.then(
-							matched => {
-				
-								if(matched) 
-									return matched;
-								else {
+					caches
+					.match(req)
+					.then(
+						matched => {
 
-									console.log("sw load", req.url);
-					
-									return fetch(req)
-									.then(
-										res => {
+							if(matched !== undefined) 
+								return matched;
+							else {
 
-											console.log("sw keep", req.url);
+								return fetch(req)
+								.then(
+									resp => {
+										
+										let keep = resp
+										.clone();
 
-											return caches
-											.open(this.cacheStorage)
-											.then(
-												cache => {
+										caches
+										.open(this.cacheName)
+										.then(
+											cache => {
 
-													cache
-													.put(
-														req, 
-														res
-														.clone()
-													);
-													
-													return res;
+												cache
+												.put(
+													req, 
+													keep
+												);
 
-												}
-											)
+											}
+										);
 
-										}
-									);
+										return resp;
 
-								}
-				
+									}
+								)
+								.catch(
+									() => {
+										
+										return null;
+										
+									}
+								);
+
 							}
-						)
+						}
+					)
 				);
-				
+
 			}
 		);
 

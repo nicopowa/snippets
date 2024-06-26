@@ -4,7 +4,8 @@
 
 		"files": [
 
-			"js/snippets.js"
+			"js/snippets.js",
+			"js/main.js"
 
 		],
 

@@ -1,11 +1,4 @@
-window
-.addEventListener(
-	"load", 
-	() => 
-		new SnippetPlayground()
-);
-
-class SnippetPlayground {
+class Snippets {
 
 	// RTC SHARING
 	// QRCODE ?
@@ -20,6 +13,8 @@ class SnippetPlayground {
 	// RESOURCE INTEGRITY
 
 	// DISPLAY ERRORS IN MD AREA ?
+
+	// CTRL+Z scroll to cursor
 
 	// MULTIPLE JS SNIPPETS && LINK
 	// DONE
@@ -43,6 +38,12 @@ class SnippetPlayground {
 
 		// my eyes
 		this.looks = "css";
+
+		// module
+		this.mod = "module";
+
+		// import
+		this.imp = "import";
 
 		// talk to me
 		this.langs = [
@@ -72,6 +73,20 @@ class SnippetPlayground {
 			"del-" + this.ohNo
 
 		];
+
+		this.cbs = {
+
+			"add": this.addCode, 
+
+			"rem": this.askRemove, 
+			["rem-" + this.ohYes]: this.removeIt, 
+			["rem-" + this.ohNo]: this.removeNo, 
+			
+			"del": this.askDelete, 
+			["del-" + this.ohYes]: this.deleteIt, 
+			["del-" + this.ohNo]: this.deleteNo
+			
+		};
 
 		// default run options
 		this.run = {
@@ -103,8 +118,8 @@ class SnippetPlayground {
 		// snippet instances
 		this.snips = {};
 
-		// prism Live instances
-		this.prisms = {};
+		// editor instances
+		this.edits = {};
 
 		// snippets store
 		this.snippets = [];
@@ -183,26 +198,16 @@ class SnippetPlayground {
 		);
 
 		// about link
-		this.about = this.makeIt(
+		this.about = this.makeDiv(
 			this.tools, 
-			"a", 
-			"", 
 			"about"
 		);
-
-		this.attrs(
-			this.about, 
-			{
-				"href": "https://github.com/nicopowa/snippets", 
-				"target": "_blank"
-			}
-		)
-
+		
 		// open directory link
-		/*this.open = this.makeDiv(
+		this.open = this.makeDiv(
 			this.tools, 
 			"open"
-		);*/
+		);
 
 		// export link
 		this.down = this.makeDiv(
@@ -248,19 +253,6 @@ class SnippetPlayground {
 			"cmd", 
 			"del-" + this.ohNo
 		);
-
-		// delete space confirm ___ cancel
-		/*this.makeDiv(
-			this.del, 
-			"del-spc"
-		);
-
-		// delete cancel
-		this.makeDiv(
-			this.del, 
-			"cmd", 
-			"del-" + this.ohNo
-		);*/
 
 		this.wraps = new Map();
 
@@ -329,9 +321,10 @@ class SnippetPlayground {
 
 		new Map([
 			[this.make, this.createIt], 
+			[this.about, this.aboutIt], 
 			[this.save, this.saveIt], 
 			[this.copy, this.copyIt], 
-			// [this.open, this.openIt], 
+			[this.open, this.openIt], 
 			[this.down, this.exportIt], 
 			[this.up, this.importIt], 
 		])
@@ -411,7 +404,8 @@ class SnippetPlayground {
 		let hashed = location.hash
 		.slice(1);
 
-		if(DEBUG) console.log("hash", hashed);
+		if(DEBUG) 
+			console.log("hash", hashed);
 
 		// local snippet hash
 		if(hashed.length <= 20) 
@@ -433,8 +427,11 @@ class SnippetPlayground {
 		if("serviceWorker" in navigator) 
 			navigator.serviceWorker
 			.register(
-				"js/snippets.package-service.release.min.js"
-				// "js/service.js"
+				"js/snippets.package-service.release.min.js", 
+				// "service.js", 
+				{
+					// scope: "./"
+				}
 			);
 
 	}
@@ -532,7 +529,7 @@ class SnippetPlayground {
 
 		}
 
-		return {};
+		return null;
 
 	}
 
@@ -570,7 +567,7 @@ class SnippetPlayground {
 			// oops
 			console.error(err);
 
-			return {};
+			return null;
 
 		}
 
@@ -578,13 +575,23 @@ class SnippetPlayground {
 
 	/**
 	 * @method loadIt : load code
-	 * @param {!Object=} dat : 
+	 * @param {Object=} dat : 
 	 */
-	loadIt(dat = {}) {
+	loadIt(dat) {
 
 		// if(DEBUG) console.log("load\n", dat);
 
 		this.topIt();
+
+		if(!dat) {
+
+			if(DEBUG) console.log("no data");
+
+			dat = {};
+
+			this.clearHash();
+
+		}
 
 		let snippetTitle = dat["t"] || "untitled";
 
@@ -617,7 +624,7 @@ class SnippetPlayground {
 
 				this.snips[lang] = [];
 				this.codes[lang] = [];
-				this.prisms[lang] = [];
+				this.edits[lang] = [];
 
 				if(!Array.isArray(dat[lang])) 
 					dat[lang] = [dat[lang]];
@@ -763,16 +770,16 @@ class SnippetPlayground {
 				this.snips[lang] = [];
 
 				// TODO CLEAN CLEAR PRISM LIVE !!
-				this.prisms[lang]
+				this.edits[lang]
 				.forEach(
-					prism => {
+					edit => {
 
-						prism = null;
+						edit = null;
 
 					}
 				);
 
-				this.prisms[lang] = [];
+				this.edits[lang] = [];
 
 				this.codes[lang]
 				.forEach(
@@ -790,7 +797,7 @@ class SnippetPlayground {
 		);
 
 		// this.snips = {};
-		// this.prisms = {};
+		// this.edits = {};
 		// this.codes = {};
 
 		// this.clearHash();
@@ -806,32 +813,30 @@ class SnippetPlayground {
 	 */
 	bloc(lang, metas, content, par) {
 
-		// console.log("bloc", lang, metas);
+		// if(DEBUG) console.log("bloc", lang, metas);
 
-		// code bloc wrap
+			// code bloc wrap
 		let codeWrap = this.makeDiv(
-			// this.content, 
-			par, 
-			"code"
-		);
+				// this.content, 
+				par, 
+				"code"
+			), 
 
-		// code wrapper
-		let pre = this.makeIt(
-			codeWrap, 
-			"pre", 
-			"", 
-			"prism-live", 
-			"line-numbers"
-		);
+			// code wrapper
+			codePre = this.makeIt(
+				codeWrap, 
+				"pre", 
+				""
+			), 
 
-		// code
-		let codeBloc = this.makeIt(
-			pre, 
-			"code", 
-			"", 
-			"code", 
-			"language-" + lang
-		);
+			// code
+			codeBloc = this.makeIt(
+				codePre, 
+				"code", 
+				"", 
+				"code", 
+				"language-" + lang
+			);
 
 		this.attrs(
 			codeBloc, 
@@ -846,8 +851,8 @@ class SnippetPlayground {
 		codeBloc.textContent = content;
 
 		// lang indicator
-		let lng = this.makeDiv(
-			pre, 
+		/*let lng = this.makeDiv(
+			codePre, 
 			"lang"
 		);
 
@@ -855,25 +860,22 @@ class SnippetPlayground {
 			lng, 
 			"lang", 
 			lang
-		);
+		);*/
 
 		// keep bloc
 		this.codes[lang]
 		.push(codeWrap);
 
-		// init Prism
-		let prismed = new Prism
-		.Live(pre);
+		// PRISM
+		// let editor = this.prismed(codePre);
+
+		// MIRROR
+		let editor = this.mirrored(codePre);
 
 		// text area aria
-		this.sing(
-			prismed.textarea, 
-			"label", 
-			"code-" + lang
-		);
 
-		this.prisms[lang]
-		.push(prismed);
+		this.edits[lang]
+		.push(editor);
 
 		// md snippet instance ?
 		let newSnippet = new Snippet(codeBloc);
@@ -884,18 +886,19 @@ class SnippetPlayground {
 			newSnippet
 		);
 
+			// code tools
 		let codeTools = this.makeDiv(
-			codeWrap, 
-			"ctool"
-		);
+				codeWrap, 
+				"ctool"
+			), 
 
-		// add code
-		let add = this.makeDiv(
-			codeTools, 
-			"cmd", 
-			"add", 
-			lang
-		);
+			// add code btn
+			add = this.makeDiv(
+				codeTools, 
+				"cmd", 
+				"add", 
+				lang
+			);
 
 		this.attrs(
 			add, 
@@ -925,14 +928,14 @@ class SnippetPlayground {
 		);
 
 		// rem confirm btn
-		let confirmRem = this.makeDiv(
+		this.makeDiv(
 			rem, 
 			"cmd", 
 			"rem-" + this.ohYes
 		);
 
 		// rem cancel btn
-		let cancelRem = this.makeDiv(
+		this.makeDiv(
 			rem, 
 			"cmd", 
 			"rem-" + this.ohNo
@@ -952,21 +955,81 @@ class SnippetPlayground {
 
 	}
 
+	prismed(codePre) {
+
+		codePre.classList
+		.add(
+			"prism-live", 
+			"line-numbers"
+		);
+
+		let prismed = new Prism
+		.Live(codePre);
+
+		return {
+			editor: prismed, 
+			content: () => 
+				prismed.textarea.value
+		};
+
+	}
+
+	mirrored(codePre) {
+
+		// console.log(codePre);
+
+		let codeTag = codePre.firstChild, 
+
+			codeLang = /language-(\w+)/g
+			.exec(codeTag.className)[1], 
+
+			codeContent = codeTag.innerText, 
+
+			codeHolder = codeLang;
+
+		codeTag
+		.remove();
+
+		let mirrored = Mirror
+		.reflect(
+			codePre, 
+			codeLang, 
+			codeContent, 
+			codeHolder
+		);
+
+		// TODO SYNC CODE TAG FOR SNIPPET EXEC
+
+		return {
+			editor: mirrored, 
+			content: () => {
+
+				return mirrored.state.doc
+				.toString();
+
+			}
+		};
+
+	}
+
 	unbloc(lang, indx) {
 
-		console.log("unbloc", lang, indx);
+		// DIRTY
+
+		if(DEBUG) console.log("unbloc", lang, indx);
 
 		Snippet
 		.remove(this.snips[lang][indx].id);
 
-		this.prisms[lang][indx] = null;
+		// clean destroy
+		this.edits[lang][indx] = null;
 
 		this.codes[lang][indx]
 		.remove();
 
 		[
 			this.snips, 
-			this.prisms, 
+			this.edits, 
 			this.codes
 		]
 		.forEach(
@@ -1005,18 +1068,35 @@ class SnippetPlayground {
 
 		this.injectLibs();
 
-		this.snips[this.vanilla][0].links = this.langs
+		/*this.snips[this.vanilla][0].links = this.langs
 		.reduce(
 			(frozen, lang) => ([
 				...frozen, 
 				...this.snips[lang]
 				.map(
 					snip => 
-					"#" + snip.id
+						"#" + snip.id
 				)
 			]), 
 			[]
+		);*/
+
+		let links = this.langs
+		.map(
+			lang => 
+				this.snips[lang]
+				.map(
+					snip => 
+						"#" + snip.id
+				)
 		);
+
+		// reverse linked vanilla, import bottom code first
+		links[links.length - 1]
+		.reverse();
+
+		// inject links
+		this.snips[this.vanilla][0].links = links.flat()
 
 	}
 
@@ -1049,22 +1129,8 @@ class SnippetPlayground {
 
 		if(DEBUG) console.log("cmd", cmd);
 
-		let callbacks = {
-
-			"add": this.addCode, 
-
-			"rem": this.askRemove, 
-			["rem-" + this.ohYes]: this.removeIt, 
-			["rem-" + this.ohNo]: this.removeNo, 
-			
-			"del": this.askDelete, 
-			["del-" + this.ohYes]: this.deleteIt, 
-			["del-" + this.ohNo]: this.deleteNo
-			
-		};
-
-		if(callbacks.hasOwnProperty(cmd)) 
-			callbacks[cmd]
+		if(this.cbs.hasOwnProperty(cmd)) 
+			this.cbs[cmd]
 			.bind(this)(btn);
 
 	}
@@ -1102,9 +1168,9 @@ class SnippetPlayground {
 
 		let injectWhat = {
 			[this.vanilla]: [], 
-			// "module": [], 
+			[this.mod]: [], 
 			// "importmap": [], 
-			// "import": [], 
+			[this.imp]: [], 
 			[this.looks]: []
 		};
 
@@ -1120,7 +1186,8 @@ class SnippetPlayground {
 
 				Array
 				.from(
-					this.prisms[this.notes][0].textarea.value
+					this.edits[this.notes][0]
+					.content()
 					.matchAll(reg)
 				)
 				.forEach(
@@ -1137,16 +1204,28 @@ class SnippetPlayground {
 			
 		);
 
-		// if(DEBUG) console.log("inject\n", injections);
+		if(DEBUG) console.log("inject\n", injections);
+
+		let steady = this.snips[this.vanilla][0];
 
 		Object
 		.assign(
-			this.snips[this.vanilla][0], 
+			steady, 
 			{
 				codes: injections[this.vanilla], 
-				sheets: injections[this.looks]
+				sheets: injections[this.looks], 
+				mods: injections[this.mod], 
+				imports: injections[this.imp]
 			}
 		);
+
+		if(injections[this.mod].length + injections[this.imp].length) {
+
+			if(DEBUG) console.log("module enabled");
+
+			steady.module = true;
+
+		}
 
 	}
 
@@ -1269,6 +1348,19 @@ class SnippetPlayground {
 	}
 
 	/**
+	 * @method aboutIt : about page
+	 */
+	aboutIt() {
+
+		window
+		.open(
+			"https://github.com/nicopowa/snippets", 
+			"_blank"
+		);
+
+	}
+
+	/**
 	 * @method dumpIt : 
 	 * @param {Object} moreProps 
 	 */
@@ -1283,10 +1375,11 @@ class SnippetPlayground {
 				.reduce(
 					(dumping, l) => ({
 						...dumping, 
-						[l]: this.prisms[l]
+						[l]: this.edits[l]
 						.map(
-							code => 
-								code.textarea.value
+							editor => 
+								editor
+								.content()
 						)
 					}), 
 					{
@@ -1784,7 +1877,31 @@ class SnippetPlayground {
 	/**
 	 * @method openIt : load snippet from local directory
 	 */
-	openIt() {
+	async openIt() {
+
+		/*const opfsRoot = await navigator.storage.getDirectory();
+		console.log(opfsRoot);
+
+		const snippetsDir = await opfsRoot.getDirectoryHandle("snippets", {create: false});
+
+		console.log(snippetsDir);
+
+		for await(let subHandle of snippetsDir.values()) {
+
+			// console.log("handle", handle);
+
+			if(subHandle.kind === "directory") {
+
+				if(DEBUG) console.log("dir", subHandle);
+
+			}
+			else if(subHandle.kind === "file") {
+
+				if(DEBUG) console.log("file", subHandle);
+
+			}
+
+		}*/
 
 		window
 		.showDirectoryPicker()
@@ -1805,6 +1922,26 @@ class SnippetPlayground {
 			}
 		);
 
+		/*const opfsRoot = await navigator.storage.getDirectory();
+		console.log(opfsRoot);
+
+		let theFile = "somefile";
+		let theDir = "somedir";
+
+		const directoryHandle = await opfsRoot.getDirectoryHandle(theDir, {create: true});
+
+		const existingDirectoryHandle = await opfsRoot.getDirectoryHandle(theDir);
+		console.log(existingDirectoryHandle);
+
+		await this.readDir(existingDirectoryHandle);*/
+
+		// const fileHandle = await directoryHandle.getFileHandle(theFile, {create: true});
+		
+
+		// const existingFileHandle = await opfsRoot.getFileHandle(theFile);
+		// console.log(existingFileHandle);
+
+
 	}
 
 	async readDir(dirHandle) {
@@ -1813,14 +1950,14 @@ class SnippetPlayground {
 
 			// console.log("handle", handle);
 
-			if(subHandle.kind == "directory") {
+			if(subHandle.kind === "directory") {
 
-				console.log("dir", subHandle);
+				if(DEBUG) console.log("dir", subHandle);
 
 			}
-			else if(subHandle.kind == "file") {
+			else if(subHandle.kind === "file") {
 
-				console.log("file", subHandle);
+				if(DEBUG) console.log("file", subHandle);
 
 			}
 

@@ -1,4 +1,5 @@
 {
+	"id": "?snippets=1",
 	"name": "snippets",
 	"short_name": "snippets",
 	"description": "snippets",
@@ -11,7 +12,8 @@
 		{
 			"src": "icon.png",
 			"sizes": "512x512",
-			"type": "image/png"
+			"type": "image/png",
+			"purpose": "any"
 		},
 		{
 			"src": "iconmask.png",
@@ -21,9 +23,12 @@
 		}
 	],
 	"start_url": "/snippets",
-	"display_override": ["fullscreen", "minimal-ui"],
-  	"display": "standalone",
-	"orientation": "portrait-primary",
+	"scope": "/snippets",
+	"display_override": ["fullscreen", "minimal-ui", "window-controls-overlay"],
+	"display": "standalone",
+	"dir": "ltr",
+	"lang": "en",
+	"orientation": "any",
 	"theme_color": "#000000",
 	"background_color": "#000000"
 }

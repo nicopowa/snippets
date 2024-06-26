@@ -119,7 +119,7 @@ body {
 .about::after {
 
 	content: "about";
-	text-decoration: underline;
+	/* text-decoration: underline; */
 	
 }
 
@@ -201,7 +201,13 @@ body {
 
 	position: relative;
 	margin-top: 1em;
+	
+}
 
+.code pre {
+
+	background-color: #f5f2f0;
+		
 }
 
 .ctool {
@@ -577,6 +583,12 @@ textarea.prism-live {
 	.ver {
 
 		color: #999999;
+
+	}
+
+	.code pre {
+
+		background-color: #454545;
 
 	}
 
