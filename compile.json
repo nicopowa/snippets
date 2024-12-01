@@ -1,83 +1,65 @@
 {
-
 	"package": {
-
 		"files": [
-
 			"js/snippets.js",
 			"js/main.js"
-
 		],
-
 		"styles": [
-
 			"css/snippets.css"
-
 		],
-
 		"merge": [
-
 			"snippet/package"
-
 		],
-
 		"externs": [
-
-			"third/prism",
-			"third/prism/live"
-
+			"codemirror"
 		],
-
 		"options": {
-
 			"release": [
-
-				{"language_out": "ECMASCRIPT_NEXT"},
-				{"externs": "../snippet/js/snippet.compile.externs.js"}
-
-			], 
-
+				{
+					"language_out": "ECMASCRIPT_NEXT"
+				},
+				{
+					"externs": "../snippet/js/snippet.compile.externs.js"
+				}
+			],
 			"debug": [
-
-				{"language_out": "ECMASCRIPT_NEXT"},
-				{"externs": "../snippet/js/snippet.compile.externs.js"}
-
+				{
+					"language_out": "ECMASCRIPT_NEXT"
+				},
+				{
+					"externs": "../snippet/js/snippet.compile.externs.js"
+				}
 			]
-
 		},
-
-		"comment": "© %year ILUSIO / NICO PR"
-
+		"flags": {
+			"obfuscate": true
+		},
+		"version": 29,
+		"compiled": "01/12/2024 01:14:53"
 	},
-
 	"package-service": {
-
 		"files": [
-
 			"js/service.js"
-
 		],
-
 		"styles": [],
-
 		"merge": [],
-
 		"externs": [],
-
 		"options": {
-
 			"release": [
-				{"externs": "js/ext/cache.externs.js"}
-			], 
-
+				{
+					"externs": "js/ext/cache.externs.js"
+				}
+			],
 			"debug": [
-				{"externs": "js/ext/cache.externs.js"}
+				{
+					"externs": "js/ext/cache.externs.js"
+				}
 			]
-
 		},
-
-		"comment": "© %year ILUSIO / NICO PR"
-
+		"flags": {
+			"obfuscate": true
+		},
+		"version": 3,
+		"compiled": "01/12/2024 00:50:15"
 	}
-	
 }

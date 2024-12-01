@@ -1,105 +1,157 @@
+:root {
+
+	--font: 'Courier New', Courier, monospace;
+
+	--head: 36px;
+
+	--back: #e8e8e8;
+	--over: #EFEFEF;
+	--text: #777777;
+
+	--shad: 0px 1px 1px 0px;
+	--adow: rgba(0, 0, 0, 0.1);
+
+	--mask: rgba(232, 232, 232, 0.55);
+
+}
+
+@media (prefers-color-scheme: dark) {
+
+	:root {
+	
+		--back: #171717;
+		--over: #202020;
+		--text: #999999;
+
+		--shad: 0px 1px 1px 0px;
+		--adow: rgba(0, 0, 0, 0.16);
+
+		--mask: rgba(0, 0, 0, 0.55);
+	
+	}
+
+}
+
 html {
 
 	height: 100%;
 
+	/* both html and body */
+	touch-action: pan-y;
+
 }
 
 body {
+
+	width: 100%;
 
 	padding: 0;
 	margin: 0;
 
 	overflow-y: scroll;
 
-	font-family: monospace, monospace;
+	/* both html and body */
+	touch-action: pan-y;
 
-	touch-action: none;
+	/* kill chromium based history gestures */
+	overscroll-behavior-x: none;
 
 	-webkit-text-size-adjust: 100%;
 	-webkit-tap-highlight-color: transparent;
 	text-size-adjust: none;
 
-	background-color: #E6E6E6;
+	font-family: var(--font);
+
+	color: var(--text);
+	background-color: var(--back);
 
 }
+
+/* GLOBAL */
+
+.stand {
+
+	padding-bottom: 2.2em;
+
+}
+
+.hide {
+
+	display: none;
+
+}
+
+.spc {
+
+	/* flex: 1; */
+	/* height: 100%; */
+	/* flex-basis: 10%; */
+	flex-grow: 1;
+
+}
+
+/* HEADER */
 
 .header {
 
 	position: fixed;
+	box-sizing: border-box;
 	top: 0px;
 	width: 100%;
-	height: 40px;
+	height: var(--head);
 
 	z-index: 50;
 
 	display: flex;
 	align-items: center;
 
-	color: #666666;
-	background-color: #efefef;
-
-	/* -webkit-user-select: none; */
-	user-select: none;
-
-}
-
-.content {
-
-	width: 100%;
-	box-sizing: border-box;
-	max-width: 900px;
-	margin: 0 auto;
-	padding: 40px 8px 18px 8px;
-
-}
-
-.snippet-title {
-
 	padding-left: 2px;
 	padding-right: 8px;
-	color: #666666;
-	font-size: 23px;
-	background: none;
-	border: none;
-	font-family: inherit;
-	outline: none;
-	flex-basis: 100%;
-	min-width: 0;
-	caret-color: #b8b8b8;
+	/* gap: 6px; */
+
+	color: var(--text);
+	background-color: var(--over);
+
+	font-size: 22px;
+
+	-webkit-user-select: none;
+	user-select: none;
+
+	-webkit-box-shadow: var(--shad) var(--adow);
+	-moz-box-shadow: var(--shad) var(--adow);
+	box-shadow: var(--shad) var(--adow);
 
 }
 
-.snippet-title:focus {
+.header .nnm {
 
+	padding-left: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
 
 }
 
-.header > div:not(.spc) {
+.header .cmd {
 
-	margin-right: 12px;
+	margin-left: 8px;
 
 }
 
-.header > div:not(.spc), 
+/*.header > div:not(.spc), 
 .menutools > div {
 
 	cursor: pointer;
-	color: #666666;
 	font-size: 22px;
-	text-decoration: underline;
+	-webkit-user-select: none;
+	user-select: none;
 
-}
-
-.header .spc {
-
-	height: 100%;
-	flex-basis: 10%;
-
-}
+}*/
 
 .menutools {
 
-	height: 40px;
+	height: var(--head);
 	width: 100%;
 	max-width: 480px;
 	box-sizing: border-box;
@@ -110,32 +162,25 @@ body {
 
 }
 
-.create::after {
+.new::after {
 
 	content: "new";
 	
 }
 
-.about::after {
+.abt::after {
 
 	content: "about";
-	/* text-decoration: underline; */
 	
 }
 
-.save::after {
+.sav::after {
 
 	content: "save";
 	
 }
 
-.copy::after {
-
-	content: "copy";
-	
-}
-
-.share::after {
+.snd::after {
 
 	content: "share";
 	
@@ -147,15 +192,38 @@ body {
 
 }
 
-.export::after {
+.dmp::after {
 
 	content: "dump";
 
 }
 
-.import::after {
+.imp::after {
 
 	content: "load";
+
+}
+
+.menulook {
+
+	box-sizing: border-box;
+	padding-left: 8px;
+	margin-top: 4px;
+	margin-bottom: 8px;
+	font-size: 23px;
+	background: none;
+	border: none;
+	font-family: inherit;
+	outline: none;
+	min-width: 0;
+	color: var(--text);
+	caret-color: var(--text);
+
+}
+
+.menulook::placeholder {
+
+	opacity: 0.6;
 
 }
 
@@ -171,20 +239,63 @@ body {
 
 }
 
-.wrap {
+/* MAIN CONTENT */
 
-	padding-top: .5em;
-	padding-bottom: 1em;
+.content {
+
+	width: 100%;
+	box-sizing: border-box;
+	max-width: 900px;
+	margin: 0 auto;
+	padding: var(--head) 6px 18px 6px;
 
 }
+
+/* SNIPPET WRAPPER */
+
+.wrap {
+
+	padding-top: 1em;
+	/* padding-bottom: 1em; */
+
+}
+
+/* PIN SNIPPET */
+
+.wrap.stick {
+
+	position: sticky;
+	top: var(--head);
+	z-index: 2;
+	background-color: var(--back);
+
+}
+
+.pin::after {
+
+	content: "pin";
+
+}
+
+.wrap.stick .snip + .cmds .pin::after {
+
+	content: "unpin";
+
+}
+
+/* LANGUAGE WRAP */
 
 .lwrap {
 
 }
 
+/* LANGUAGE CODE BLOCS WRAP */
+
 .lcode {
 
 }
+
+/* LANGUAGE TOOLBAR */
 
 .ltool {
 
@@ -192,40 +303,92 @@ body {
 
 .ltool > div {
 
-	padding: 4px;
-	display: inline-block;
-
 }
 
-.code {
+.bloc {
 
-	position: relative;
-	margin-top: 1em;
+	margin-top: 1.2em;
 	
 }
 
-.code pre {
+/* CODE BLOCK HEADER */
 
-	background-color: #f5f2f0;
-		
-}
-
-.ctool {
+.chead {
 
 	display: flex;
 	justify-content: space-between;
 
 }
 
-.ctool > div {
+.bloc.clps .chead {
 
-	padding: 4px;
+	background-color: var(--over);
 
 }
 
-.spc {
+.chead > div {
 
-	flex: 1;
+	padding: 4px;
+	flex-basis: 100%;
+	display: flex;
+	justify-content: center;
+
+}
+
+.chead > div:first-child {
+
+	justify-content: start;
+
+}
+
+.bloc.clps .chead > div:first-child .cmd {
+
+	width: 100%;
+	text-align: center;
+	font-size: 1.27em;
+    line-height: 1.1;
+
+}
+
+.chead > div:last-child {
+
+	justify-content: end;
+
+}
+
+.tog::after {
+
+	content: "min";
+
+}
+
+/* CODE BLOCK FOOTER */
+
+.ctool {
+
+	display: flex;
+	/* padding-top: .3em; */
+
+}
+
+.ctool > div {
+
+	padding: 4px;
+	flex-basis: 100%;
+	display: flex;
+	justify-content: center;
+
+}
+
+.ctool > div:first-child {
+
+	justify-content: start;
+
+}
+
+.ctool > div:last-child {
+
+	justify-content: end;
 
 }
 
@@ -235,15 +398,42 @@ body {
 
 }
 
-.code:not(:last-child) .add {
+.bloc.clps .tog::after {
+
+	content: "show";
+
+}
+
+.bloc.clps div:has(> div.tog) {
+
+	/* visibility: hidden; */
+	display: none;
+
+}
+
+.bloc.clps .rem {
+
+	/* visibility: hidden; */
+	display: none;
+
+}
+
+.bloc.clps .code {
 
 	display: none;
 
 }
 
-.code:first-child .rem {
+/* keep add btn each bloc to insert between */
+.bloc:not(:last-child) .add {
 
 	display: none;
+
+}
+
+.bloc:first-child .rem {
+
+	/* display: none; */
 
 }
 
@@ -251,29 +441,36 @@ body {
 
 	display: flex;
 	justify-content: space-between;
-	gap: 2em;
+	gap: 1.3em;
 
 }
 
-.rem::after {
-
-	content: "remove";
-
-}
-
-.rem div {
+.rem.ask .rem-ask {
 
 	display: none;
 
 }
 
-.rem div:first-child::after {
+.rem-ask::after {
+
+	content: "del";
+
+}
+
+.rem-yes, 
+.rem-no {
+
+	display: none;
+
+}
+
+.rem-yes::after {
 
 	content: "confirm";
 
 }
 
-.rem div:last-child::after {
+.rem-no::after {
 
 	content: "cancel";
 
@@ -292,7 +489,7 @@ body {
 }
 
 /* language indicator */
-.lang {
+/*.lang {
 
 	position: absolute;
 	left: 3px;
@@ -308,34 +505,18 @@ body {
 
 	content: attr(lang);
 
-}
+}*/
 
-/* code editor max height */
-.prism-live {
+/* code editor */
 
-	/* max-height: 400px; */
-	padding-bottom: 6px !important;
+.cm-editor {
 
-}
-
-pre.prism-live {
-
-	padding-right: 0.5em;
+	outline: none !important;
+	/* max-height: 500px; */
 
 }
 
-textarea.prism-live {
-
-	overflow-x: scroll;
-	overflow-y: hidden;
-
-}
-
-.prism-live a {
-
-	color: #666666;
-
-}
+/* SNIPPET */
 
 /* hide snipp.et link */
 .snip > div > a {
@@ -348,6 +529,7 @@ textarea.prism-live {
 
 	user-select: none;
 	-webkit-user-select: none;
+	touch-action: pan-y;
 
 }
 
@@ -355,21 +537,54 @@ textarea.prism-live {
 
 .cmds {
 
-	margin: .6em;
-	margin-top: 1.5em;
+	padding-top: .3em;
+	padding-bottom: .3em;
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
 	user-select: none;
 	
 }
 
-.cmd, 
-.ver {
+.cmd {
 
 	cursor: pointer;
 	font-size: 1em;
-	color: #666666;
+	/* color: #666666; */
+
+}
+
+.cmds > div {
+
+	padding: 4px;
+	flex-basis: 100%;
+	display: flex;
+	justify-content: center;
+
+}
+
+.cmds > div:first-child {
+
+	justify-content: start;
+
+}
+
+.cmds > div:last-child {
+
+	justify-content: end;
+
+}
+
+.cmds:not(.store) .ver, 
+.cmds:not(.store) .del {
+
+	display: none;
+
+}
+
+/* bottom toolbar */
+.cmds.down {
+
+	margin-top: 1.7em;
 
 }
 
@@ -377,29 +592,36 @@ textarea.prism-live {
 
 	display: flex;
 	justify-content: space-between;
-	gap: 2em;
+	gap: 1.3em;
 
 }
 
-.del::after {
-
-	content: "delete";
-
-}
-
-.del div {
+.del.ask .del-ask {
 
 	display: none;
 
 }
 
-.del div:first-child::after {
+.del-ask::after {
+
+	content: "delete";
+
+}
+
+.del-yes, 
+.del-no {
+
+	display: none;
+
+}
+
+.del-yes::after {
 
 	content: "confirm";
 
 }
 
-.del div:last-child::after {
+.del-no::after {
 
 	content: "cancel";
 
@@ -429,20 +651,21 @@ textarea.prism-live {
 	z-index: 100;
 	white-space: nowrap;
 	user-select: none;
+	font-size: 22px;
 
 }
 
 .menubtn {
 
-	margin-left: 4px;	
 	width: 32px;
 	height: 32px;
 	min-width: 32px;
-	background: linear-gradient(#888,#888), linear-gradient(#888,#888), linear-gradient(#888,#888);
+	background: linear-gradient(var(--text),var(--text)), linear-gradient(var(--text),var(--text)), linear-gradient(var(--text),var(--text));
 	background-position: 50% 25%, 50% 50%, 50% 75%;
-	background-size: 60% 3px, 60% 3px, 60% 3px;
+	background-size: 60% 2px, 60% 2px, 60% 2px;
 	background-repeat: no-repeat;
 	transform: rotate(0deg);
+	cursor: pointer;
 
 }
 
@@ -452,21 +675,34 @@ textarea.prism-live {
 	width: 32px;
 	height: 32px;
 	/* min-width: 32px; */
-	background: linear-gradient(#888,#888), linear-gradient(#888,#888);
+	background: linear-gradient(var(--text),var(--text)), linear-gradient(var(--text),var(--text));
 	background-position: center;
-	background-size: 70% 3px, 3px 70%;
+	background-size: 70% 2px, 2px 70%;
 	background-repeat: no-repeat;
 	transform: rotate(45deg);
+	cursor: pointer;
+
+}
+
+.menumask {
+
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	background-color: var(--mask);
 
 }
 
 .menuwrap {
 
+	position: absolute;
 	display: flex;
     flex-direction: column;
 	width: 100%;
+	max-width: 480px;
 	height: 100%;
-	background-color: #efefef;
+	background-color: var(--over);
 
 }
 
@@ -474,6 +710,7 @@ textarea.prism-live {
 
 	flex: 1;
 	overflow-y: auto;
+	overscroll-behavior: contain;
 
 }
 
@@ -485,33 +722,115 @@ textarea.prism-live {
 
 }
 
-.menulist a, 
-.about {
+.menulist a {
 
 	text-decoration: none;
 	/* line-height: 35px; */
-	font-size: 22px;
-	color: #666666;
-	user-drag: none;
+	/* font-size: 22px; */
+	color: var(--text);
+	/* user-drag: none; */
 	-webkit-user-drag: none;
 
 }
 
-.menu.hide {
+.menu.none {
 
 	display: none;
 
 }
 
-.menulist.hide {
+.menulist.none {
 
 	display: none;
+
+}
+
+/* ASK  */
+
+.popwrap {
+
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	width: 100vw;
+	height: 100vh;
+	z-index: 1000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	/* color: #666666; */
+	background-color: var(--mask);
+	font-size: 22px;
+
+}
+
+.popmod {
+
+	/* width: 90%; */
+	max-width: 480px;
+	box-sizing: border-box;
+	padding: 0.6em 0.4em;
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--back);
+
+}
+
+.popwhat {
+
+}
+
+.asktext {
+
+	font-size: 22px;
+	background: none;
+	border: none;
+	font-family: inherit;
+	outline: none;
+	min-width: 0;
+	text-align: center;
+	color: var(--text);
+	caret-color: var(--text);
+
+}
+
+.popbtns {
+
+	display: flex;
+	gap: 2em;
+
+}
+
+.popbtns div {
+
+	cursor: pointer;
+
+}
+
+.popno::after {
+
+	content: "cancel";
+
+}
+
+.popok::after {
+
+	content: "rename";
+
+}
+
+.popgo::after {
+
+	content: "confirm";
 
 }
 
 ::backdrop {
 
-	background-color: #E6E6E6;
+	background-color: var(--back);
 
 }
 
@@ -549,7 +868,7 @@ textarea.prism-live {
 
 @media (prefers-color-scheme: dark) {
 
-	body {
+	/*body {
 
 		background-color: #171717;
 
@@ -558,15 +877,28 @@ textarea.prism-live {
 	.header {
 
 		background-color: #202020;
-		/* color: #999999; */
+		color: #999999;
 
+	}
+
+	.wrap.stick {
+
+		background-color: #171717;
+	
 	}
 
 	.header > div:not(.spc), 
 	.menutools > div, 
-	.snippet-title {
+	.menulook, 
+	.name {
 
 		color: #999999;
+
+	}
+
+	.menu {
+
+		background-color: rgba(0, 0, 0, 0.5);
 
 	}
 
@@ -586,17 +918,11 @@ textarea.prism-live {
 
 	}
 
-	.code pre {
-
-		background-color: #454545;
-
-	}
-
 	::backdrop {
 
 		background-color: #171717;
 
-	}
+	}*/
 
 	::-webkit-scrollbar {
 

@@ -1,27 +1,45 @@
 class Snippets {
 
-	// RTC SHARING
-	// QRCODE ?
-	// OPEN LOCAL FILESYSTEM DIRECTORY & RUN INDEX + CSS + JS
+	// rtc sharing
+	// qrcode ?
+	// open local filesystem directory & run index + css + js
 
-	// HASH CHANGE IF CLICKED LINK FROM OUTSIDE TO SAFARI ON IOS
-	// FIXED ?
+	// hash change if clicked link from outside to safari on ios
+	// fixed ?
 
-	// OVERRIDE SNIPPET RUN TO INJECT LIBS
+	// keep +lang btns all blocs to insert new blocs between
+
+	// override snippet run to inject libs
 	// top-level @import inside markdown ?
 
-	// RESOURCE INTEGRITY
+	// monitor editors changes and no up version if none
+	// allow save change title or settings
 
-	// DISPLAY ERRORS IN MD AREA ?
+	// resource integrity
 
-	// CTRL+Z scroll to cursor
+	// display errors in md area ?
 
-	// MULTIPLE JS SNIPPETS && LINK
-	// DONE
-	// ADD BTNS NEW BLOC AND DELETE + CONFIRM
+	// keep version + date ?
 
-	// IMPORT MAPS
-	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap
+	// ctrl+z scroll to cursor
+
+	// multiple js snippets && link
+	// done
+	// add btns new bloc and delete + confirm
+
+	// kill screen edges history
+	// https://pqina.nl/blog/blocking-navigation-gestures-on-ios-13-4/
+
+	// import maps
+	// https://developer.mozilla.org/en-us/docs/web/html/element/script/type/importmap
+
+	// set unsaved state store version on save, compare codemirror doc text
+	// https://codemirror.net/docs/ref/#state.text.eq
+
+	// drop files or text selection
+	// md html css js files auto create bloc
+
+	// all cmd btns wraps factory cmd make wrap then real btn cmd
 
 	constructor() {
 
@@ -60,31 +78,30 @@ class Snippets {
 		this.ohNo = "no";
 
 		// snippet cmds
-		this.cmd = [
+		this.cmd = {
 
-			"add", 
+			"ttl": this.nameIt, 
+			"sav": this.saveIt, 
+			"snd": this.copyIt, 
+			"new": this.createIt, 
+			"abt": this.aboutIt, 
+			"dmp": this.exportIt, 
+			"imp": this.importIt, 
 
-			"rem", 
-			"rem-" + this.ohYes, 
-			"rem-" + this.ohNo,  
-
-			"del", 
-			"del-" + this.ohYes, 
-			"del-" + this.ohNo
-
-		];
-
-		this.cbs = {
-
+			"nnm": this.codeName, 
+			"tog": this.toggleCode, 
 			"add": this.addCode, 
 
-			"rem": this.askRemove, 
+			"rem-ask": this.askRemove, 
 			["rem-" + this.ohYes]: this.removeIt, 
 			["rem-" + this.ohNo]: this.removeNo, 
 			
-			"del": this.askDelete, 
+			"del-ask": this.askDelete, 
 			["del-" + this.ohYes]: this.deleteIt, 
-			["del-" + this.ohNo]: this.deleteNo
+			["del-" + this.ohNo]: this.deleteNo, 
+
+			"pin": this.pinUp, 
+			"ver": this.verNo
 			
 		};
 
@@ -112,6 +129,9 @@ class Snippets {
 		// current snippet run options
 		this.running = {};
 
+		// code blocs props
+		this.metas = {};
+
 		// code blocs
 		this.codes = {};
 
@@ -123,6 +143,18 @@ class Snippets {
 
 		// snippets store
 		this.snippets = [];
+
+		if(
+			window.matchMedia("(display-mode: standalone)").matches 
+			|| window.navigator["standalone"]
+		) {
+
+			this.classIt(
+				document.body, 
+				"stand"
+			);
+
+		}
 
 		// page header
 		this.header = this.getIt(".header");
@@ -136,6 +168,11 @@ class Snippets {
 		// menu tools
 		this.tools = this.getIt(".menutools");
 
+		// menu filter
+		this.look = this.getIt(".menulook");
+
+		this.look.placeholder = "search...";
+
 		// menu list wrap
 		this.lists = this.getIt(".menulists");
 
@@ -146,7 +183,7 @@ class Snippets {
 		this.btn = this.makeDiv(
 			this.header, 
 			"menubtn", 
-			"hide"
+			"none"
 		);
 
 		// close btn
@@ -155,21 +192,22 @@ class Snippets {
 			"closebtn"
 		);
 
-		// snippet output wrapper
-		this.snip = this.makeDiv(
-			this.content, 
-			"wrap"
-		);
+		// menu mask
+		this.mmsk = this.getIt(".menumask");
 
 		// title input
-		this.snippet = this.makeIt(
+		/*this.snippet = this.makeIt(
 			this.header, 
 			"input", 
 			"", 
 			"snippet-title"
-		);
+		);*/
 
-		this.snippet.placeholder = "title...";
+		this.snippet = this.makeDiv(
+			this.header, 
+			"cmd", 
+			"ttl"
+		);
 
 		// space please
 		this.makeDiv(
@@ -177,81 +215,92 @@ class Snippets {
 			"spc"
 		);
 
-		// save link
+		// save snippet
 		this.save = this.makeDiv(
 			this.header, 
-			"save"
+			"cmd", 
+			"sav"
 		);
 
-		// copy link
+		// share snippet
 		this.copy = this.makeDiv(
 			this.header, 
-			navigator.canShare ? 
-			"share" 
-			: "copy"
+			"cmd", 
+			"snd"
 		);
 
-		// create link
+		// snippet output wrapper
+		this.snip = this.makeDiv(
+			this.content, 
+			"wrap"
+		);
+
+		// snippet head cmds
+		this.cmds = this.makeDiv(
+			this.snip, 
+			"cmds", 
+			"high"
+		);
+
+		let pinwrap = this.makeDiv(this.cmds);
+
+		// pin btn
+		this.makeDiv(
+			pinwrap, 
+			"cmd", 
+			"pin"
+		);
+
+		let verwrap = this.makeDiv(this.cmds);
+
+		// version number
+		this.vno = this.makeDiv(
+			verwrap, 
+			"cmd", 
+			"ver"
+		);
+
+		let sizewrap = this.makeDiv(this.cmds);
+
+		// version number
+		this.sized = this.makeDiv(
+			sizewrap, 
+			"cmd", 
+			"siz"
+		);
+
+		// new snippet
 		this.make = this.makeDiv(
 			this.tools, 
-			"create"
+			"cmd", 
+			"new"
 		);
 
-		// about link
+		// about what
 		this.about = this.makeDiv(
 			this.tools, 
-			"about"
+			"cmd", 
+			"abt"
 		);
 		
 		// open directory link
-		this.open = this.makeDiv(
+		/*this.open = this.makeDiv(
 			this.tools, 
 			"open"
-		);
+		);*/
 
 		// export link
 		this.down = this.makeDiv(
 			this.tools, 
-			"export"
+			"cmd", 
+			"dmp"
 		);
 
 		// import link
 		this.up = this.makeDiv(
 			this.tools, 
-			"import"
-		);
-
-		// snippet cmds
-		this.cmds = this.makeDiv(
-			null, 
-			"cmds"
-		);
-
-		// version number
-		this.vno = this.makeDiv(
-			this.cmds, 
-			"ver"
-		);
-
-		// delete snippet
-		this.del = this.makeDiv(
-			this.cmds, 
 			"cmd", 
-			"del"
-		);
-
-		// del confirm btn
-		this.makeDiv(
-			this.del, 
-			"cmd", 
-			"del-" + this.ohYes
-		);
-
-		// del cancel btn
-		this.makeDiv(
-			this.del, 
-			"cmd", 
-			"del-" + this.ohNo
+			"imp"
 		);
 
 		this.wraps = new Map();
@@ -273,10 +322,10 @@ class Snippets {
 				);
 
 				// lang toolbar
-				/*let langTools = this.makeDiv(
+				let langTools = this.makeDiv(
 					langWrap, 
 					"ltool"
-				);*/
+				);
 
 				// add lang was here
 
@@ -288,6 +337,45 @@ class Snippets {
 
 			}
 		);
+
+		// snippet foot cmds
+		this.downs = this.makeDiv(
+			this.content, 
+			"cmds", 
+			"down"
+		);
+
+		// space
+		// this.makeDiv(this.downs, "spc");
+
+		// delete snippet
+		this.del = this.makeDiv(
+			this.downs, 
+			"del"
+		);
+
+		// del ask btn
+		this.makeDiv(
+			this.del, 
+			"cmd", 
+			"del-ask"
+		);
+
+		// del cancel btn
+		this.makeDiv(
+			this.del, 
+			"cmd", 
+			"del-" + this.ohNo
+		);
+
+		// del confirm btn
+		this.makeDiv(
+			this.del, 
+			"cmd", 
+			"del-" + this.ohYes
+		);
+
+		this.makeDiv(this.downs, "spc");
 
 		this.listIt();
 
@@ -319,21 +407,42 @@ class Snippets {
 			this.closeMenu
 		);
 
-		new Map([
-			[this.make, this.createIt], 
-			[this.about, this.aboutIt], 
-			[this.save, this.saveIt], 
-			[this.copy, this.copyIt], 
-			[this.open, this.openIt], 
-			[this.down, this.exportIt], 
-			[this.up, this.importIt], 
-		])
-		.forEach(
-			(cb, btn) => 
-				this.hearIt(
-					btn, 
-					cb
-				)
+		// close menu mask
+		this.hearIt(
+			this.mmsk, 
+			this.closeMenu
+		);
+
+		// change name
+		/*this.hearIt(
+			this.snippet, 
+			this.rename
+		);*/
+
+		/*this.hearIt(
+			this.header, 
+			evt => 
+				this.classIs(
+					evt.target, 
+					"cmd"
+				) 
+				&& this.cmdClick(evt.target)
+		);*/
+
+		this.hearIt(
+			this.look, 
+			evt => 
+				this.lookUp(
+					/** @type {KeyboardEvent} */
+					(evt)
+				), 
+			"keyup"
+		);
+
+		this.hearIt(
+			this.look, 
+			this.lookIt, 
+			"input"
 		);
 
 		this.hearIt(
@@ -346,7 +455,26 @@ class Snippets {
 			"keydown"
 		);
 
-		this.hearIt(
+		[
+			this.header, 
+			this.tools, 
+			this.cmds, 
+			this.downs
+		]
+		.forEach(
+			cmdbar => 
+				this.hearIt(
+					cmdbar, 
+					evt => 
+						this.classIs(
+							evt.target, 
+							"cmd"
+						) 
+						&& this.cmdClick(evt.target)
+				)
+		);
+
+		/*this.hearIt(
 			this.cmds, 
 			evt => 
 				this.classIs(
@@ -354,7 +482,7 @@ class Snippets {
 					"cmd"
 				) 
 				&& this.cmdClick(evt.target)
-		);
+		);*/
 
 		// no need, handled by url hashes
 		// https://developer.mozilla.org/en-US/docs/Web/API/Window/popstate_event
@@ -369,6 +497,7 @@ class Snippets {
 		);*/
 
 		// https://developer.mozilla.org/en-US/docs/Web/API/Window/hashchange_event
+		// TODO HEARIT
 		window
 		.addEventListener(
 			"hashchange", 
@@ -404,8 +533,7 @@ class Snippets {
 		let hashed = location.hash
 		.slice(1);
 
-		if(DEBUG) 
-			console.log("hash", hashed);
+		// if(DEBUG) console.log("hash", hashed.length);
 
 		// local snippet hash
 		if(hashed.length <= 20) 
@@ -517,7 +645,7 @@ class Snippets {
 			)
 		) {
 
-			// if(DEBUG) console.log("load from storage");
+			if(DEBUG) console.log("from storage");
 
 			this.cur = h;
 
@@ -541,16 +669,22 @@ class Snippets {
 
 		try {
 
+			if(DEBUG) console.log("from url hash");
+
 			let decompressed = (
 				await this.decompress(codeHash)
 			)
 			.trim();
 
+			if(DEBUG) console.log("unzip " + codeHash.length + " > " + decompressed.length);
+
 			// old URI style
 			if(
-				decompressed.startsWith("md=") 
+				decompressed
+				.startsWith("md=") 
 				// very old
-				|| decompressed.startsWith("html=") 
+				|| decompressed
+				.startsWith("html=") 
 			) 
 				return Object
 				.fromEntries(
@@ -595,7 +729,7 @@ class Snippets {
 
 		let snippetTitle = dat["t"] || "untitled";
 
-		this.snippet.value = 
+		this.snippet.innerHTML = 
 		document.title = 
 		snippetTitle;
 
@@ -623,6 +757,7 @@ class Snippets {
 				// if(DEBUG) console.log("lang", lang);
 
 				this.snips[lang] = [];
+				this.metas[lang] = [];
 				this.codes[lang] = [];
 				this.edits[lang] = [];
 
@@ -660,12 +795,14 @@ class Snippets {
 		let runSnippet = this.snips[this.vanilla][0];
 
 		this.snip
-		.appendChild(
-			runSnippet.wrap
+		.insertBefore(
+			runSnippet.wrap, 
+			this.snip.firstChild
 		);
 
 		// iframe title
-		runSnippet.frame.title = this.snippet.value;
+		// runSnippet.frame.title = this.snippet.value;
+		runSnippet.frame.title = this.snippet.textContent;
 
 		// set pre run
 		runSnippet.pre = () => 
@@ -674,9 +811,7 @@ class Snippets {
 		// is local snippet
 		if(this.cur) {
 
-			// append cmd menu
-			this.content
-			.appendChild(this.cmds);
+			this.popCmd();
 
 			// reset save btn state
 			this.classOut(
@@ -738,12 +873,15 @@ class Snippets {
 
 		// if(DEBUG) console.log("clear");
 
-		if(this.cur) 
-			this.cmds
-			.remove();
+		if(this.cur) {
+
+			this.outCmds();
+
+		}
+			
 
 		this.cur = 
-		this.snippet.value = 
+		this.snippet.innerHTML = 
 		document.title = 
 		"";
 
@@ -760,21 +898,22 @@ class Snippets {
 					snip => {
 
 						Snippet
-						.remove(
-							snip.id
-						);
+						.remove(snip.id);
 
 					}
 				);
 
 				this.snips[lang] = [];
 
-				// TODO CLEAN CLEAR PRISM LIVE !!
+				// TODO CLEAN CLEAR CODEMIRROR
 				this.edits[lang]
 				.forEach(
-					edit => {
+					editor => {
 
-						edit = null;
+						editor
+						.destroy();
+
+						editor = null;
 
 					}
 				);
@@ -796,10 +935,6 @@ class Snippets {
 			}
 		);
 
-		// this.snips = {};
-		// this.edits = {};
-		// this.codes = {};
-
 		// this.clearHash();
 
 	}
@@ -813,26 +948,44 @@ class Snippets {
 	 */
 	bloc(lang, metas, content, par) {
 
-		// if(DEBUG) console.log("bloc", lang, metas);
+		if(DEBUG) console.log("bloc", lang, metas);
 
 			// code bloc wrap
 		let codeWrap = this.makeDiv(
 				// this.content, 
 				par, 
-				"code"
+				"bloc"
 			), 
 
-			// code wrapper
-			codePre = this.makeIt(
+			codeHead = this.makeDiv(
 				codeWrap, 
-				"pre", 
-				""
+				"chead"
 			), 
 
-			// code
-			codeBloc = this.makeIt(
-				codePre, 
-				"code", 
+			namewrap = this.makeDiv(codeHead), 
+
+			// code name btn
+			codename = this.makeIt(
+				namewrap, 
+				"div", 
+				metas["name"] || "no name", 
+				"cmd", 
+				"nnm"
+			), 
+
+			togwrap = this.makeDiv(codeHead), 
+
+			// code collapse btn
+			codetoggle = this.makeDiv(
+				togwrap, 
+				"cmd", 
+				"tog"
+			);
+
+		// code wrapper
+		let codeBloc = this.makeIt(
+				codeWrap, 
+				"div", 
 				"", 
 				"code", 
 				"language-" + lang
@@ -846,9 +999,6 @@ class Snippets {
 				.stringify(metas)
 			)
 		);
-
-		// insert code content
-		codeBloc.textContent = content;
 
 		// lang indicator
 		/*let lng = this.makeDiv(
@@ -866,13 +1016,11 @@ class Snippets {
 		this.codes[lang]
 		.push(codeWrap);
 
-		// PRISM
-		// let editor = this.prismed(codePre);
-
-		// MIRROR
-		let editor = this.mirrored(codePre);
-
-		// text area aria
+		// CodeMirror
+		let editor = this.mirrored(
+			codeBloc, 
+			content
+		);
 
 		this.edits[lang]
 		.push(editor);
@@ -880,10 +1028,39 @@ class Snippets {
 		// md snippet instance ?
 		let newSnippet = new Snippet(codeBloc);
 
+		newSnippet.cnt = () => 
+			editor.state.doc
+			.toString();
+
 		// init Snippet
 		this.snips[lang]
-		.push(
-			newSnippet
+		.push(newSnippet);
+
+		// console.log(newSnippet);
+
+		// init meta
+		this.metas[lang]
+		.push(metas);
+
+		// TODO SET ATTRS ON CODE HEAD
+		// AND CALLBACK GET PARRENT
+
+		// ref name btn
+		this.attrs(
+			codename, 
+			{
+				"lang": lang, 
+				"snip": newSnippet.id
+			}
+		);
+
+		// ref toggle btn
+		this.attrs(
+			codetoggle, 
+			{
+				"lang": lang, 
+				"snip": newSnippet.id
+			}
 		);
 
 			// code tools
@@ -892,12 +1069,15 @@ class Snippets {
 				"ctool"
 			), 
 
+			addwrap = this.makeDiv(
+				codeTools
+			), 
+
 			// add code btn
 			add = this.makeDiv(
-				codeTools, 
+				addwrap, 
 				"cmd", 
-				"add", 
-				lang
+				"add"
 			);
 
 		this.attrs(
@@ -907,24 +1087,28 @@ class Snippets {
 		);
 
 		// spacer
-		this.makeDiv(
-			codeTools, 
-			"spc"
-		);
+		// this.makeDiv(codeTools, "spc");
 
 		// rem btn
 		let rem = this.makeDiv(
 			codeTools, 
-			"cmd", 
 			"rem"
 		);
 
+		// ref remove btn
 		this.attrs(
 			rem, 
 			{
 				"lang": lang, 
 				"snip": newSnippet.id
 			}
+		);
+
+		// rem ask btn
+		this.makeDiv(
+			rem, 
+			"cmd", 
+			"rem-ask"
 		);
 
 		// rem confirm btn
@@ -940,57 +1124,78 @@ class Snippets {
 			"cmd", 
 			"rem-" + this.ohNo
 		);
-		
-		this.hearIt(
+
+		/*
+		// rem btn
+		let rem = this.makeDiv(
 			codeTools, 
-			evt => 
-				this.classIs(
-					evt.target, 
-					"cmd"
-				) 
-				&& this.cmdClick(evt.target)
+			"rem"
+		);
+
+		this.attrs(
+			rem, 
+			{
+				"lang": lang, 
+				"snip": newSnippet.id
+			}
+		);
+
+		// rem ask btn
+		this.makeDiv(
+			rem, 
+			"cmd", 
+			"rem-ask"
+		);
+
+		// rem confirm btn
+		this.makeDiv(
+			rem, 
+			"cmd", 
+			"rem-" + this.ohYes
+		);
+
+		// rem cancel btn
+		this.makeDiv(
+			rem, 
+			"cmd", 
+			"rem-" + this.ohNo
+		);*/
+
+		[
+			codeHead, 
+			codeTools
+		]
+		.forEach(
+			codeBar => 
+				this.hearIt(
+					codeBar, 
+					evt => 
+						this.classIs(
+							evt.target, 
+							"cmd"
+						) 
+						&& this.cmdClick(evt.target)
+				)
 		);
 
 		return newSnippet;
 
 	}
 
-	prismed(codePre) {
+	/**
+	 * @method mirrored : create code editor
+	 * @param {HTMLPreElement} codePre : code container
+	 * @param {string} codeContent : code
+	 * @return {CodeMirror.EditorView}
+	 */
+	mirrored(codePre, codeContent) {
 
-		codePre.classList
-		.add(
-			"prism-live", 
-			"line-numbers"
-		);
-
-		let prismed = new Prism
-		.Live(codePre);
-
-		return {
-			editor: prismed, 
-			content: () => 
-				prismed.textarea.value
-		};
-
-	}
-
-	mirrored(codePre) {
-
-		// console.log(codePre);
-
-		let codeTag = codePre.firstChild, 
-
-			codeLang = /language-(\w+)/g
-			.exec(codeTag.className)[1], 
-
-			codeContent = codeTag.innerText, 
+		let codeLang = /language-(\w+)/g
+			.exec(codePre.className)[1], 
 
 			codeHolder = codeLang;
-
-		codeTag
-		.remove();
-
-		let mirrored = Mirror
+			
+		return Mirror
 		.reflect(
 			codePre, 
 			codeLang, 
@@ -998,38 +1203,29 @@ class Snippets {
 			codeHolder
 		);
 
-		// TODO SYNC CODE TAG FOR SNIPPET EXEC
-
-		return {
-			editor: mirrored, 
-			content: () => {
-
-				return mirrored.state.doc
-				.toString();
-
-			}
-		};
-
 	}
 
 	unbloc(lang, indx) {
-
-		// DIRTY
 
 		if(DEBUG) console.log("unbloc", lang, indx);
 
 		Snippet
 		.remove(this.snips[lang][indx].id);
 
-		// clean destroy
+		this.edits[lang][indx]
+		.destroy();
+
 		this.edits[lang][indx] = null;
 
 		this.codes[lang][indx]
 		.remove();
 
+		this.codes[lang][indx] = null;
+
 		[
 			this.snips, 
 			this.edits, 
+			this.metas, 
 			this.codes
 		]
 		.forEach(
@@ -1041,9 +1237,8 @@ class Snippets {
 				)
 		);
 
+		// AUTOSAVE FLUSH STORE ?
 		this.unsaved();
-
-		// SAVE FLUSH STORE
 
 	}
 
@@ -1054,7 +1249,8 @@ class Snippets {
 
 		window
 		.scroll(
-			0, 0
+			0, 
+			0
 		);
 
 	}
@@ -1064,7 +1260,8 @@ class Snippets {
 	 */
 	preRun() {
 
-		this.topIt();
+		if(!this.classIs(this.snip, "stick")) 
+			this.topIt();
 
 		this.injectLibs();
 
@@ -1096,7 +1293,8 @@ class Snippets {
 		.reverse();
 
 		// inject links
-		this.snips[this.vanilla][0].links = links.flat()
+		this.snips[this.vanilla][0].links = links
+		.flat()
 
 	}
 
@@ -1105,7 +1303,7 @@ class Snippets {
 	 */
 	runIt() {
 
-		if(DEBUG) console.log("lift off");
+		// if(DEBUG) console.log("lift off");
 		
 		this.snips[this.vanilla][0]
 		._run();
@@ -1118,20 +1316,51 @@ class Snippets {
 	 */
 	cmdClick(btn) {
 
-		let cmd = this.cmd
+		let dmc = Object
+		.keys(this.cmd)
 		.find(
-			o => 
+			cmd => 
 				this.classIs(
 					btn, 
-					o
+					cmd
 				) 
 		);
 
-		if(DEBUG) console.log("cmd", cmd);
+		if(dmc) {
 
-		if(this.cbs.hasOwnProperty(cmd)) 
-			this.cbs[cmd]
+			if(DEBUG) console.log("cmd", dmc);
+
+			// if(this.cbs.hasOwnProperty(cmd)) 
+			this.cmd[dmc]
 			.bind(this)(btn);
+
+		}
+
+	}
+
+	nameIt() {
+
+		let curName = this.snippet.innerHTML;
+
+		this.askIt(
+			"", 
+			curName
+		)
+		.then(
+			newName => {
+
+				if(newName && newName !== curName) {
+
+					if(DEBUG) console.log("rename");
+
+					this.snippet.innerHTML = newName;
+
+					this.unsaved();
+
+				}
+
+			}
+		);
 
 	}
 
@@ -1142,10 +1371,11 @@ class Snippets {
 
 		this.classOut(
 			this.menu, 
-			"hide"
+			"none"
 		);
 
-		this.lists.scrollTop = 0;
+		// force menu scroll top on open
+		// this.lists.scrollTop = 0;
 
 	}
 
@@ -1156,7 +1386,207 @@ class Snippets {
 
 		this.classIt(
 			this.menu, 
-			"hide"
+			"none"
+		);
+
+	}
+
+	lookUp(evt) {
+
+		// if(DEBUG) console.log("lookup", evt.key);
+
+		if(evt.key === "Escape") {
+
+			this.look.value = "";
+
+			this.lookIt();
+
+		}
+
+	}
+
+	lookIt() {
+
+		let lookFor = this.look.value;
+
+		if(DEBUG) console.log("look", lookFor);
+
+		this.getAll(
+			".menuitem", 
+			this.list
+		)
+		.forEach(
+			entry => 
+				this.classAlt(
+					entry, 
+					"hide", 
+					lookFor 
+					&& !entry.textContent
+					.includes(lookFor)
+				)
+		);
+
+	}
+
+	popIt(what) {
+
+		let popWrap = this.makeDiv(
+				document.body, 
+				"popwrap"
+			), 
+
+			popModal = this.makeDiv(
+				popWrap, 
+				"popmod"
+			), 
+
+			popCont = this.makeDiv(
+				popModal, 
+				"popcnt"
+			);
+
+		if(what) 
+			this.makeIt(
+				popCont, 
+				"div", 
+				what, 
+				"popwhat"
+			);
+
+		let popBtns = this.makeDiv(
+				popModal, 
+				"popbtns"
+			);
+
+		return [
+			popWrap, 
+			popCont, 
+			popBtns
+		];
+
+	}
+
+	approveIt(what) {
+
+		let [popWrap, popCont, popBtns] = this.popIt(what);
+
+		return new Promise(
+			answerIt => {
+
+				const gotIt = (approved = false) => {
+
+					popWrap
+					.remove();
+					
+					answerIt(approved);
+
+				};
+
+				let decline = this.makeDiv(
+					popBtns, 
+						"popno"
+					), 
+
+					accept = this.makeDiv(
+						popBtns, 
+						"popgo"
+					);
+
+				this.hearIt(
+					decline, 
+					() => 
+						gotIt()
+				);
+
+				this.hearIt(
+					accept, 
+					() => 
+						gotIt(true)
+				);
+
+				this.hearIt(
+					popWrap, 
+					evt => {
+
+						// esc
+						if(evt.which === 27) 
+							gotIt();
+
+					}, 
+					"keyup"
+				);
+
+			}
+		);
+
+	}
+
+	askIt(hld = "", val = "") {
+
+		let [popWrap, popCont, popBtns] = this.popIt(hld);
+
+		return new Promise(
+			answerIt => {
+
+				const gotIt = (inputVal = "") => {
+
+					popWrap
+					.remove();
+					
+					answerIt(inputVal);
+
+				};
+
+				let askText = this.makeIt(
+						popCont, 
+						"input", 
+						"", 
+						"asktext"
+					), 
+
+					askNo = this.makeDiv(
+						popBtns, 
+						"popno"
+					), 
+
+					askOk = this.makeDiv(
+						popBtns, 
+						"popok"
+					);
+
+				askText.value = val;
+
+				this.hearIt(
+					askText, 
+					evt => {
+
+						// enter
+						if(evt.which === 13) 
+							gotIt(askText.value);
+						// esc
+						else if(evt.which === 27) 
+							gotIt();
+
+					}, 
+					"keyup"
+				);
+
+				this.hearIt(
+					askNo, 
+					() => 
+						gotIt()
+				);
+
+				this.hearIt(
+					askOk, 
+					() => 
+						gotIt(askText.value)
+				);
+
+				askText
+				.focus();
+
+			}
 		);
 
 	}
@@ -1184,17 +1614,21 @@ class Snippets {
 					"gm"
 				);
 
-				Array
-				.from(
-					this.edits[this.notes][0]
-					.content()
-					.matchAll(reg)
-				)
-				.forEach(
-					matched => 
-						libs[matched[1]]
-						.push(matched[2])
-				);
+				// check snippet has md
+				if(this.snips[this.notes].length) {
+
+					Array
+					.from(
+						this.snips[this.notes][0].contents
+						.matchAll(reg)
+					)
+					.forEach(
+						matched => 
+							libs[matched[1]]
+							.push(matched[2])
+					);
+
+				}
 
 				return libs;
 
@@ -1204,7 +1638,7 @@ class Snippets {
 			
 		);
 
-		if(DEBUG) console.log("inject\n", injections);
+		// if(DEBUG) console.log("inject\n", injections);
 
 		let steady = this.snips[this.vanilla][0];
 
@@ -1286,22 +1720,6 @@ class Snippets {
 			)
 		);
 
-		// String.fromCharCode max args length call stack error
-		/*return btoa(
-			String
-			.fromCharCode(
-				...new Uint8Array(
-					await new Response(
-						new Response(plainStr).body
-						.pipeThrough(
-							new CompressionStream("gzip")
-						)
-					)
-					.arrayBuffer()
-				)
-			)
-		);*/
-
 	}
 
 	/**
@@ -1310,7 +1728,7 @@ class Snippets {
 	 */
 	async decompress(b64Str) {
 
-		if(DEBUG) console.log("decompress", b64Str.length);
+		// if(DEBUG) console.log("decompress", b64Str.length);
 
 		return await new Response(
 			new Response(
@@ -1368,23 +1786,21 @@ class Snippets {
 
 		let vanillaIceCream = this.snips[this.vanilla][0], 
 			vanillaWrap = vanillaIceCream.wrap, 
-			vanillaEverything = JSON
-			.stringify({
+			vanillaData = {
 				// snippet codes
 				...this.langs
 				.reduce(
 					(dumping, l) => ({
 						...dumping, 
-						[l]: this.edits[l]
+						[l]: this.snips[l]
 						.map(
-							editor => 
-								editor
-								.content()
+							snip => 
+								snip.contents
 						)
 					}), 
 					{
 						// snippet title
-						"t": this.snippet.value, 
+						"t": this.snippet.innerHTML, 
 						// snippet settings
 						"r": {
 							...this.running, 
@@ -1399,11 +1815,16 @@ class Snippets {
 						...moreProps
 					}
 				)
-			});
+			}, 
 
-		if(DEBUG) console.log("compress", vanillaEverything.length);
+			vanillaJSON = JSON
+			.stringify(vanillaData);
 
-		let dumped = await this.compress(vanillaEverything);
+		if(DEBUG) console.log(vanillaData);
+
+		if(DEBUG) console.log("compress", vanillaJSON.length);
+
+		let dumped = await this.compress(vanillaJSON);
 
 		if(DEBUG) console.log("compressed", dumped.length);
 
@@ -1490,10 +1911,11 @@ class Snippets {
 	 */
 	refreshIt() {
 
-		document.title = this.snippet.value;
+		document.title = this.snippet.textContent;
 
 		// version int to xxx.x.x
-		this.vno.innerHTML = "v" + 
+		this.vno.innerHTML = "" + 
+		"v" + 
 		Math
 		.floor(this.ver / 100) + 
 		"." + 
@@ -1503,6 +1925,26 @@ class Snippets {
 		.slice(-2)
 		.split("")
 		.join(".");
+
+		// calc size
+		this.sized.innerHTML = this.formatBytes(
+			this.langs
+			.map(
+				lang => 
+					this.snips[lang]
+					.map(
+						snip => 
+							snip.contents.length
+					)
+			)
+			.flat()
+			.reduce(
+				(fullSize, moreBytes) => 
+					fullSize 
+					+ moreBytes, 
+				0
+			)
+		);
 
 	}
 
@@ -1529,7 +1971,7 @@ class Snippets {
 
 				"i": this.cur, 
 				"v": this.ver, 
-				"t": this.snippet.value
+				"t": this.snippet.innerHTML
 
 			};
 
@@ -1540,10 +1982,8 @@ class Snippets {
 			// add menu entry
 			this.menuEntry(newSnippet);
 
-			// disp version and delete btn
-			this.content
-			.appendChild(this.cmds);
-
+			this.popCmd();
+			
 			// set id hash
 			this.setHash(this.cur);
 
@@ -1561,11 +2001,13 @@ class Snippets {
 			// update menu title
 			if(storedSnippet) {
 
+				if(DEBUG) console.log("CHECK CHANGES IF NONE NO VER++");
+
 				// next version
 				this.ver++;
 
 				// update title
-				storedSnippet["t"] = this.snippet.value;
+				storedSnippet["t"] = this.snippet.innerHTML;
 
 				// update version
 				storedSnippet["v"] = this.ver;
@@ -1574,8 +2016,7 @@ class Snippets {
 				this.getIt(
 					"[href='#" + this.cur + "']", 
 					this.list
-				)
-				.innerHTML = storedSnippet["t"];
+				).innerHTML = storedSnippet["t"];
 
 			}
 
@@ -1601,11 +2042,39 @@ class Snippets {
 		this.deleteNo();
 
 		// safe and sound
-		this.yes(
-			this.save
-		);
+		this.yes(this.save);
 
 		// listen once any bloc change text and this.unsaved()
+
+	}
+
+	popCmd() {
+
+		// show top cmds / version & size
+		this.classIt(
+			this.cmds, 
+			"store"
+		);
+
+		// show bottom cmds / delete
+		this.classIt(
+			this.downs, 
+			"store"
+		);
+
+	}
+
+	outCmds() {
+
+		this.classOut(
+			this.cmds, 
+			"store"
+		);
+
+		this.classOut(
+			this.downs, 
+			"store"
+		);
 
 	}
 
@@ -1630,10 +2099,87 @@ class Snippets {
 		.setItem(
 			this._name, 
 			JSON
-			.stringify(
-				this.snippets
-			)
+			.stringify(this.snippets)
 		);
+
+	}
+
+	codeName(btn) {
+
+		let snippetId = this.attrg(
+			btn, 
+			"snip"
+		), 
+
+		snippetLang = this.attrg(
+			btn, 
+			"lang"
+		), 
+		
+		snippetIndex = this.snips[snippetLang]
+		.findIndex(
+			snip => 
+				snip.id 
+				== snippetId
+		), 
+
+		snippetBloc = this.codes[snippetLang][snippetIndex], 
+
+		isCollapsed = this.classIs(
+			snippetBloc, 
+			"clps"
+		);
+
+		if(isCollapsed) {
+
+			if(DEBUG) console.log("show", snippetLang, "#" + snippetId);
+
+			this.classOut(
+				snippetBloc, 
+				"clps"
+			);
+
+		}
+		else {
+
+			if(DEBUG) console.log("nnm", snippetLang, "#" + snippetId, snippetIndex);
+
+
+		}
+
+	}
+
+	toggleCode(btn) {
+
+		let snippetId = btn
+			.getAttribute("snip"), 
+
+			snippetLang = btn
+			.getAttribute("lang"), 
+			
+			snippetIndex = this.snips[snippetLang]
+			.findIndex(
+				snip => 
+					snip.id == snippetId
+			), 
+
+			snippetBloc = this.codes[snippetLang][snippetIndex];
+
+			this.classAlt(
+				snippetBloc, 
+				"clps"
+			);
+
+			// reset ask remove bloc
+			this.classOut(
+				this.getIt(
+					".rem", 
+					snippetBloc
+				), 
+				"ask"
+			);
+
+		if(DEBUG) console.log("tog", snippetLang, "#" + snippetId, snippetIndex);
 
 	}
 
@@ -1643,14 +2189,17 @@ class Snippets {
 	 */
 	addCode(btn) {
 
-		let lang = this.langs
+		let lang = btn
+		.getAttribute("lang");
+
+		/*let lang = this.langs
 		.find(
 			lang => 
 				this.classIs(
 					btn, 
 					lang
 				)
-		);
+		);*/
 
 		// console.log("add code", lang);
 
@@ -1658,7 +2207,7 @@ class Snippets {
 			lang, 
 			(
 				{
-					"name": lang + "-" + this.codes[lang].length, 
+					"name": lang + "-" + this.edits[lang].length, 
 					"type": ""
 				}
 			), 
@@ -1678,7 +2227,7 @@ class Snippets {
 	askRemove(btn) {
 
 		this.classIt(
-			btn, 
+			btn.parentElement, 
 			"ask"
 		);
 
@@ -1704,7 +2253,7 @@ class Snippets {
 					snip.id == snippetId
 			);
 
-		if(DEBUG) console.log("rem", snippetLang, snippetId, snippetIndex);
+		if(DEBUG) console.log("rem", snippetLang, "#" + snippetId, snippetIndex);
 
 		this.unbloc(
 			snippetLang, 
@@ -1739,7 +2288,7 @@ class Snippets {
 		if(DEBUG) console.log("ask del");
 
 		this.classIt(
-			btn, 
+			btn.parentElement, 
 			"ask"
 		);
 
@@ -1752,37 +2301,58 @@ class Snippets {
 
 		// if(DEBUG) console.log("confirm del");
 
-		// delete from store list
-		this.snippets
-		.splice(
-			this.snippets
-			.findIndex(
-				s => 
-					s["i"] === this.cur
-			), 
-			1
+		this.approveIt(
+			"delete " 
+			+ "\"" + this.snippet.textContent + "\"" 
+			+ " ?"
+		)
+		.then(
+			approved => {
+
+				this.deleteNo();
+
+				// console.log(approved);
+
+				if(approved) {
+
+					// delete from store list
+					this.snippets
+					.splice(
+						this.snippets
+						.findIndex(
+							snippet => 
+								snippet["i"] 
+								=== this.cur
+						), 
+						1
+					);
+
+					this.flushStore();
+
+					// delete menu entry
+					this.getIt(
+						"[href='#" + this.cur + "']", 
+						this.list
+					).parentNode
+					.remove();
+							
+					// delete from storage
+					window.localStorage
+					.removeItem(
+						"snippet-" 
+						+ this.cur
+					);
+
+					// reset delete btn state
+					// this.deleteNo();
+
+					// create new snippet
+					this.createIt();
+
+				}
+
+			}
 		);
-
-		this.flushStore();
-
-		// delete menu entry
-		this.getIt(
-			"[href='#" + this.cur + "']", 
-			this.list
-		).parentNode
-		.remove();
-				
-		// delete from storage
-		window.localStorage
-		.removeItem(
-			"snippet-" + this.cur
-		);
-
-		// reset delete btn state
-		this.deleteNo();
-
-		// create new snippet
-		this.createIt();
 
 	}
 
@@ -1797,6 +2367,33 @@ class Snippets {
 			this.del, 
 			"ask"
 		);
+
+	}
+
+	pinUp() {
+
+		if(this.classIs(this.snip, "stick")) {
+
+			this.classOut(
+				this.snip, 
+				"stick"
+			);
+
+		}
+		else {
+
+			this.classIt(
+				this.snip, 
+				"stick"
+			);
+
+		}
+
+	}
+
+	verNo() {
+
+		// version number click
 
 	}
 
@@ -1817,7 +2414,7 @@ class Snippets {
 			navigator
 			.share({
 
-				title: this.snippet.value, 
+				title: this.snippet.textContent, 
 				url: shareURL
 
 			});
@@ -1826,9 +2423,7 @@ class Snippets {
 		else if(navigator.clipboard) 
 			// https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
 			navigator.clipboard
-			.writeText(
-				shareURL
-			)
+			.writeText(shareURL)
 			.then(
 				() => 
 					this.yes(this.copy)
@@ -2016,9 +2611,7 @@ class Snippets {
 		forceDl
 		.remove();
 
-		this.yes(
-			this.down
-		);
+		this.yes(this.down);
 
 	}
 
@@ -2164,7 +2757,7 @@ class Snippets {
 
 	}
 
-	// no method classIt(el, this.ohNo) ?
+	// and no ? classIt(el, this.ohNo)
 
 	// UTILS
 
@@ -2219,6 +2812,17 @@ class Snippets {
 	}
 
 	/**
+	 * 
+	 * @param {*} el 
+	 * @param {*} cnt 
+	 */
+	fillIt(el, cnt) {
+
+		el.innerHTML = cnt;
+
+	}
+
+	/**
 	 * @method getIt : querySelector macro
 	 * @param {string} sel : query
 	 * @param {Element} par : parent
@@ -2265,19 +2869,31 @@ class Snippets {
 		Object
 		.keys(nameObj)
 		.forEach(
-			attrName => 
+			attr => 
 				el
 				.setAttribute(
-					attrName, 
-					nameObj[attrName]
+					attr, 
+					nameObj[attr]
 				)
 		);
 
 	}
 
 	/**
-	 * @method hearIt : addEVentListener macro
-	 * @param {Node|HTMLElement} el : 
+	 * @method attrg : getAttribute macro
+	 * @param {Element} el : target element
+	 * @param {string} attr : attribute name
+	 */
+	attrg(el, attr) {
+
+		return el
+		.getAttribute(attr);
+
+	}
+
+	/**
+	 * @method hearIt : addEventListener macro
+	 * @param {Node|Element|Window} el : 
 	 * @param {Function} cb : 
 	 * @param {!string=} evtName : 
 	 */
@@ -2307,8 +2923,8 @@ class Snippets {
 
 	/**
 	 * @method classIt : add class macro
-	 * @param {Element} el : 
-	 * @param {...string} cl : 
+	 * @param {Element} el : element
+	 * @param {...string} cl : classes
 	 */
 	classIt(el, ...cl) {
 
@@ -2319,13 +2935,29 @@ class Snippets {
 
 	/**
 	 * @method classOut : remove class macro
-	 * @param {Element} el : 
-	 * @param {...string} cl : 
+	 * @param {Element} el : element
+	 * @param {...string} cl : classes
 	 */
 	classOut(el, ...cl) {
 
 		el.classList
 		.remove(...cl);
+
+	}
+
+	/**
+	 * @method classAlt : toggle class macro
+	 * @param {Element} el : element
+	 * @param {string} cl : class
+	 * @param {boolean=} fc : force
+	 */
+	classAlt(el, cl, fc) {
+
+		el.classList
+		.toggle(
+			cl, 
+			fc
+		);
 
 	}
 
@@ -2343,6 +2975,18 @@ class Snippets {
 			tune
 		);
 
+	}
+
+	formatBytes(a, b = 2) {
+
+		if(!+a) 
+			return "0B";
+
+		let c = 0 > b ? 0 : b, 
+			d = Math.floor(Math.log(a) / Math.log(1024));
+		
+		return `${parseFloat((a / Math.pow(1024, d)).toFixed(c))}${["B","KB","MB","GB","TB","PB","EB","ZB","YB"][d]}`
+	
 	}
 	
 }

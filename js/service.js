@@ -13,19 +13,10 @@ class SnippetsService {
 			"/",
 			"index.html", 
 		
-			"js/lib/bliss.shy.min.js", 
-			"js/lib/prism-live-css.js", 
-			"js/lib/prism-live-javascript.js", 
-			"js/lib/prism-live-markup.js", 
-			"js/lib/prism-live.js", 
-			"js/lib/prism.min.js", 
+			"js/lib/editor.bundle.js",
 		
 			"js/snippets.package.release.min.js", 
-		
-			"css/lib/prism-live.css", 
-			"css/lib/prism.dark.min.css", 
-			"css/lib/prism.min.css", 
-		
+	
 			"css/snippets.package.min.css", 
 		
 			"apple-touch-icon-precomposed.png", 

@@ -1,38 +1,54 @@
 
 # snippets
 
-- run and share HTML CSS JS
-- no account, no cookies, no database
+- html css js snippets
+- run, edit, share
+- mobile friendly
+- offline webapp
+- ~~loading~~
+- ~~account~~
+- ~~cookies~~
+- ~~database~~
 
-[try it](https://nicopowa.github.io/snippets/)
+[demo](https://nicopowa.github.io/snippets/)
 
-### about
+## data
 
-- code is stored into localStorage or URL #hash, never sent to server
-- don't forget to export a backup before clearing browser cache
-- or use a URL shortener service and bookmark snippets share links
-- first JS code block is main, runs last
+- no server involved
+- local storage
+	- be careful when clearing browser data
+	- open menu and dump to export backup
+- url hash
+	- click share and keep url
+	- use url shortener service
 
-### examples
+
+## exec
+
+- first js block = main = runs last
+- load external js and css from md block
+
+	```
+	@js https://url.to/script.js
+	@css https://url.to/style.css
+	```
+
+## shortcuts
+
+- ctrl+r = run
+- ctrl+s = save
+
+
+## demo
 
 - [helloworld](https://nicopowa.github.io/snippets/#H4sIAAAAAAAAClWPQQrCMBBFryJ/pTC4cDkepe2itmPTOkkkSZFSendJqoK7x3/M/JkVCQwjqv7w8kF7EAJ4hWutgDFFENLyzBxmB4KRcTAJfCHcfL+A761GIXTeRa8CTmEWwuiihPSzUwRXDaGLH9DRPcAVTLKKPW82gu3ByC05LlQmMuQV35az+uFY73fXOF1r9y/KK1lgewPwkYV24gAAAA==)
 - [sudoku](https://nicopowa.github.io/snippets/#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)
 - [three](https://nicopowa.github.io/snippets/#H4sIAAAAAAAACq1XbW/aSBD+KyN/wag+25BW6jlFOh2NkkqJLkqulw+BD4s94KXrXWt3TUgj/vtpX2zsJD1FvYIEZl53Zp6ZHZ4CHWSBLiViEAUyyJ4CTioMsmCrgijQj7V5lg0PoqBEuil1kE1/j4KVKB6DTMsGoyAXXAmGQbYmTGEUUK5Q6u7nVgXZ/TIKcuUfGOXfguw+KHXFAkdfHqKgKgwxWEaO4Z+dlvUHTwu+0GKHcs3EQwYlLQrkpwt+WPAFzwnfEeVkCqpqRh4zWDGRfzMSxpQ9SMBQw98XN2dnMAPyQKgGWtVC6nBUal2rLEnygm9VnDPRFGtGJMa5qBKyJfuE0ZVKbLLirUrkZJr6X5UoGmaIo/HpghsXT+dfvxz+y0W8VQUyupMxR53wunKm/til8WSaxmmCe1LVDFWyVZXzXBAdbxr6mre/5IrqueBaCqZ+od/cm0wGDlrXC74jEnJSoSQRqBw5RiCRFyhRdvyaSFIpmLna5IzWX7hGqTDXVPAMLIoMq2aE41xwpQnXGaSWqErxcIGsRqkysJBa8MPRN6P1tVEz9u+NPMcHV9/Y0kM4Ev7BXAt5EsIkgjSCFMbu461qaQS/Wd2fUHS6XnHBlzYCyqkOTSJdzkKX03XDbWbAsW3a+EK3eYVZz8Udrs4vbzwnhCcgXFPCKFEur3AAa7TTjhXqa7pHdkM0FSE8UF6Ih7jAHc3xyHhF65Z+x06eco7yjha6jAakCzsjnmszkRM2Z7SuKd+ccbJiWMDMHtAKFiJvKuQ6Nm0ek7pGXsxLyoqwQ1NciOqMoZFy1g00DOAG6bg1lLDlO2AOBK5RqtoAb4dzyw3hfRq9jAqSV8KKTPGnaQpDB3EtFDUFM1kKTZnjDxFMzcdJfBS2cPUN5M80aKqwa6Qfxqxb/ZgUxdkOub6kSiM3pR/lJeEbHLXqMD6FJIFGIQjOHoGuQZcoEagCLoBwWhGLMiZEPbBdUf6Zmh7MTXInQ8cV2feZ6ZCLtrbXhMPM9WovdmaR0S/GBVZU1eZQl4YXQrpf21cE6T79aN6RSaYP3hp4JdnTD7Yw5sFLWmCYHIXea1uDJAFzlNLOE38WhwM3Yrx8rEpiau8B5IwmCfTsehP94m6kaOpBgOeG4uCo10JCaL1Tm1Wg8GkGJ6l5eDeDKbhG194Wigq1fByi2+bqz2a9RnnuBUKgkMBJGsH7jxFM3/vDOisV0SgpYQMrV6jKS1KtUOorzw/bGWPeuWBCZj2FuSGEY5Pwi9vLEK6ILmNJeCGq0MwzA/TUVClqTShaYOa1P4tmxfCWFtixcz8J3ODOekN8IDK8JdwtEj9nOIVDF7YtgivRMOSwy2l0zMvY6x16A8Upu2L2cOMKro7l9oQfFtzzn5/FBtqi7Rj5PaSwjGAa2SZIUzNl4OcMTTpDaWpM/bShac+QMfXC0I4qumLYb3b9okdUP4ubhvYapqE+e+dfv3RT22w4Vt1VPILR85qPYBybLTV0LKDPeILP7SwMobtKTeexBodNlpsrRqIZVg42LcFjadiytlM/dUoxQ77RpW3fd0e7C90K3AOFZdxC7QVwYeaO5H0d3Fd/EWhR/WpOBrvSyC8mExjHSmMdQhqnk2OWrLC5fJz0G1N0DH/rwt+a8Dt8dAnYPk9AD0JbWMat3/8ZcW8R7AHAUFugvTWwl/Dtn2t4oPY8fht45d6VqOh3c+8KfmeFbiwhcj3hAzoMFruhpF/x2m2C2AUFZm9cSk57qk1dEI3XUmwdxq6IlnQf/rpdzpoaxtIyXAydE09u/xT0btJDsDz8CzNGsCJ3DgAA)
 - [rainbow](https://nicopowa.github.io/snippets/#H4sIAAAAAAAACnVSwW7bMAz9FYE7xEFd29mwi9MU7YYGw9Dt0G47rMpBsZhEqUR5kpzWKPrvg2zH2TDsJr73+PhI6AUClOCEorV9ghQclC9AwiCUsPeQQmjr+HYNQQo7VNtdgPLt+xTWVrZQBtdgCpUlbzVCuRHaYwqKPLowlnsP5cMqhcoPD63oEcoH2AWjocdXrykY2YOh9mWeb1XYNeussiYXZI3Q+V0f84fy55/vOR2FlZVYI2XK5vjroHxeI+U3z/JWfvjJ6Wrv2aiUlO29RK0OLiMMOdUmH5Y/KJ/t/dUsm2WzPzGjYg+s0j5t+QAwrtIdgb1w4mFjKZxvhFG6LZmxZH0tKkxPzzmnV06cpDr0HbWQUtG2ZO/q50hG2+5SoDGwIQFbMMInNmyeTOecIusD1p4t2Kwo5tF0UHPKPIavjVmjuxO0xSQOKtJez2n6r/i+xiq4xnRKDstlURQFh5TxkOfMoTzikRnxFrWODpEqir+orUOkE7NcjkzVipGI1EisdYOn8ZHocSO2SEEcc8fFa6ExBBzOcu2caJNuuWk0yDZK64QDh740ou73CgmaOrQpUyTxecoWl6zH49A3cd5QnbHxOj2QVVbbxl2HpG8d8WC/1zW6j8Jj0qFdyMBpiMgp21h3I6pdFyHauNNcaavGIIUs/qBMEaH79O3LLTtbDILJRfwoPrQaFxzWonrcOtuQPO+MyskgO2O98bGazDlc/pe8yKU6XE7iQWH1+hvAXcRp/AMAAA==)
 
-### use
 
-- "new" : create a snippet
-- "save" || CTRL+S : save snippet
-- "run" || CTRL+R : run snippet
-- "share" : share snippet
-- "dump" : export snippets
-- "load" : import snippets
-- "@js https://url.to/file.js" : load JS file
-- "@css https://url.to/file.css" : load CSS file
+## dependencies
 
-### credits
-
-- [Prism](https://github.com/PrismJS/prism) / [Live](https://github.com/PrismJS/live)
-- [Closure Compiler](https://github.com/google/closure-compiler)
-- [Sass](https://github.com/sass/sass)
+- [codemirror](https://codemirror.net/)
+- [closure compiler](https://github.com/google/closure-compiler)
+- [sass](https://github.com/sass/sass)

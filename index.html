@@ -16,6 +16,7 @@
 		<meta name="description" content="snippets">
 		<meta name="theme-color" content="#000000"/>
 
+		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-title" content="snippets">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -24,18 +25,9 @@
 		<link rel="shortcut icon" type="image/png" href="icon.png"/>
 		<link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
 
-		<link rel="stylesheet" href="css/lib/prism.min.css" media="(prefers-color-scheme: light)">
-		<link rel="stylesheet" href="css/lib/prism.dark.min.css" media="(prefers-color-scheme: dark)">
-		<link rel="stylesheet" href="css/lib/prism-live.css">
-
 		<link rel="stylesheet" href="css/snippets.package.min.css">
 		
-		<script src="js/lib/prism.min.js"></script>
-		<script src="js/lib/bliss.shy.min.js"></script>
-		<script src="js/lib/prism-live.js"></script>
-		<script src="js/lib/prism-live-markup.js"></script>
-		<script src="js/lib/prism-live-css.js"></script>
-		<script src="js/lib/prism-live-javascript.js"></script>
+		<script src="js/lib/editor.bundle.js"></script>
 
 		<script src="js/snippets.package.release.min.js"></script>
 		
@@ -47,9 +39,11 @@
 
 		<main class="content"></main>
 
-		<nav class="menu hide">
+		<nav class="menu none">
+			<div class="menumask"></div>
 			<div class="menuwrap">
 				<div class="menutools"></div>
+				<input class="menulook" type="search"/>
 				<div class="menulists">
 					<ul class="menulist" role="menu"></ul>
 				</div>
