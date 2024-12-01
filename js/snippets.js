@@ -311,7 +311,8 @@ class Snippets {
 
 				let langWrap = this.makeDiv(
 					this.content, 
-					"lwrap"
+					"lwrap", 
+					"wrap-" + lang
 				);
 
 				// lang top tools ?

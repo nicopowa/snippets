@@ -431,9 +431,9 @@ body {
 
 }
 
-.bloc:first-child .rem {
+.wrap-js .bloc:first-child .rem {
 
-	/* display: none; */
+	display: none;
 
 }
 
